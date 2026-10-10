@@ -43,9 +43,9 @@
     <button class="${J.lang() === "fr" ? "on" : ""}" data-act="set-lang" data-l="fr">FR</button><button class="${J.lang() === "en" ? "on" : ""}" data-act="set-lang" data-l="en">EN</button><button class="${J.lang() === "ja" ? "on" : ""}" data-act="set-lang" data-l="ja">日本語</button></div>`;
 
   function nav() {
-    const tabs = [["home", "今日", L("Aujourd’hui", "Today")],
-      ...J.MOD_ORDER.map((m) => ["mod-" + m, MODS[m].jp, J.modName(m)]),
-      ["progress", "進捗", L("Progression", "Progress")], ["settings", "設定", L("Réglages", "Settings")]];
+    const tabs = [["home", "今日", L("Aujourd’hui", "Today", "")],
+      ...J.MOD_ORDER.map((m) => ["mod-" + m, MODS[m].jp, J.modName(m) === MODS[m].jp ? "" : J.modName(m)]),
+      ["progress", "進捗", L("Progression", "Progress", "")], ["settings", "設定", L("Réglages", "Settings", "")]];
     const cur = view.name === "mod" ? "mod-" + view.p.m : view.name === "item" ? "mod-" + view.p.m : view.name;
     const u = J.user(), bad = J.store.status === "error" || J.store.status === "offline" || J.store.expired;
     const st = u
@@ -91,7 +91,7 @@
     const isCustom = !sessions.includes(s.examDate);
     // Le 基本情報技術者試験 est en CBT : on choisit librement sa date de passage.
     const choix = `<div class="field"><label>${L("Ce que je veux étudier", "What I want to study", "学習する分野")}</label>
-        <div class="seg wrap">${J.MODS_ALL.map((m) => `<button class="${J.MOD_ORDER.includes(m) ? "on" : ""}" data-act="toggle-mod" data-m="${m}"><span class="jp">${MODS[m].jp}</span> ${J.modName(m)}</button>`).join("")}</div>
+        <div class="seg wrap">${J.MODS_ALL.map((m) => `<button class="${J.MOD_ORDER.includes(m) ? "on" : ""}" data-act="toggle-mod" data-m="${m}"><span class="jp">${MODS[m].jp}</span>${J.modName(m) === MODS[m].jp ? "" : " " + J.modName(m)}</button>`).join("")}</div>
         <p class="muted small">${L("Les modules décochés ne sont plus proposés dans les leçons quotidiennes.",
           "Unticked modules no longer appear in the daily lessons.",
           "外した分野は、毎日のレッスンに出なくなります。")}</p></div>`;

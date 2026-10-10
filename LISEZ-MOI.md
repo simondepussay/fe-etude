@@ -2,6 +2,8 @@
 
 Site d’étude quotidienne pour le **基本情報技術者試験** (Fundamental Information Technology Engineer Examination, IPA).
 
+**En ligne : https://ashy-pebble-01d1fc600.5.azurestaticapps.net**
+
 Trois profils au choix : **français**, **anglais** ou **日本語**. Le japonais est toujours affiché ; le reste de l’interface, les sens et les explications suivent le profil choisi.
 
 ## Modules
@@ -9,8 +11,10 @@ Trois profils au choix : **français**, **anglais** ou **日本語**. Le japonai
 | Module | Contenu | État |
 |---|---|---|
 | 用語 | Terme japonais → sens en français / en anglais, ou **définition en japonais** pour le profil ja | 58 termes |
-| 科目A | Notion + QCM de style examen, avec explication | à venir |
-| 科目B | 擬似言語 : suivre un algorithme pas à pas | à venir |
+| 科目A | Notion + formule + exemples résolus + pièges + QCM | 120 notions, 240 QCM, les 23 中分類 |
+| 科目B | Programme en 擬似言語 + question + déroulé pas à pas | 10 problèmes, 20 QCM |
+
+Les modules s’activent et se désactivent dans *Réglages* et au premier lancement : on peut réviser le 科目A seul, le 科目B seul, ou tout.
 
 ## Comment ça marche
 
@@ -33,7 +37,7 @@ FE-Etude/
 ├── web/                     ← site statique (Azure Static Web Apps)
 │   ├── index.html
 │   ├── app/   core.js (planning, répétition espacée, synchro) · exercices.js · ui.js · compte.js · config.js · style.css
-│   └── data/  fe-yougo.js (termes + sens anglais) · fe-yougo-fr.js · fe-yougo-ja.js
+│   └── data/  fe-yougo*.js (用語) · fe-kamokua*.js (科目A) · fe-kamokub*.js (科目B)
 ├── api/                     ← Azure Functions (Node 20)
 │   └── src/  functions/api.js · lib/auth.js · lib/store.js
 └── .github/workflows/deploy.yml
