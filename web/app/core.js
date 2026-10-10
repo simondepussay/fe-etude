@@ -79,7 +79,7 @@
       tests: { v: 5, g: 4 },
       revCap: 200,
       rate: 0.9,
-      finalWeeks: 2
+      finalDays: 14
     },
     items: {},
     days: {},
@@ -408,7 +408,7 @@
 
   J.plan = function () {
     const S = J.S, s = S.settings, t = J.today();
-    const target = J.addDays(s.examDate, -7 * s.finalWeeks);
+    const target = J.addDays(s.examDate, -s.finalDays);
     const daysLeft = Math.max(0, J.diffDays(t, target));
     const studyDays = daysLeft > 0 ? Math.max(1, Math.floor((daysLeft * s.daysPerWeek) / 7)) : 0;
     const out = { target, daysLeft, studyDays, examIn: J.diffDays(t, s.examDate), mods: {}, finalPhase: daysLeft <= 0 };

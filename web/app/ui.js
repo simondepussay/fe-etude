@@ -99,8 +99,14 @@
     return champDate + `
       <div class="field"><label>${L("Jours d’étude prévus par semaine", "Planned study days per week")}</label>
         <div class="seg">${[1, 2, 3, 4, 5, 6, 7].map((n) => `<button class="${s.daysPerWeek === n ? "on" : ""}" data-act="set-dpw" data-n="${n}">${n}</button>`).join("")}</div></div>
-      <div class="field"><label>${L("Temps maximum par jour d’étude", "Maximum time per study day")}</label>
-        <div class="seg wrap">${[15, 20, 30, 45, 60, 90, 120, 0].map((n) => `<button class="${s.maxMinutes === n ? "on" : ""}" data-act="set-max" data-n="${n}">${n ? fmtMin(n) : L("Sans limite", "No limit")}</button>`).join("")}</div></div>`;
+      <div class="field"><label>${L("Temps maximum par jour d’étude", "Maximum time per study day", "1日の学習時間の上限")}</label>
+        <div class="seg wrap">${[15, 20, 30, 45, 60, 90, 120, 0].map((n) => `<button class="${s.maxMinutes === n ? "on" : ""}" data-act="set-max" data-n="${n}">${n ? fmtMin(n) : L("Sans limite", "No limit", "上限なし")}</button>`).join("")}</div></div>
+      <div class="field"><label>${L("Jours de révision finale avant l’examen", "Days of final review before the exam", "試験前の総復習の日数")} :
+          <b id="fdv">${s.finalDays}</b> ${L("jour(s)", "day(s)", "日")}</label>
+        <input class="curseur" type="range" min="0" max="60" step="1" data-set="finalDays" value="${s.finalDays}">
+        <p class="muted small">${L("Pendant cette période, plus aucun nouvel élément : uniquement révisions et tests.",
+          "During that period, no new items at all: only reviews and tests.",
+          "この期間は新しい項目を出さず、復習とテストだけにします。")}</p></div>`;
   }
 
   function planTable(plan, onlyNew) {
@@ -111,11 +117,11 @@
       </tbody></table>`;
   }
   function planNote(plan) {
-    const fw = J.S.settings.finalWeeks;
-    if (plan.finalPhase) return L(`Il reste moins de ${fw} semaine(s) avant l’examen : plus de nouveaux éléments, uniquement révisions et tests.`,
-      `Less than ${fw} week(s) left before the exam: no more new items, only reviews and tests.`);
-    let t = L(`${plan.studyDays} jours d’étude d’ici le ${J.fmtDate(plan.target)} (tu gardes ${fw} semaines de révision finale avant l’examen). Durée estimée d’une leçon : <b>${fmtMin(plan.minutes)}</b>.`,
-      `${plan.studyDays} study days until ${J.fmtDate(plan.target)} (you keep ${fw} weeks of final review before the exam). Estimated lesson length: <b>${fmtMin(plan.minutes)}</b>.`);
+    const fw = J.S.settings.finalDays;
+    if (plan.finalPhase) return L(`Il reste moins de ${fw} jour(s) avant l’examen : plus de nouveaux éléments, uniquement révisions et tests.`,
+      `Less than ${fw} day(s) left before the exam: no more new items, only reviews and tests.`);
+    let t = L(`${plan.studyDays} jours d’étude d’ici le ${J.fmtDate(plan.target)} (tu gardes ${fw} jours de révision finale avant l’examen). Durée estimée d’une leçon : <b>${fmtMin(plan.minutes)}</b>.`,
+      `${plan.studyDays} study days until ${J.fmtDate(plan.target)} (you keep ${fw} days of final review before the exam). Estimated lesson length: <b>${fmtMin(plan.minutes)}</b>.`);
     if (plan.capped) t += ` <br><span class="bad">${L(`Pour tout voir à temps, il faudrait environ ${fmtMin(plan.fullMinutes)} par jour d’étude : avec ton maximum, tu seras en retard. Augmente le temps ou les jours, ou choisis une session plus tardive.`,
       `To cover everything in time you would need about ${fmtMin(plan.fullMinutes)} per study day: with your maximum, you will fall behind. Increase the time or the days, or pick a later session.`)}</span>`;
     return t;
@@ -331,8 +337,8 @@
           return `<tr><th><span class="jp">${MODS[m].jp}</span> ${J.modName(m)}</th><td>${p.learned}/${p.total}</td><td>${p.levels[3]}</td><td>${acc === null ? "—" : Math.round(acc * 100) + " %"}</td>
           <td>${J.num(pr.perStudyDay)}/${L("jour", "day")}</td><td class="${pr.onTime ? "good" : "bad"}">${pr.finish ? J.fmtShort(pr.finish) : "—"}</td><td>${J.fmtShort(plan.target)}</td></tr>`; }).join("")}
         </tbody></table>
-        <p class="muted small">${L(`L’objectif est de tout avoir vu ${J.S.settings.finalWeeks} semaines avant l’examen (${J.fmtDate(J.S.settings.examDate)}), pour garder du temps pour la révision finale. La projection utilise ton rythme réel dès que tu as assez de jours de données.`,
-          `The target is to have seen everything ${J.S.settings.finalWeeks} weeks before the exam (${J.fmtDate(J.S.settings.examDate)}), to keep time for final review. The projection uses your actual pace once there are enough days of data.`)}</p>
+        <p class="muted small">${L(`L’objectif est de tout avoir vu ${J.S.settings.finalDays} jours avant l’examen (${J.fmtDate(J.S.settings.examDate)}), pour garder du temps pour la révision finale. La projection utilise ton rythme réel dès que tu as assez de jours de données.`,
+          `The target is to have seen everything ${J.S.settings.finalDays} days before the exam (${J.fmtDate(J.S.settings.examDate)}), to keep time for final review. The projection uses your actual pace once there are enough days of data.`)}</p>
         <p class="small">${planNote(plan)}</p></div>
       <div class="card"><h3>${L("Temps d’étude, 14 derniers jours", "Study time, last 14 days")}</h3><div class="bars">${days.map((d) => { const s = J.S.days[d] ? J.S.days[d].sec : 0;
           return `<div class="b" title="${J.fmtShort(d)} : ${Math.round(s / 60)} min"><span style="height:${(s / maxSec) * 100}%"></span><i>${J.parse(d).getDate()}</i></div>`; }).join("")}</div>
@@ -369,8 +375,6 @@
       <section class="card">
         <div class="field"><label>${L("Langue de l’interface et des traductions", "Language of the interface and translations", "表示言語")}</label>${langSwitch()}</div>
         ${settingsCore(s, [])}
-        <div class="field"><label>${L("Semaines de révision finale avant l’examen (sans nouveaux éléments)", "Weeks of final review before the exam (no new items)")}</label>
-          <div class="seg">${[0, 1, 2, 3, 4].map((n) => `<button class="${s.finalWeeks === n ? "on" : ""}" data-act="set-final" data-n="${n}">${n}</button>`).join("")}</div></div>
         <div class="field"><label>${L("Questions de test par leçon", "Test questions per lesson")}</label><div class="row">${MOD_ORDER.map((m) => `<label class="num">${J.modName(m)} <input type="number" min="0" max="30" data-set="test-${m}" value="${s.tests[m]}"></label>`).join("")}</div></div>
         <div class="field"><label>${L("Vitesse de la voix japonaise", "Japanese voice speed")}</label><input type="range" min="0.6" max="1.2" step="0.05" data-set="rate" value="${s.rate}"></div>
         <div class="preview"><h3>${L("Effet sur ton planning", "Effect on your plan")}</h3>${planTable(J.plan(), true)}<p class="muted">${planNote(J.plan())}</p></div>
@@ -622,7 +626,6 @@
     "set-exam": (d) => { J.S.settings.examDate = d.d; J.save(); render(); },
     "set-dpw": (d) => { J.S.settings.daysPerWeek = +d.n; J.S.paceAck = null; J.save(); render(); },
     "set-max": (d) => { J.S.settings.maxMinutes = +d.n; J.save(); render(); },
-    "set-final": (d) => { J.S.settings.finalWeeks = +d.n; J.save(); render(); },
     "finish-onboard": () => { J.S.onboarded = true; J.save(true); J.go("home"); },
     "pace-adapt": (d) => { J.S.settings.daysPerWeek = +d.n; J.S.paceAck = J.today(); J.save(); render(); },
     "pace-keep": () => { J.S.paceAck = J.today(); J.save(); render(); },
@@ -725,6 +728,7 @@
     const s = J.S.settings;
     if (k === "examDate" && t.value) s.examDate = t.value;
     else if (k === "rate") s.rate = +t.value;
+    else if (k === "finalDays") s.finalDays = Math.max(0, Math.min(60, +t.value || 0));
     else if (k.startsWith("test-")) s.tests[k.slice(5)] = Math.max(0, Math.min(30, +t.value || 0));
     J.save(); render();
   });
@@ -732,6 +736,7 @@
   app.addEventListener("input", (e) => {
     const t = e.target;
     if (t.id === "notes") { J.S.notes[t.dataset.key] = t.value; J.save(); }
+    if (t.dataset.set === "finalDays") { const b = document.getElementById("fdv"); if (b) b.textContent = t.value; }
     if (t.id === "search") {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
