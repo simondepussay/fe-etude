@@ -515,7 +515,9 @@ table.plan td { font: 700 1rem var(--jp); }
 .trace th, .trace td { border: 1px solid #c9bda9; padding: 4px 10px; text-align: center; }
 .trace th { background: #efe7d9; font-weight: 600; }
 .piege { margin-top: 10px; font-size: 13px; }
-.sous-cat { margin: 14px 0 6px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--gris, #8a7f6d); }
+.sous-cat { margin: 18px 0 8px; font: 700 .72rem var(--ui); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--shu); display: flex; align-items: center; gap: 8px; }
+.sous-cat::before { content: ""; width: 7px; height: 7px; background: var(--shu); transform: rotate(45deg); flex: none; }
 
 /* ── Premier écran : le choix de la langue ──
    Dessiné comme une estampe de l’ère Meiji : double filet vermillon autour de
@@ -568,4 +570,41 @@ table.plan td { font: 700 1rem var(--jp); }
     .lp-nom { font-size: 1.1rem; }
     .lp-card .hanamaru { width: 42px; height: 42px; margin-top: -21px; right: 8px; }
     .lp-card.on .lp-texte { padding-right: 54px; }
+}
+
+
+/* ═══ Couche « estampe » ═══════════════════════════════════════════════
+   Reprise des conventions du 錦絵 : double filet autour de la planche,
+   題簽 encadrés pour les intertitres, et ぼかし — le dégradé de ciel. */
+
+/* ぼかし : le lavis gradué en haut de la page, comme le ciel des estampes */
+body::before {
+    content: ""; position: fixed; inset: 0 0 auto 0; height: 42vh; z-index: -1; pointer-events: none;
+    background: linear-gradient(to bottom,
+        color-mix(in srgb, var(--ai) 11%, transparent) 0%,
+        color-mix(in srgb, var(--ai) 4%, transparent) 45%,
+        transparent 100%);
+}
+
+/* Double filet : trait d’encre à l’extérieur, filet vermillon à l’intérieur */
+.card::after, .sheet::after, .glesson::after, .stampcard::after, .ticket::after {
+    content: ""; position: absolute; inset: 5px; border: 1px solid var(--shu);
+    opacity: .3; pointer-events: none;
+}
+.ticket::after { inset: 4px 4px 4px 62px; }
+.sheet.lesson::after { inset: 5px 5px 5px 36px; }
+.glesson::after { inset: 5px 5px 5px 28px; }
+
+/* 題簽 : les intertitres d’une fiche passent dans un cartouche */
+.g-box > h4 {
+    display: inline-block; margin: 0 0 .7em; padding: 3px 11px;
+    color: var(--shu); background: color-mix(in srgb, var(--kin) 15%, var(--sheet));
+    border: 1.5px solid var(--shu); box-shadow: inset 0 0 0 1.5px var(--sheet);
+}
+.g-box.warn > h4 { color: var(--kin); border-color: var(--kin); }
+
+/* Les titres de page reçoivent le filet vermillon des cartouches */
+main h1:not(.lp-titre) { position: relative; padding-bottom: .3em; }
+main h1:not(.lp-titre)::after {
+    content: ""; position: absolute; left: 0; bottom: 0; width: 2.2em; height: 3px; background: var(--shu);
 }
