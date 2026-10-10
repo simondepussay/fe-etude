@@ -84,12 +84,12 @@
     ["ja", "和", "日本語", "画面も用語の説明もすべて日本語。読み方の問題は出ません。"]
   ];
   VIEWS.langpick = () => `<section class="langpick">
-    <h1 class="jp lp-titre">言語を選ぶ</h1>
+    <div class="lp-tete"><h1 class="jp lp-titre">言語を選ぶ</h1></div>
     <p class="lp-sub">Choisis ta langue · Choose your language</p>
     <div class="lp-list">${LANGUES.map(([id, han, nom, note]) => {
       const choisi = J.S.langChosen && J.lang() === id;
       return `<button class="lp-card ${choisi ? "on" : ""}" data-act="pick-lang" data-l="${id}" lang="${id}">
-        <span class="stamp lp-han" style="--r:${rot(id)}deg">${han}</span>
+        <span class="lp-daisen jp" aria-hidden="true">${han}</span>
         <span class="lp-texte"><span class="lp-nom">${nom}</span><span class="lp-note">${note}</span></span>
         ${choisi ? HANAMARU : ""}</button>`;
     }).join("")}</div>
