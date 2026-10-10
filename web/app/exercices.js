@@ -53,14 +53,6 @@
   J.vocabBack = (v) =>
     `<div class="ans-card"><div class="ans-word jp" lang="ja">${esc(v.w)}</div><div class="ans-read jp" lang="ja">${esc(v.r)}</div><div class="ans-mean">${esc(M("v", v))}</div>
      <button class="icon-btn" data-act="say" data-say="${esc(v.r)}" title="${L("Écouter", "Listen")}">🔊</button></div>`;
-  J.kanjiReadings = (k) =>
-    `${k.on.length ? `<span class="tag">音</span><span class="jp" lang="ja">${esc(k.on.join("・"))}</span>` : ""}
-     ${k.kun.length ? `<span class="tag">訓</span><span class="jp" lang="ja">${esc(k.kun.map(J.kunFmt).join("・"))}</span>` : ""}`;
-  J.kanjiBack = (k) => {
-    const words = (J.kanjiWords[k.k] || []).slice(0, 4).map((id) => J.byId.v[id]).filter(Boolean);
-    return `<div class="ans-card"><div class="ans-kanji jp" lang="ja">${esc(k.k)}</div><div class="ans-read">${J.kanjiReadings(k)}</div><div class="ans-mean">${esc(M("k", k))}</div>
-      ${words.length ? `<div class="mini-words">${words.map((w) => `<span class="jp" lang="ja">${esc(w.w)}<small>${esc(w.r)}</small></span>`).join("")}</div>` : ""}</div>`;
-  };
   J.gramBack = (g, extra = "") =>
     `<div class="ans-card left"><div class="ans-pattern jp" lang="ja">${esc(g.p)}</div><div class="ans-mean">${esc(J.gs(g, "s"))}</div>
       <div class="ans-form jp" lang="ja">${esc(g.f)}</div>${extra}
@@ -70,12 +62,10 @@
   /* ───────── Types d’exercices par module et par étape ───────── */
   const KINDS = {
     v: { rev: ["v-read", "v-mean", "v-word", "v-flash", "v-read"], check: ["v-mean", "v-read"], test: ["v-read", "v-word"] },
-    k: { rev: ["k-mean", "k-kanji", "k-read", "k-word", "k-flash"], check: ["k-mean", "k-read"], test: ["k-word", "k-read", "k-word"] },
     g: { rev: ["g-qcm", "g-cloze", "g-rev", "g-ord", "g-flash", "g-qcm"], check: ["g-qcm", "g-rev"], test: ["g-qcm", "g-ord", "g-qcm"] }
   };
   const LABELS = {
     "v-read": ["読み方", "Lecture", "Reading"], "v-mean": ["意味", "Sens", "Meaning"], "v-word": ["語彙", "Quel mot ?", "Which word?"], "v-flash": ["カード", "Rappel", "Recall"],
-    "k-mean": ["意味", "Sens du kanji", "Kanji meaning"], "k-kanji": ["漢字", "Quel kanji ?", "Which kanji?"], "k-read": ["読み", "Lecture du kanji", "Kanji reading"], "k-word": ["漢字読み", "Lecture du mot", "Word reading"], "k-flash": ["カード", "Rappel", "Recall"],
     "g-qcm": ["文法形式の判断", "Grammaire", "Grammar"], "g-cloze": ["穴埋め", "Phrase à trous", "Fill the gap"], "g-rev": ["意味 → 形", "Quelle forme ?", "Which form?"], "g-ord": ["文の組み立て", "Phrase à ordonner ★", "Sentence order ★"], "g-flash": ["カード", "Rappel", "Recall"]
   };
   J.kindLabel = (k) => `${LABELS[k][0]} · ${L(LABELS[k][1], LABELS[k][2])}`;
@@ -83,8 +73,6 @@
   function usable(m, id, kind) {
     const x = J.byId[m][id];
     if (kind === "v-read") return x.w !== x.r && /[一-龯]/.test(x.w);
-    if (kind === "k-word") return (J.kanjiWords[x.k] || []).some((wid) => J.byId.v[wid] && J.byId.v[wid].w !== J.byId.v[wid].r);
-    if (kind === "k-read") return x.on.length + x.kun.length > 0;
     if (kind === "g-ord") return !!x.o;
     if (kind === "g-cloze") return x.ex && x.ex.length;
     return true;
@@ -124,35 +112,6 @@
       back: J.vocabBack(v), say: v.r
     }),
     /* Kanji */
-    "k-mean": (k) => {
-      const opts = uniqueOptions(SM("k", k), otherItems("k", k.id, 8).map((x) => SM("k", x)));
-      return { mode: "choice", prompt: `<p class="q-help">${L("Quel est le sens de ce kanji ?", "What does this kanji mean?")}</p><div class="big-kanji jp" lang="ja">${esc(k.k)}</div>`,
-        options: opts, answer: SM("k", k), back: J.kanjiBack(k) };
-    },
-    "k-kanji": (k) => {
-      const opts = uniqueOptions(k.k, otherItems("k", k.id, 6).map((x) => x.k));
-      return { mode: "choice", prompt: `<p class="q-help">${L("Quel kanji signifie :", "Which kanji means:")}</p><div class="big-fr">${esc(SM("k", k))}</div>`,
-        options: opts, answer: k.k, back: J.kanjiBack(k), jpOpts: true, bigOpts: true };
-    },
-    "k-read": (k) => {
-      const isOn = k.on.length > 0;
-      const ans = isOn ? pick(k.on) : J.kunFmt(pick(k.kun));
-      const own = new Set([...k.on, ...k.kun.map(J.kunFmt)]);
-      const pool = otherItems("k", k.id, 30, (x) => (isOn ? x.on.length : x.kun.length)).map((x) => (isOn ? x.on[0] : J.kunFmt(x.kun[0]))).filter((r) => !own.has(r));
-      return { mode: "choice", prompt: `<p class="q-help">${L(`Quelle est une lecture ${isOn ? "音読み (on)" : "訓読み (kun)"} de ce kanji ?`, `Which is a ${isOn ? "音読み (on)" : "訓読み (kun)"} reading of this kanji?`)}</p><div class="big-kanji jp" lang="ja">${esc(k.k)}</div>`,
-        options: uniqueOptions(ans, pool), answer: ans, back: J.kanjiBack(k), jpOpts: true };
-    },
-    "k-word": (k) => {
-      const wid = pick((J.kanjiWords[k.k] || []).filter((id) => J.byId.v[id] && J.byId.v[id].w !== J.byId.v[id].r));
-      const v = J.byId.v[wid];
-      const shown = esc(v.w).replace(esc(k.k), `<u>${esc(k.k)}</u>`);
-      return { mode: "choice", prompt: `<p class="q-help">問題1 漢字読み — ${L("Comment se lit le mot ?", "How is this word read?")}</p><div class="big-jp jp" lang="ja">${shown}</div>`,
-        options: readingOptions(v.w, v.r), answer: v.r, back: J.vocabBack(v) + J.kanjiBack(k), say: v.r, jpOpts: true };
-    },
-    "k-flash": (k) => ({
-      mode: "self", prompt: `<p class="q-help">${L("Donne le sens et au moins une lecture, puis vérifie.", "Give the meaning and at least one reading, then check.")}</p><div class="big-kanji jp" lang="ja">${esc(k.k)}</div>`,
-      back: J.kanjiBack(k)
-    }),
     /* Grammaire */
     "g-qcm": (g) => {
       const [q, c] = pick(g.q);
@@ -196,15 +155,6 @@
         <button class="icon-btn" data-act="say" data-say="${esc(x.r)}" title="${L("Écouter", "Listen")}">🔊</button></div>
         <div class="learn-mean">${esc(M("v", x))}</div>
         ${ks.length ? `<div class="learn-sub"><h4>${L("Kanji du mot", "Kanji in this word")}</h4>${ks.map((k) => `<div class="kline"><span class="kchar jp" lang="ja">${esc(k.k)}</span><span>${esc(SM("k", k))}</span><span class="muted jp" lang="ja">${esc([...k.on, ...k.kun.map(J.kunFmt)].slice(0, 4).join("・"))}</span></div>`).join("")}</div>` : ""}
-      </div>`;
-    }
-    if (m === "k") {
-      const words = (J.kanjiWords[x.k] || []).slice(0, 6).map((wid) => J.byId.v[wid]).filter(Boolean);
-      return `<div class="learn k">
-        <div class="learn-head"><div class="big-kanji jp" lang="ja">${esc(x.k)}</div></div>
-        <div class="learn-read">${J.kanjiReadings(x)}</div>
-        <div class="learn-mean">${esc(M("k", x))}</div>
-        ${words.length ? `<div class="learn-sub"><h4>${L("Mots N1 avec ce kanji", "N1 words with this kanji")}</h4>${words.map((w) => `<div class="wline"><span class="jp" lang="ja">${esc(w.w)}</span><span class="jp muted" lang="ja">${esc(w.r)}</span><span>${esc(SM("v", w))}</span><button class="icon-btn sm" data-act="say" data-say="${esc(w.r)}">🔊</button></div>`).join("")}</div>` : ""}
       </div>`;
     }
     return J.grammarLesson(x, true);
