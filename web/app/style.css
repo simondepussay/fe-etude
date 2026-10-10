@@ -680,3 +680,22 @@ main h1:not(.lp-titre)::after {
 }
 @media (prefers-reduced-motion: reduce) { .kasumi .k { animation: none; } }
 @media (max-width: 600px) { .kasumi { height: 38vh; } }
+
+/* ═══ Portrait du compte ═══════════════════════════════════════════════ */
+.ava {
+    width: 22px; height: 22px; flex: none; border-radius: 50%;
+    object-fit: cover; border: 1.5px solid currentColor; background: var(--sheet);
+}
+/* Sans photo : un 判子 à l’initiale, dans l’esprit des tampons du site */
+.ava-han {
+    display: inline-grid; place-items: center;
+    font: 700 .72rem var(--jp); color: var(--shu); border-color: var(--shu);
+    box-shadow: inset 0 0 0 1.5px var(--sheet), inset 0 0 0 2.5px var(--shu);
+}
+.save { display: inline-flex; align-items: center; gap: 7px; }
+.save-nom { max-width: 11ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.save-alerte { color: var(--shu); font-weight: 700; }
+.compte-tete { display: flex; align-items: flex-start; gap: 14px; }
+.ava-gd { width: 48px; height: 48px; }
+.ava-gd.ava-han { font-size: 1.4rem; }
+@media (max-width: 700px) { .save-nom { display: none; } }

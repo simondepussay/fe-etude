@@ -60,7 +60,7 @@
     // sans fournisseur configuré, rien ne doit proposer une connexion qui n’existe pas
     const st = !J.authReady ? ""
       : u
-      ? `<button class="save ${bad ? "err" : "ok"} ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${esc(J.store.error || L("Progression synchronisée sur ton compte", "Progress synced to your account", "学習記録はアカウントに同期されています"))}">${bad ? "⚠︎" : "●"} ${esc(u.name || u.email || L("Mon compte", "My account", "アカウント"))}</button>`
+      ? `<button class="save ${bad ? "err" : "ok"} ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${esc(J.store.error || L("Progression synchronisée sur ton compte", "Progress synced to your account", "学習記録はアカウントに同期されています"))}">${bad ? '<span class="save-alerte">⚠︎</span>' : ""}${portrait(u)}<span class="save-nom">${esc(prenom(u) || L("Mon compte", "My account", "アカウント"))}</span></button>`
       : `<button class="save warn ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${L("Sans compte, la progression reste dans ce navigateur", "Without an account, progress stays in this browser", "アカウントがない場合、記録はこのブラウザにだけ残ります")}">${L("Se connecter", "Sign in", "ログイン")}</button>`;
     return `<header class="top"><div class="brand"><span class="hanko" aria-hidden="true">基本<br>情報</span><span class="brand-t">基本情報 Étude</span></div>
       <nav>${tabs.map(([v, jp, tr]) => `<button class="tab ${cur === v ? "on" : ""}" data-act="nav" data-v="${v}"><span class="jp">${jp}</span><span class="tfr">${tr}</span></button>`).join("")}</nav>${langSwitch()}${st}</header>`;
@@ -250,6 +250,14 @@
   // Ligne d’emploi du temps : total + détail par module
   /* Mention sous le tampon : le tampon est déjà en japonais, inutile de la répéter */
   const stFr = (txt) => (J.lang() === "ja" ? "" : `<span class="st-fr">${txt}</span>`);
+  /* Portrait du compte : la photo Google, ou à défaut un 判子 portant l’initiale */
+  const portrait = (u, cls = "") => {
+    if (u.picture) return `<img class="ava ${cls}" src="${esc(u.picture)}" alt="" referrerpolicy="no-referrer" loading="lazy">`;
+    const i = (u.name || u.email || "?").trim().charAt(0).toUpperCase() || "?";
+    return `<span class="ava ava-han ${cls}" aria-hidden="true">${esc(i)}</span>`;
+  };
+  const prenom = (u) => (u.name || u.email || "").split(/[\s@]/)[0];
+
   const vRow = (v) => `<button class="vrow" data-act="open-item" data-m="v" data-id="${esc(v.id)}"><i class="dot lv${J.levelOf("v", v.id)}"></i><span class="jp w">${esc(v.w)}</span><span class="jp r">${esc(v.r)}</span><span class="mm">${esc(J.shortMeaning(J.mean("v", v)))}</span></button>`;
   const ttRow = (jp, tr, n, per) => `<li class="${n ? "" : "off"}"><span class="tt-jp">${jp}</span>${J.lang() === "ja" ? "" : `<span class="tt-fr">${tr}</span>`}
     ${per ? `<span class="tt-per">${per.map((x, i) => (x ? `<i class="m-${MOD_ORDER[i]}">${MODS[MOD_ORDER[i]].jp[0]}${x}</i>` : "")).join("")}</span>` : ""}<b>${n}</b></li>`;
@@ -431,7 +439,7 @@
     const s = J.S.settings;
     const u = J.user();
     const st = u
-      ? `<p>${L("Ta progression est synchronisée sur ton compte", "Your progress is synced to your account", "学習記録はアカウントに同期されています")} <b>${esc(u.email || u.name || "")}</b>.${J.store.lastSave ? ` ${L("Dernière synchronisation", "Last sync", "最終同期")} : ${J.store.lastSave.toLocaleTimeString(J.locale())}.` : ""}</p>${J.store.error ? `<p class="bad">${esc(J.store.error)}</p>` : ""}`
+      ? `<p class="compte-tete">${portrait(u, "ava-gd")}<span>${L("Ta progression est synchronisée sur ton compte", "Your progress is synced to your account", "学習記録はアカウントに同期されています")} <b>${esc(u.email || u.name || "")}</b>.${J.store.lastSave ? ` ${L("Dernière synchronisation", "Last sync", "最終同期")} : ${J.store.lastSave.toLocaleTimeString(J.locale())}.` : ""}</span></p>${J.store.error ? `<p class="bad">${esc(J.store.error)}</p>` : ""}`
       : `<p class="bad">${L("Tu n’es pas connecté : ta progression est gardée dans ce navigateur seulement.", "You are not signed in: your progress is only kept in this browser.", "ログインしていません。学習記録はこのブラウザにのみ保存されます。")} <button class="link" data-act="nav" data-v="account">${L("Se connecter", "Sign in", "ログイン")}</button></p>`;
     return `<h1>設定${apres(L("Réglages", "Settings"))}</h1>
       <section class="card">
@@ -463,7 +471,7 @@
         : J.store.error ? `<p class="bad">${esc(J.store.error)}</p>`
         : `<p class="good">● ${L("Progression synchronisée", "Progress synced", "同期済み")}${J.store.lastSave ? ` (${L("dernière fois à", "last at", "最終")} ${J.store.lastSave.toLocaleTimeString(J.locale())})` : ""}.</p>`;
       return `<h1>アカウント${apres(L("Mon compte", "My account"))}</h1>
-        <section class="card"><div class="acct"><div class="avatar">${esc((u.name || u.email || "?")[0].toUpperCase())}</div>
+        <section class="card"><div class="acct">${portrait(u, "ava-gd")}
           <div><b>${esc(u.name || "")}</b><div class="muted">${esc(u.email || "")} · ${L("connexion", "signed in with", "ログイン")} ${esc(PROV[u.provider] || u.provider)}</div></div></div>
           ${status}
           <div class="row"><button class="btn" data-act="sync-now">${L("Synchroniser maintenant", "Sync now", "今すぐ同期する")}</button><button class="btn" data-act="logout">${L("Se déconnecter", "Sign out", "ログアウト")}</button></div>

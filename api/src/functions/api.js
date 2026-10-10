@@ -51,6 +51,7 @@ app.http("login", {
       email: ident.email || prev?.data.email || null,
       // Apple n'envoie le nom qu'à la première connexion, côté client
       name: ident.name || (typeof name === "string" ? name.slice(0, 80) : null) || prev?.data.name || null,
+      picture: ident.picture || prev?.data.picture || null,
       createdAt: prev?.data.createdAt || now,
       lastLogin: now
     };

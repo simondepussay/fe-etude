@@ -45,6 +45,7 @@
 <li>Google アカウントの識別子をハッシュ化した値（元に戻すことはできません）</li>
 <li>メールアドレス</li>
 <li>表示名</li>
+<li>プロフィール写真（Google 上にある画像のアドレス。画像そのものは保存しません）</li>
 <li>学習の記録（どの項目をいつ学習し、正答したか）</li>
 <li>アカウントの作成日時と最終ログイン日時</li>
 </ul>
@@ -60,6 +61,7 @@
 <ul>
 <li>ログインのときだけ、Google のログイン用スクリプトを読み込みます。</li>
 <li>画面の書体を Google Fonts から読み込んでいます。このとき、閲覧者の IP アドレスが Google に送られます。</li>
+<li>ログイン中は、プロフィール写真を Google のサーバーから直接読み込みます。</li>
 </ul>
 
 <h2>連絡先</h2>
@@ -70,10 +72,10 @@
 <h2>Politique de confidentialité</h2>
 <p>Cette politique couvre les deux applications d’étude personnelles <b>基本情報 Étude</b> et <b>JLPT Étude</b>. Elles fonctionnent de la même façon et gardent leurs données séparément.</p>
 <p><b>Sans compte</b> — toute ta progression reste dans ton navigateur. Rien n’est envoyé à un serveur.</p>
-<p><b>Avec un compte Google</b> — pour retrouver ta progression sur tes appareils, l’application conserve : un identifiant dérivé de ton compte Google par hachage (non réversible), ton adresse e-mail, ton nom d’affichage, ta progression, et les dates de création et de dernière connexion. <b>Aucun mot de passe n’est stocké</b> : la connexion vérifie la signature du jeton d’identité émis par Google, puis l’application émet sa propre session, valable 60 jours.</p>
+<p><b>Avec un compte Google</b> — pour retrouver ta progression sur tes appareils, l’application conserve : un identifiant dérivé de ton compte Google par hachage (non réversible), ton adresse e-mail, ton nom d’affichage, l’adresse de ta photo de profil chez Google (l’image elle-même n’est pas copiée), ta progression, et les dates de création et de dernière connexion. <b>Aucun mot de passe n’est stocké</b> : la connexion vérifie la signature du jeton d’identité émis par Google, puis l’application émet sa propre session, valable 60 jours.</p>
 <p>Les données sont conservées sur Microsoft Azure, région Asie de l’Est. Elles ne sont ni partagées, ni vendues, ni utilisées pour de la publicité. Aucune mesure d’audience n’est en place.</p>
 <p><b>Suppression</b> — Réglages → Mon compte → Supprimer mon compte efface définitivement le compte et toute la progression enregistrée en ligne. Tu peux exporter une copie avant.</p>
-<p><b>Appels externes</b> — le script de connexion Google (uniquement au moment de se connecter) et les polices Google Fonts, qui transmettent ton adresse IP à Google.</p>
+<p><b>Appels externes</b> — le script de connexion Google (uniquement au moment de se connecter), ta photo de profil chargée depuis les serveurs de Google quand tu es connecté, et les polices Google Fonts. Tous transmettent ton adresse IP à Google.</p>
 <p>Contact : par le dépôt public du projet, <a href="https://github.com/simondepussay/fe-etude/issues">github.com/simondepussay/fe-etude</a></p>
 
 <hr>
@@ -81,10 +83,10 @@
 <h2>Privacy policy</h2>
 <p>This policy covers both personal study apps, <b>基本情報 Étude</b> and <b>JLPT Étude</b>. They work the same way and keep their data separately.</p>
 <p><b>Without an account</b> — all your progress stays in your browser. Nothing is sent to a server.</p>
-<p><b>With a Google account</b> — to carry your progress across devices, the app stores: an identifier derived from your Google account by hashing (not reversible), your e-mail address, your display name, your progress, and the creation and last-login dates. <b>No password is ever stored</b>: signing in verifies the signature of the identity token issued by Google, after which the app issues its own session, valid for 60 days.</p>
+<p><b>With a Google account</b> — to carry your progress across devices, the app stores: an identifier derived from your Google account by hashing (not reversible), your e-mail address, your display name, the address of your Google profile picture (the image itself is not copied), your progress, and the creation and last-login dates. <b>No password is ever stored</b>: signing in verifies the signature of the identity token issued by Google, after which the app issues its own session, valid for 60 days.</p>
 <p>Data is held on Microsoft Azure, East Asia region. It is never shared, sold, or used for advertising. There is no analytics.</p>
 <p><b>Deletion</b> — Settings → My account → Delete my account permanently erases the account and all progress stored online. You can export a copy first.</p>
-<p><b>External calls</b> — the Google sign-in script (only when signing in) and Google Fonts, which sends your IP address to Google.</p>
+<p><b>External calls</b> — the Google sign-in script (only when signing in), your profile picture loaded from Google's servers while you are signed in, and Google Fonts. All of them send your IP address to Google.</p>
 <p>Contact: through the project's public repository, <a href="https://github.com/simondepussay/fe-etude/issues">github.com/simondepussay/fe-etude</a></p>
 </article>
 </main>

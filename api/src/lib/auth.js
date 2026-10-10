@@ -57,7 +57,8 @@ async function verifyIdToken(provider, idToken, nonce) {
     provider,
     sub: String(payload.sub),
     email: payload.email || payload.preferred_username || null,
-    name: payload.name || null
+    name: payload.name || null,
+    picture: payload.picture || null
   };
 }
 
