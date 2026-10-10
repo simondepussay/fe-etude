@@ -175,7 +175,7 @@
         <div class="lesson-body"><h2 class="hand">おつかれさま！<small>${L("Leçon du jour terminée", "Today’s lesson done")}</small></h2>
           <p>${L(`${Ls.ok} bonnes réponses · ${Ls.ko} erreurs.`, `${Ls.ok} correct · ${Ls.ko} mistakes.`)}</p>
           <p class="muted">${L("Demain : environ", "Tomorrow: about")} ${J.MOD_ORDER.reduce((a, m) => a + J.dueList(m, J.addDays(J.today(), 1)).length, 0)} ${L("révisions prévues.", "reviews planned.")}</p>
-          <div class="row">${(Ls.mult || 1) === 1 ? `<button class="btn primary" data-act="lesson-double"><span class="jp">倍</span> ${L("Doubler la journée", "Make it a double day")}</button>` : ""}<button class="btn" data-act="exam-start">${L("Petit test", "Quick test")}</button><button class="btn" data-act="nav" data-v="mod-g">${L("Revoir la grammaire", "Review grammar")}</button></div></div>
+          <div class="row">${(Ls.mult || 1) === 1 ? `<button class="btn primary" data-act="lesson-double"><span class="jp">倍</span> ${L("Doubler la journée", "Make it a double day")}</button>` : ""}<button class="btn" data-act="exam-start">${L("Petit test", "Quick test")}</button><button class="btn" data-act="nav" data-v="mod-${J.MOD_ORDER[0]}">${L("Revoir", "Review", "復習")} · ${J.modName(J.MOD_ORDER[0])}</button></div></div>
         ${Ls.mult === 2 ? stamp("倍", J.today(), "big gold") : stamp("済", J.today(), "big")}</div>`;
     } else if (Ls) {
       const left = Ls.queue.slice(Ls.pos).filter((i) => !i.skip);
@@ -361,8 +361,12 @@
         <p class="small">${planNote(plan)}</p></div>
       <div class="card"><h3>${L("Temps d’étude, 14 derniers jours", "Study time, last 14 days")}</h3><div class="bars">${days.map((d) => { const s = J.S.days[d] ? J.S.days[d].sec : 0;
           return `<div class="b" title="${J.fmtShort(d)} : ${Math.round(s / 60)} min"><span style="height:${(s / maxSec) * 100}%"></span><i>${J.parse(d).getDate()}</i></div>`; }).join("")}</div>
-        <p class="muted small">${L(`Temps moyen mesuré : vocabulaire ${Math.round(J.S.timing.v.learn)} s par nouveau mot · kanji ${Math.round(J.S.timing.k.learn)} s · grammaire ${fmtMin(Math.round(J.S.timing.g.learn / 60))} par nouveau point. Ces valeurs s’ajustent toutes seules et servent à estimer la durée des leçons.`,
-          `Measured average time: vocabulary ${Math.round(J.S.timing.v.learn)} s per new word · kanji ${Math.round(J.S.timing.k.learn)} s · grammar ${fmtMin(Math.round(J.S.timing.g.learn / 60))} per new point. These values adjust automatically and are used to estimate lesson length.`)}</p></div>
+        <p class="muted small">${L("Temps moyen mesuré par nouvel élément", "Measured average time per new item", "新しい項目あたりの実測平均時間")} : ${MOD_ORDER.map((m) => {
+            const s = (J.S.timing[m] || { learn: 0 }).learn;
+            return `${J.modName(m)} ${s >= 60 ? fmtMin(Math.round(s / 60)) : Math.round(s) + " s"}`;
+          }).join(" · ")}. ${L("Ces valeurs s’ajustent toutes seules et servent à estimer la durée des leçons.",
+          "These values adjust automatically and are used to estimate lesson length.",
+          "この値は自動で調整され、レッスンの所要時間の見積りに使われる。")}</p></div>
       <div class="card"><h3>${L("Calendrier", "Calendar")}</h3>${heatmap()}</div>
       <div class="grid3">${MOD_ORDER.map((m) => { const w = J.weak(m, 8);
         return `<div class="card"><h3>${L("Points faibles", "Weak spots")} · ${J.modName(m)}</h3>${w.length ? w.map((x) => `<button class="weak" data-act="open-item" data-m="${m}" data-id="${esc(x.id)}"><span class="jp">${esc(m === "v" ? x.w : m === "k" ? x.k : x.p)}</span><span class="muted">✗ ${J.rec(m, x.id).ko}</span></button>`).join("") : `<p class="muted">${L("Aucun pour l’instant.", "None yet.")}</p>`}</div>`; }).join("")}</div>
@@ -545,7 +549,7 @@
     if (it.s !== "learn" && (!EX || EX._pos !== R.pos || EX._lang !== J.lang())) { EX = J.makeEx(it.m, it.id, it.s === "fix" ? "rev" : it.s, it.kind); EX._pos = R.pos; EX._lang = J.lang(); }
     const modPill = `<span class="pill mod-${it.m}">${modTitre(it.m)}</span>`;
     const tag = `<div class="ex-tag">${modPill}<span class="pill stage-${it.s}">${STAGE()[it.s]}</span>${it.s !== "learn" && EX ? `<span class="muted">${esc(EX.label)}</span>` : ""}</div>`;
-    const aside = it.m !== "g" && !it.free ? `<div class="ex-aside"><button data-act="exclude-cur">${L("Ce terme ne te sert pas ? Le retirer des leçons", "Not a useful term? Remove it from lessons", "この用語を外す")}</button></div>` : "";
+    const aside = it.m === "v" && !it.free ? `<div class="ex-aside"><button data-act="exclude-cur">${L("Ce terme ne te sert pas ? Le retirer des leçons", "Not a useful term? Remove it from lessons", "この用語を外す")}</button></div>` : "";
     if (it.s === "learn") {
       if (!R.learnT0 || R.learnPos !== R.pos) { R.learnT0 = Date.now(); R.learnPos = R.pos; }
       return head + `<section class="card ex"><div class="ex-tag">${modPill}<span class="pill stage-learn">${J.LEVELS[0]}</span></div>

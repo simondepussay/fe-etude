@@ -184,7 +184,11 @@
       const x = a.days[d], y = b.days[d];
       if (!x || !y) { out.days[d] = x || y; continue; }
       const m = { sec: Math.max(x.sec, y.sec), done: x.done || y.done, double: !!(x.double || y.double) };
-      for (const mo of ["v", "k", "g"]) { m[mo] = {}; for (const f of ["n", "r", "ok", "ko"]) m[mo][f] = Math.max(x[mo][f], y[mo][f]); }
+      for (const mo of J.MODS_ALL) {
+        const xm = x[mo] || {}, ym = y[mo] || {};
+        m[mo] = {};
+        for (const f of ["n", "r", "ok", "ko"]) m[mo][f] = Math.max(xm[f] || 0, ym[f] || 0);
+      }
       out.days[d] = m;
     }
     out.notes = { ...b.notes, ...a.notes, ...newer.notes };
@@ -321,7 +325,9 @@
 
   J.day = (d = J.today()) => {
     const S = J.S;
-    if (!S.days[d]) S.days[d] = { sec: 0, v: { n: 0, r: 0, ok: 0, ko: 0 }, k: { n: 0, r: 0, ok: 0, ko: 0 }, g: { n: 0, r: 0, ok: 0, ko: 0 }, done: false };
+    if (!S.days[d]) S.days[d] = { sec: 0, done: false };
+    // un module activé en cours de route manquerait à l’enregistrement du jour
+    for (const m of J.MODS_ALL) if (!S.days[d][m]) S.days[d][m] = { n: 0, r: 0, ok: 0, ko: 0 };
     return S.days[d];
   };
 
@@ -395,7 +401,13 @@
       .slice(0, n)
       .map((o) => o.x);
   };
-  J.studied = (d) => { const x = J.S.days[d]; return !!(x && (x.sec >= 60 || x.v.r + x.k.r + x.g.r + x.v.n + x.k.n + x.g.n >= 5)); };
+  J.studied = (d) => {
+    const x = J.S.days[d];
+    if (!x) return false;
+    let actes = 0;
+    for (const m of J.MODS_ALL) if (x[m]) actes += x[m].r + x[m].n;
+    return x.sec >= 60 || actes >= 5;
+  };
   J.streak = function () {
     let d = J.today(), n = 0;
     if (!J.studied(d)) d = J.addDays(d, -1);
@@ -440,7 +452,7 @@
     let fixedSec = 0, wantSec = 0;
     for (const m of J.MOD_ORDER) {
       const c = J.counts(m);
-      const learnedToday = todayDone ? todayDone[m].n : 0;
+      const learnedToday = todayDone && todayDone[m] ? todayDone[m].n : 0;
       const remaining = c.total - c.learned + learnedToday; // le plan du jour ne bouge pas en cours de journée
       const needed = studyDays ? Math.ceil(remaining / studyDays) : 0;
       const due = Math.min(J.dueList(m).length, s.revCap);
@@ -467,7 +479,7 @@
     out.mult = mult;
     for (const m of J.MOD_ORDER) {
       const p = out.mods[m];
-      const done = todayDone ? todayDone[m].n : 0;
+      const done = todayDone && todayDone[m] ? todayDone[m].n : 0;
       p.test = Math.min(p.test * mult, p.learned);
       p.newLeft = Math.max(0, p.new * mult - done);
       p.newLeft = Math.min(p.newLeft, p.remaining);

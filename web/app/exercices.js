@@ -79,7 +79,7 @@
   };
   const LABELS = {
     "v-read": ["読み方", "Lecture", "Reading"], "v-mean": ["意味", "Sens", "Meaning"], "v-word": ["語彙", "Quel mot ?", "Which word?"], "v-flash": ["カード", "Rappel", "Recall"],
-    "g-qcm": ["文法形式の判断", "Grammaire", "Grammar"], "g-cloze": ["穴埋め", "Phrase à trous", "Fill the gap"], "g-rev": ["意味 → 形", "Quelle forme ?", "Which form?"], "g-ord": ["文の組み立て", "Phrase à ordonner ★", "Sentence order ★"], "g-flash": ["カード", "Rappel", "Recall"],
+    "g-qcm": ["知識問題", "Connaissances", "Knowledge"], "g-cloze": ["穴埋め", "Énoncé à trous", "Fill the gap"], "g-rev": ["説明 → 用語", "De la définition au terme", "Definition → term"], "g-ord": ["順序の並べ替え", "Étapes à ordonner ★", "Steps in order ★"], "g-flash": ["カード", "Rappel", "Recall"],
     "b-qcm": ["科目B", "Trace du programme", "Program trace"], "b-flash": ["カード", "Rappel", "Recall"]
   };
   J.kindLabel = (k) => `${LABELS[k][0]} · ${L(LABELS[k][1], LABELS[k][2])}`;
@@ -126,8 +126,7 @@
       mode: "self", prompt: `<p class="q-help">${L("Lis le mot dans ta tête, donne son sens, puis vérifie.", "Read the word in your head, give its meaning, then check.")}</p><div class="big-jp jp" lang="ja">${esc(v.w)}</div>`,
       back: J.vocabBack(v), say: v.r
     }),
-    /* Kanji */
-    /* Grammaire */
+    /* 科目A */
     "g-qcm": (g) => {
       const [q, c] = pick(g.q);
       const filled = q.includes("＿＿＿") ? q.replace("＿＿＿", c[0]) : "";
@@ -137,21 +136,21 @@
     },
     "g-cloze": (g) => {
       const i = Math.floor(Math.random() * g.ex.length);
-      return { mode: "self", prompt: `<p class="q-help">${L("Quelle grammaire manque ? Dis-la à voix haute, puis vérifie.", "Which grammar is missing? Say it out loud, then check.")}</p>
+      return { mode: "self", prompt: `<p class="q-help">${L("Quel est le terme manquant ? Dis-le à voix haute, puis vérifie.", "Which term is missing? Say it out loud, then check.", "空欄に入る語は何か。声に出してから確かめる。")}</p>
         <div class="sentence jp" lang="ja">${blank(g.ex[i][0])}</div><p class="fr-trad">${esc(J.gex(g, i))}</p>`,
         back: J.gramBack(g, `<div class="sentence small jp" lang="ja">${hl(g.ex[i][0])}</div>`), say: strip(g.ex[i][0]) };
     },
     "g-rev": (g) => {
       const same = otherItems("g", g.id, 3, (x) => x.cat === g.cat);
       const opts = uniqueOptions(g.p, same.map((x) => x.p).concat(otherItems("g", g.id, 6).map((x) => x.p)));
-      return { mode: "choice", prompt: `<p class="q-help">${L("Quelle forme exprime ce sens ?", "Which form expresses this meaning?")}</p><div class="big-fr">${esc(J.gs(g, "s"))}</div>`,
+      return { mode: "choice", prompt: `<p class="q-help">${L("Quelle notion correspond à cette définition ?", "Which topic matches this definition?", "この説明に当てはまる項目はどれか。")}</p><div class="big-fr">${esc(J.gs(g, "s"))}</div>`,
         options: opts, answer: g.p, back: J.gramBack(g, exLine(g, 0)), jpOpts: true };
     },
     "g-ord": (g) => {
       const [pre, pcs, post, star] = g.o;
       const full = pre + pcs.join("") + post;
       return { mode: "order", pre, post, pieces: pcs, star, order: shuffle([0, 1, 2, 3]), picks: [],
-        prompt: `<p class="q-help">次の文の ★ に入る最もよいものを選べるよう、並べ替えなさい。</p>`,
+        prompt: `<p class="q-help">正しい順序に並べ替え、★ の位置に入るものを答えなさい。</p>`,
         back: J.gramBack(g, `<div class="sentence small jp" lang="ja">${esc(pre)}${pcs.map((p, i) => (i === star ? `<mark>${esc(p)}</mark>` : esc(p))).join("")}${esc(post)}</div>${trad(full)}`), say: full };
     },
     /* 科目B */
@@ -165,7 +164,7 @@
       };
     },
     "b-flash": (b) => ({
-      mode: "flash",
+      mode: "self",
       prompt: `<p class="q-help">${L("Que fait ce programme ?", "What does this program do?", "このプログラムは何をするか")}</p>${J.progBlock(b)}`,
       back: J.kamokubBack(b)
     }),
@@ -180,14 +179,13 @@
   J.learnCard = function (m, id) {
     const x = J.byId[m][id];
     if (m === "v") {
-      const ks = [...x.w].filter((c) => J.byId.k[c]).map((c) => J.byId.k[c]);
       return `<div class="learn v">
         <div class="learn-head"><div class="big-jp jp" lang="ja">${esc(x.w)}</div><div class="ans-read jp" lang="ja">${esc(x.r)}</div>
         <button class="icon-btn" data-act="say" data-say="${esc(x.r)}" title="${L("Écouter", "Listen")}">🔊</button></div>
         <div class="learn-mean">${esc(M("v", x))}</div>
-        ${ks.length ? `<div class="learn-sub"><h4>${L("Kanji du mot", "Kanji in this word")}</h4>${ks.map((k) => `<div class="kline"><span class="kchar jp" lang="ja">${esc(k.k)}</span><span>${esc(SM("k", k))}</span><span class="muted jp" lang="ja">${esc([...k.on, ...k.kun.map(J.kunFmt)].slice(0, 4).join("・"))}</span></div>`).join("")}</div>` : ""}
       </div>`;
     }
+    if (m === "b") return J.kamokubLesson(x);
     return J.grammarLesson(x, true);
   };
 
