@@ -1,8 +1,8 @@
 {
-  "name": "jlpt-etude-api",
+  "name": "fe-etude-api",
   "version": "1.0.0",
   "private": true,
-  "description": "API JLPT Étude : comptes (Google, Apple, Microsoft) et sauvegarde de la progression",
+  "description": "API 基本情報 Étude : comptes (Google, Apple, Microsoft) et sauvegarde de la progression",
   "main": "src/functions/*.js",
   "scripts": {
     "start": "func start",
