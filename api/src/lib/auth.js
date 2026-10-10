@@ -1,4 +1,4 @@
-// Vérification des jetons d'identité (Google, Apple, Microsoft) et sessions JLPT Étude.
+// Vérification des jetons d'identité (Google, Apple, Microsoft) et sessions 基本情報 Étude.
 // Aucun mot de passe n'est stocké : on vérifie la signature du jeton du fournisseur,
 // puis on émet notre propre jeton de session (HS256) valable 60 jours.
 const crypto = require("node:crypto");
@@ -75,7 +75,7 @@ async function issueSession(uid) {
   return new SignJWT({})
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(uid)
-    .setIssuer("jlpt-etude")
+    .setIssuer("fe-etude")
     .setIssuedAt()
     .setExpirationTime("60d")
     .sign(secret());
@@ -85,7 +85,7 @@ async function requireSession(request) {
   const tok = request.headers.get("x-fe-session");
   if (!tok) throw new AuthError("Non connecté");
   try {
-    const { payload } = await jwtVerify(tok, secret(), { issuer: "jlpt-etude", algorithms: ["HS256"] });
+    const { payload } = await jwtVerify(tok, secret(), { issuer: "fe-etude", algorithms: ["HS256"] });
     return payload.sub;
   } catch (e) {
     throw new AuthError("Session expirée, reconnecte-toi");

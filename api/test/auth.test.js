@@ -36,3 +36,11 @@ test("le nom du conteneur respecte les règles d'Azure", () => {
   assert.ok(CONTAINER.length >= 3 && CONTAINER.length <= 63,
     `longueur ${CONTAINER.length} hors de 3–63`);
 });
+
+test("le niveau accepté est celui que le client envoie", () => {
+  const { LEVELS } = require("../src/functions/api");
+  assert.ok(LEVELS.test("FE"), "le client appelle progress/FE");
+  for (const mauvais of ["N1", "fe", "", "FE/..", "../FE", "FE.json"]) {
+    assert.ok(!LEVELS.test(mauvais), `« ${mauvais} » ne doit pas passer`);
+  }
+});

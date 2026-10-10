@@ -10,7 +10,8 @@ const { verifyIdToken, userIdFor, issueSession, requireSession, AuthError } = re
 const store = require("../lib/store");
 
 const MAX_BODY = 4 * 1024 * 1024;
-const LEVELS = /^N[1-5]$/;
+// Le niveau entre dans le chemin du blob : validation stricte, pas un simple filtre.
+const LEVELS = /^FE$/;
 
 const json = (status, body) => ({ status, jsonBody: body, headers: { "Cache-Control": "no-store" } });
 
@@ -106,3 +107,5 @@ app.http("progress", {
     return json(200, { etag: res.etag });
   })
 });
+
+module.exports = { LEVELS };
