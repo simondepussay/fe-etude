@@ -28,3 +28,11 @@ test("un fournisseur non configuré est refusé", async () => {
   await assert.rejects(verifyIdToken("google", "a.b.c"), /non configurée/);
   await assert.rejects(verifyIdToken("facebook", "a.b.c"), /inconnu/);
 });
+
+test("le nom du conteneur respecte les règles d'Azure", () => {
+  const { CONTAINER } = require("../src/lib/store");
+  assert.match(CONTAINER, /^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){1,61}[a-z0-9]$/,
+    `nom de conteneur invalide : « ${CONTAINER} »`);
+  assert.ok(CONTAINER.length >= 3 && CONTAINER.length <= 63,
+    `longueur ${CONTAINER.length} hors de 3–63`);
+});

@@ -4,12 +4,17 @@
 // Les ETag permettent d'éviter qu'un appareil écrase les données d'un autre.
 const { BlobServiceClient } = require("@azure/storage-blob");
 
+/* Azure refuse un nom de conteneur hors de 3–63 caractères, en minuscules,
+   sans tiret doublé ni en bordure. Un nom trop court passe la revue de code
+   sans bruit et ne se voit qu'à la première connexion réelle, en 500. */
+const CONTAINER = "fe-etude";
+
 let container = null;
 async function getContainer() {
   if (container) return container;
   const conn = process.env.STORAGE_CONNECTION;
   if (!conn) throw Object.assign(new Error("Serveur mal configuré (STORAGE_CONNECTION)"), { status: 500 });
-  const c = BlobServiceClient.fromConnectionString(conn).getContainerClient("fe");
+  const c = BlobServiceClient.fromConnectionString(conn).getContainerClient(CONTAINER);
   await c.createIfNotExists();
   container = c;
   return c;
@@ -59,4 +64,4 @@ async function deletePrefix(prefix) {
   return n;
 }
 
-module.exports = { readJson, writeJson, deletePrefix };
+module.exports = { readJson, writeJson, deletePrefix, CONTAINER };
