@@ -9,7 +9,8 @@
      Ici v porte les 用語 et g portera les notions du 科目A. */
   J.MODS = {
     v: { id: "v", jp: "用語", fr: "Terminologie", en: "Terminology", unit: ["termes", "terms"], unitJp: "語" },
-    g: { id: "g", jp: "科目A", fr: "Connaissances", en: "Knowledge", unit: ["notions", "topics"], unitJp: "項目" }
+    g: { id: "g", jp: "科目A", fr: "Connaissances", en: "Knowledge", unit: ["notions", "topics"], unitJp: "項目" },
+    b: { id: "b", jp: "科目B", fr: "Algorithmes", en: "Algorithms", unit: ["problèmes", "problems"], unitJp: "問" }
   };
 
   /* ───────── Langue : tout ce qui n’est pas japonais est en français OU en anglais ───────── */
@@ -25,7 +26,7 @@
   J.modName = (m) => (J.lang() === "ja" ? J.MODS[m].jp : J.MODS[m][J.lang() === "en" ? "en" : "fr"]);
   J.modUnit = (m) => (J.lang() === "ja" ? J.MODS[m].unitJp || J.MODS[m].unit[1] : J.MODS[m].unit[J.lang() === "en" ? 1 : 0]);
   J.num = (x) => Number(x).toLocaleString(J.locale(), { maximumFractionDigits: 1 });
-  J.MODS_ALL = ["v", "g"];          // tous les modules existants
+  J.MODS_ALL = ["v", "g", "b"];          // tous les modules existants
   /* Les modules que l’utilisateur a choisi d’étudier. Tableau muté sur place :
      ui.js le déstructure au chargement, le remplacer casserait la référence. */
   J.MOD_ORDER = J.MODS_ALL.slice();
@@ -38,15 +39,23 @@
 
   const vocab = (D[J.LEVEL + "-vocab"] || []).map((x) => ({ ...x, id: x.w + "|" + x.r }));
   const gram = (D[J.LEVEL + "-grammaire"] || []).slice().sort((a, b) => a.n - b.n).map((x) => ({ ...x, id: String(x.n) }));
-  J.all = { v: vocab, g: gram };
-  J.items = { v: vocab, g: gram }; // sans les éléments retirés par l’utilisateur
+  const kamokub = (D[J.LEVEL + "-kamokub"] || []).slice().sort((a, b) => a.n - b.n).map((x) => ({ ...x, id: String(x.n) }));
+  J.all = { v: vocab, g: gram, b: kamokub };
+  J.items = { v: vocab, g: gram, b: kamokub }; // sans les éléments retirés par l’utilisateur
   J.byId = {};
   for (const m of J.MODS_ALL) J.byId[m] = Object.fromEntries(J.all[m].map((x) => [x.id, x]));
   J.gcats = D[J.LEVEL + "-grammaire-cats"] || [];
+  J.bcats = D[J.LEVEL + "-kamokub-cats"] || [];
   /* Contenus traduits : sens français des mots et kanji, grammaire en anglais */
   const VFR = D[J.LEVEL + "-vocab-fr"] || {}, VJA = D[J.LEVEL + "-vocab-ja"] || {};
   const GEN = D[J.LEVEL + "-grammaire-en"] || {}, GJA = D[J.LEVEL + "-grammaire-ja"] || {};
   const GL = () => (J.lang() === "en" ? GEN : J.lang() === "ja" ? GJA : null);   // calque de traduction du 科目A
+  const BEN = D[J.LEVEL + "-kamokub-en"] || {}, BJA = D[J.LEVEL + "-kamokub-ja"] || {};
+  const BL = () => (J.lang() === "en" ? BEN : J.lang() === "ja" ? BJA : null);
+  J.bs = (b, f) => { const O = BL(); return O && O[b.n] && O[b.n][f] !== undefined ? O[b.n][f] : b[f]; };
+  /* Énoncé de la i-ème question d’un problème, traduit si disponible. */
+  J.bq = (b, i) => { const O = BL(); return (O && O[b.n] && O[b.n].q && O[b.n].q[i]) || b.q[i][0]; };
+  J.bcat = (c) => (J.lang() === "ja" ? c.jp : J.lang() === "en" ? c.en || c.fr : c.fr);
   /* fr : traduction française · ja : définition en japonais · en : sens anglais */
   J.mean = (m, x) => (J.lang() === "ja" ? VJA[x.id] || x.m : J.lang() === "fr" ? VFR[x.id] || x.m : x.m);
   J.hasFr = (m, x) => !!(J.lang() === "ja" ? VJA[x.id] : VFR[x.id]);
@@ -73,7 +82,8 @@
   /* ───────── État ───────── */
   const DEFAULT_TIMING = {
     v: { learn: 20, rev: 9, test: 12 },
-    g: { learn: 150, rev: 35, test: 45 }
+    g: { learn: 150, rev: 35, test: 45 },
+    b: { learn: 240, rev: 60, test: 90 }
   };
   J.defaultState = () => ({
     version: 1,
@@ -85,8 +95,8 @@
       examDate: J.defaultExamDate(),
       daysPerWeek: 4,
       maxMinutes: 45,
-      mods: { v: true, g: true },
-      tests: { v: 5, g: 4 },
+      mods: { v: true, g: true, b: true },
+      tests: { v: 5, g: 4, b: 2 },
       revCap: 200,
       rate: 0.9,
       finalDays: 14

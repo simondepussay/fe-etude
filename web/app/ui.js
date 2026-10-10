@@ -257,7 +257,7 @@
       <div class="row"><button class="btn primary" data-act="practice" data-m="${m}">${L("S’entraîner", "Practice")}</button><button class="btn" data-act="mod-test" data-m="${m}">${L("Test examen", "Exam test")} · ${J.modName(m).toLowerCase()}</button>
       </div></section>`;
     const filters = [["all", L("Tous", "All")], ["0", L("Nouveaux", "New")], ["1", L("En cours", "Learning")], ["2", L("Acquis", "Known")], ["3", L("Maîtrisés", "Mastered")], ["weak", L("Points faibles", "Weak spots")], ["due", L("À réviser", "Due")]]
-      .concat(m !== "g" ? [["out", L("Retirés", "Removed")]] : []);
+      .concat(m === "v" ? [["out", L("Retirés", "Removed", "除外")]] : []);
     let list = J.items[m];
     if (f === "out") list = J.all[m].filter((x) => J.isExcluded(m, x.id));
     else if (f === "weak") list = J.weak(m, 300);
@@ -265,17 +265,21 @@
     else if (f !== "all") list = list.filter((x) => J.levelOf(m, x.id) === +f);
     if (q) {
       const ql = q.toLowerCase();
-      list = list.filter((x) => (m === "v" ? x.w + x.r + x.m + J.mean("v", x) : m === "k" ? x.k + x.on.join() + x.kun.join() + x.m + J.mean("k", x) : x.p + J.gs(x, "s") + x.f).toLowerCase().includes(ql));
+      list = list.filter((x) => (m === "v" ? x.w + x.r + x.m + J.mean("v", x)
+        : m === "b" ? x.p + J.bs(x, "s") + (x.prog || []).join(" ")
+        : x.p + J.gs(x, "s") + x.f).toLowerCase().includes(ql));
     }
     const ctrl = `<div class="filters"><input id="search" data-m="${m}" placeholder="${L("Rechercher…", "Search…")}" value="${esc(q)}">
       <div class="seg wrap">${filters.map(([k, l]) => `<button class="${f === k ? "on" : ""}" data-act="filter" data-m="${m}" data-f="${k}">${l}</button>`).join("")}</div></div>`;
     let body = "";
-    if (m === "g") {
-      body = J.gcats.map((cat) => {
+    if (m === "g" || m === "b") {
+      const cats = m === "g" ? J.gcats : J.bcats;
+      body = cats.map((cat) => {
         const pts = list.filter((x) => x.cat === cat.id);
         if (!pts.length) return "";
-        return `<h3 class="cat"><span class="jp">${esc(cat.jp)}</span> · ${esc(J.gcat(cat))}</h3><div class="glist">${pts.map((g) =>
-          `<button class="gitem" data-act="open-item" data-m="g" data-id="${g.id}"><i class="dot lv${J.levelOf("g", g.id)}"></i><span class="num">${g.n}</span><span class="jp">${esc(g.p)}</span><span class="muted">${esc(J.gs(g, "s"))}</span></button>`).join("")}</div>`;
+        const nom = m === "g" ? J.gcat(cat) : J.bcat(cat);
+        return `<h3 class="cat"><span class="jp">${esc(cat.jp)}</span> · ${esc(nom)}</h3><div class="glist">${pts.map((x) =>
+          `<button class="gitem" data-act="open-item" data-m="${m}" data-id="${x.id}"><i class="dot lv${J.levelOf(m, x.id)}"></i><span class="num">${x.n}</span><span class="jp">${esc(x.p)}</span><span class="muted">${esc(m === "g" ? J.gs(x, "s") : J.bs(x, "s"))}</span></button>`).join("")}</div>`;
       }).join("");
     } else {
       const per = m === "k" ? 240 : 120, pages = Math.max(1, Math.ceil(list.length / per)), pg = Math.min(page, pages - 1);
@@ -296,8 +300,8 @@
     const stat = r && r.at ? `<div class="stat-line"><span class="pill lv${lv}">${J.LEVELS[lv]}</span><span>${L("Appris le", "Learned on")} ${J.fmtShort(r.at)}</span><span>${L("Prochaine révision", "Next review")} : ${r.due ? J.fmtShort(r.due) : "—"}</span><span>✓ ${r.ok} · ✗ ${r.ko}</span></div>`
       : `<div class="stat-line"><span class="pill">${J.LEVELS[0]}</span><button class="btn sm" data-act="known" data-m="${m}" data-id="${esc(id)}">${L("Je le connais déjà", "I already know it")}</button></div>`;
     const out = J.isExcluded(m, id);
-    const body = (m === "g" ? J.grammarLesson(J.byId.g[id], false) : `<div class="card">${J.learnCard(m, id)}</div>`)
-      + (m !== "g" ? `<div class="row">${out ? `<span class="pill bad">${L("Retiré des leçons", "Removed from lessons", "レッスンから除外中")}</span><button class="btn sm" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="0">${L("Remettre dans les leçons", "Put back into lessons", "レッスンに戻す")}</button>`
+    const body = (m === "g" ? J.grammarLesson(J.byId.g[id], false) : m === "b" ? J.kamokubLesson(J.byId.b[id]) : `<div class="card">${J.learnCard(m, id)}</div>`)
+      + (m === "v" ? `<div class="row">${out ? `<span class="pill bad">${L("Retiré des leçons", "Removed from lessons", "レッスンから除外中")}</span><button class="btn sm" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="0">${L("Remettre dans les leçons", "Put back into lessons", "レッスンに戻す")}</button>`
         : `<button class="link" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="1">${L("Retirer des leçons", "Remove from lessons", "レッスンから外す")}</button>`}</div>` : "");
     return `<div class="item-nav"><button class="link" data-act="nav" data-v="mod-${m}">← ${J.modName(m)}</button>
       <span>${prev ? `<button class="btn sm" data-act="open-item" data-m="${m}" data-id="${esc(prev.id)}">←</button>` : ""}

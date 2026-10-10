@@ -53,6 +53,15 @@
   J.vocabBack = (v) =>
     `<div class="ans-card"><div class="ans-word jp" lang="ja">${esc(v.w)}</div><div class="ans-read jp" lang="ja">${esc(v.r)}</div><div class="ans-mean">${esc(M("v", v))}</div>
      <button class="icon-btn" data-act="say" data-say="${esc(v.r)}" title="${L("Écouter", "Listen")}">🔊</button></div>`;
+  /* Affiche un programme en 擬似言語. Les blancs sont notés ［ a ］ dans le texte. */
+  J.progBlock = (b) => !b.prog ? "" :
+    `<pre class="prog jp" lang="ja">${b.prog.map((l) => esc(l)).join("\n")}</pre>`;
+  J.kamokubBack = (b) =>
+    `<div class="ans-card b">${J.progBlock(b)}
+      <div class="ans-mean">${esc(J.bs(b, "e"))}</div>
+      ${b.t ? `<div class="piege"><b>${L("Piège", "Pitfall", "注意")}</b> ${esc(J.bs(b, "t"))}</div>` : ""}
+      <button class="link" data-act="open-item" data-m="b" data-id="${b.id}">${L("Revoir le problème", "Review the problem", "問題を見直す")} →</button></div>`;
+
   J.gramBack = (g, extra = "") =>
     `<div class="ans-card left"><div class="ans-pattern jp" lang="ja">${esc(g.p)}</div><div class="ans-mean">${esc(J.gs(g, "s"))}</div>
       <div class="ans-form jp" lang="ja">${esc(g.f)}</div>${extra}
@@ -62,11 +71,13 @@
   /* ───────── Types d’exercices par module et par étape ───────── */
   const KINDS = {
     v: { rev: ["v-read", "v-mean", "v-word", "v-flash", "v-read"], check: ["v-mean", "v-read"], test: ["v-read", "v-word"] },
-    g: { rev: ["g-qcm", "g-cloze", "g-rev", "g-ord", "g-flash", "g-qcm"], check: ["g-qcm", "g-rev"], test: ["g-qcm", "g-ord", "g-qcm"] }
+    g: { rev: ["g-qcm", "g-cloze", "g-rev", "g-ord", "g-flash", "g-qcm"], check: ["g-qcm", "g-rev"], test: ["g-qcm", "g-ord", "g-qcm"] },
+    b: { rev: ["b-qcm", "b-flash", "b-qcm"], check: ["b-qcm"], test: ["b-qcm"] }
   };
   const LABELS = {
     "v-read": ["読み方", "Lecture", "Reading"], "v-mean": ["意味", "Sens", "Meaning"], "v-word": ["語彙", "Quel mot ?", "Which word?"], "v-flash": ["カード", "Rappel", "Recall"],
-    "g-qcm": ["文法形式の判断", "Grammaire", "Grammar"], "g-cloze": ["穴埋め", "Phrase à trous", "Fill the gap"], "g-rev": ["意味 → 形", "Quelle forme ?", "Which form?"], "g-ord": ["文の組み立て", "Phrase à ordonner ★", "Sentence order ★"], "g-flash": ["カード", "Rappel", "Recall"]
+    "g-qcm": ["文法形式の判断", "Grammaire", "Grammar"], "g-cloze": ["穴埋め", "Phrase à trous", "Fill the gap"], "g-rev": ["意味 → 形", "Quelle forme ?", "Which form?"], "g-ord": ["文の組み立て", "Phrase à ordonner ★", "Sentence order ★"], "g-flash": ["カード", "Rappel", "Recall"],
+    "b-qcm": ["科目B", "Trace du programme", "Program trace"], "b-flash": ["カード", "Rappel", "Recall"]
   };
   J.kindLabel = (k) => `${LABELS[k][0]} · ${L(LABELS[k][1], LABELS[k][2])}`;
 
@@ -75,6 +86,7 @@
     if (kind === "v-read") return x.w !== x.r && /[一-龯]/.test(x.w);
     if (kind === "g-ord") return !!x.o;
     if (kind === "g-cloze") return x.ex && x.ex.length;
+    if (kind === "b-qcm") return x.q && x.q.length;
     return true;
   }
 
@@ -139,6 +151,22 @@
         prompt: `<p class="q-help">次の文の ★ に入る最もよいものを選べるよう、並べ替えなさい。</p>`,
         back: J.gramBack(g, `<div class="sentence small jp" lang="ja">${esc(pre)}${pcs.map((p, i) => (i === star ? `<mark>${esc(p)}</mark>` : esc(p))).join("")}${esc(post)}</div>${trad(full)}`), say: full };
     },
+    /* 科目B */
+    "b-qcm": (b) => {
+      const i = Math.floor(Math.random() * b.q.length);
+      const opts = b.q[i][1];
+      return {
+        mode: "choice",
+        prompt: `<p class="q-help">${esc(J.bs(b, "s"))}</p>${J.progBlock(b)}<p class="q-enonce">${esc(J.bq(b, i))}</p>`,
+        options: uniqueOptions(opts[0], opts.slice(1)), answer: opts[0], back: J.kamokubBack(b)
+      };
+    },
+    "b-flash": (b) => ({
+      mode: "flash",
+      prompt: `<p class="q-help">${L("Que fait ce programme ?", "What does this program do?", "このプログラムは何をするか")}</p>${J.progBlock(b)}`,
+      back: J.kamokubBack(b)
+    }),
+
     "g-flash": (g) => ({
       mode: "self", prompt: `<p class="q-help">${L("Donne le sens et la construction, puis vérifie.", "Give the meaning and the construction, then check.")}</p><div class="big-jp jp" lang="ja">${esc(g.p)}</div>`,
       back: J.gramBack(g, exLine(g, 0)), say: g.ex[0][0]
@@ -175,6 +203,25 @@
       ${piege ? `<div class="g-box warn"><h4>⚠︎ ${L("Piège", "Watch out")}</h4><p>${esc(piege)}</p></div>` : ""}
       ${compact ? "" : `<div class="g-box"><h4>${L("Mes notes et mes phrases", "My notes and sentences")}</h4>
         <textarea id="notes" data-key="g:${g.id}" rows="4" placeholder="${L("Écris ici tes propres phrases avec ce point : c’est le meilleur moyen de le retenir.", "Write your own sentences with this point here: it’s the best way to remember it.")}">${esc(J.S.notes["g:" + g.id] || "")}</textarea></div>`}
+    </article>`;
+  };
+
+  /* Fiche d’un problème de 科目B : le programme, ce qu’il fait, la trace, les pièges. */
+  J.kamokubLesson = function (b) {
+    const cat = J.bcats.find((c) => c.id === b.cat);
+    const piege = J.bs(b, "t");
+    return `<article class="glesson">
+      <div class="g-top"><span class="pill">${b.n} · ${esc(cat ? cat.jp : "")}</span><span class="muted">${esc(cat ? J.bcat(cat) : "")}</span></div>
+      <h2 class="g-pattern jp" lang="ja">${esc(b.p)}</h2>${b.y ? `<div class="muted jp" lang="ja">${esc(b.y)}</div>` : ""}
+      <p class="g-sens">${esc(J.bs(b, "s"))}</p>
+      ${b.prog ? `<div class="g-box"><h4>擬似言語 · ${L("Programme", "Program", "プログラム")}</h4>${J.progBlock(b)}</div>` : ""}
+      <div class="g-box"><h4>${L("Explication", "Explanation", "解説")}</h4><p>${esc(J.bs(b, "e"))}</p></div>
+      ${b.trace ? `<div class="g-box"><h4>${L("Déroulé pas à pas", "Step by step", "トレース")}</h4>
+        <table class="trace"><thead><tr>${b.trace[0].map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
+        <tbody>${b.trace.slice(1).map((r) => `<tr>${r.map((c) => `<td class="jp">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : ""}
+      ${piege ? `<div class="g-box warn"><h4>⚠︎ ${L("Piège", "Watch out", "注意")}</h4><p>${esc(piege)}</p></div>` : ""}
+      <div class="g-box"><h4>${L("Mes notes", "My notes", "メモ")}</h4>
+        <textarea id="notes" data-key="b:${b.id}" rows="4" placeholder="${L("Note ici ce qui t’a bloqué dans ce programme.", "Note here what tripped you up in this program.", "つまずいた点を書いておく。")}">${esc(J.S.notes["b:" + b.id] || "")}</textarea></div>
     </article>`;
   };
 })();

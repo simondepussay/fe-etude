@@ -492,3 +492,24 @@ table.plan td { font: 700 1rem var(--jp); }
 .dose .seg button .jp { color: var(--kin); font-weight: 700; }
 .dose .seg button.on .jp { color: inherit; }
 .badge-x2 { display: inline-block; font: 700 .8rem var(--ui); color: var(--sheet); background: var(--kin); padding: 1px 7px; transform: rotate(-4deg); vertical-align: middle; }
+
+/* 擬似言語 — le programme du 科目B */
+.prog {
+    margin: 0;
+    padding: 12px 14px;
+    overflow-x: auto;
+    border-radius: 6px;
+    background: #1f1b16;
+    color: #f0e6d8;
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre;
+    tab-size: 2;
+}
+.q-enonce { margin: 12px 0 0; font-weight: 600; }
+.ans-card.b .prog { font-size: 12px; }
+.trace { width: 100%; border-collapse: collapse; font-size: 13px; }
+.trace th, .trace td { border: 1px solid #c9bda9; padding: 4px 10px; text-align: center; }
+.trace th { background: #efe7d9; font-weight: 600; }
+.piege { margin-top: 10px; font-size: 13px; }
