@@ -447,7 +447,9 @@
         <div class="row"><button class="btn" data-act="export">${L("Exporter une copie (.json)", "Export a copy (.json)", "書き出す（.json）")}</button>
         <button class="btn" data-act="import">${L("Importer une sauvegarde", "Import a backup", "バックアップを読み込む")}</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
         <p class="muted small">${L("L’export est une copie de secours ; il peut être réimporté sur n’importe quel appareil.", "The export is a safety copy; it can be imported again on any device.", "書き出したファイルは控えです。どの端末でも読み込めます。")}</p></section>
-      <section class="card danger"><h3>${L("Zone sensible", "Danger zone", "取り扱い注意")}</h3><button class="btn" data-act="reset">${L("Tout réinitialiser…", "Reset everything…", "すべて初期化…")}</button></section>`;
+      <section class="card danger"><h3>${L("Zone sensible", "Danger zone", "取り扱い注意")}</h3><button class="btn" data-act="reset">${L("Tout réinitialiser…", "Reset everything…", "すべて初期化…")}</button></section>
+      <p class="muted small liens-legaux"><a href="/confidentialite.html">${L("Confidentialité", "Privacy", "プライバシーポリシー")}</a>
+        · <a href="/conditions.html">${L("Conditions d’utilisation", "Terms of use", "利用規約")}</a></p>`;
   };
 
   /* Compte */

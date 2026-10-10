@@ -631,3 +631,5 @@ main h1:not(.lp-titre)::after {
 
 /* Le numéro de série, à la façon des billets Edmondson */
 .t-no { font-variant-numeric: tabular-nums; }
+.liens-legaux { text-align: center; margin: 26px 0 0; }
+.liens-legaux a { color: var(--muted); }
