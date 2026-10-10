@@ -633,3 +633,27 @@ main h1:not(.lp-titre)::after {
 .t-no { font-variant-numeric: tabular-nums; }
 .liens-legaux { text-align: center; margin: 26px 0 0; }
 .liens-legaux a { color: var(--muted); }
+
+/* ═══ すやり霞 ═══════════════════════════════════════════════════════════
+   Les bandes de brume des estampes, posées au bas de la page. Elles
+   respirent lentement : un va-et-vient de quelques pixels, pas une boucle,
+   pour qu’aucune couture n’apparaisse. */
+.kasumi {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 46vh; z-index: -1;
+    pointer-events: none; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 55%);
+            mask-image: linear-gradient(to bottom, transparent, #000 55%);
+}
+.kasumi svg { width: 100%; height: 100%; display: block; }
+.kasumi .k rect { fill: var(--ai); }
+.kasumi .k-a { opacity: .07; animation: derive 71s ease-in-out infinite; }
+.kasumi .k-b { opacity: .055; animation: derive 97s ease-in-out infinite reverse; }
+.kasumi .k-c { opacity: .045; animation: derive 59s ease-in-out infinite; }
+.kasumi .k-b rect { fill: var(--kin); }
+@keyframes derive {
+    from { transform: translateX(-14px); }
+    50%  { transform: translateX(14px); }
+    to   { transform: translateX(-14px); }
+}
+@media (prefers-reduced-motion: reduce) { .kasumi .k { animation: none; } }
+@media (max-width: 600px) { .kasumi { height: 34vh; } }
