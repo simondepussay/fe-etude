@@ -56,7 +56,9 @@
       ["progress", "進捗", L("Progression", "Progress", "")], ["settings", "設定", L("Réglages", "Settings", "")]];
     const cur = view.name === "mod" ? "mod-" + view.p.m : view.name === "item" ? "mod-" + view.p.m : view.name;
     const u = J.user(), bad = J.store.status === "error" || J.store.status === "offline" || J.store.expired;
-    const st = u
+    // sans fournisseur configuré, rien ne doit proposer une connexion qui n’existe pas
+    const st = !J.authReady ? ""
+      : u
       ? `<button class="save ${bad ? "err" : "ok"} ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${esc(J.store.error || L("Progression synchronisée sur ton compte", "Progress synced to your account", "学習記録はアカウントに同期されています"))}">${bad ? "⚠︎" : "●"} ${esc(u.name || u.email || L("Mon compte", "My account", "アカウント"))}</button>`
       : `<button class="save warn ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${L("Sans compte, la progression reste dans ce navigateur", "Without an account, progress stays in this browser", "アカウントがない場合、記録はこのブラウザにだけ残ります")}">${L("Se connecter", "Sign in", "ログイン")}</button>`;
     return `<header class="top"><div class="brand"><span class="hanko" aria-hidden="true">基本<br>情報</span><span class="brand-t">基本情報 Étude</span></div>

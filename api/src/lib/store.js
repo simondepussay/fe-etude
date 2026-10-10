@@ -9,7 +9,7 @@ async function getContainer() {
   if (container) return container;
   const conn = process.env.STORAGE_CONNECTION;
   if (!conn) throw Object.assign(new Error("Serveur mal configuré (STORAGE_CONNECTION)"), { status: 500 });
-  const c = BlobServiceClient.fromConnectionString(conn).getContainerClient("jlpt");
+  const c = BlobServiceClient.fromConnectionString(conn).getContainerClient("fe");
   await c.createIfNotExists();
   container = c;
   return c;

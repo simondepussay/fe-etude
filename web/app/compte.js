@@ -1,7 +1,7 @@
 /* 基本情報 Étude — connexion (Google, Apple, Microsoft). */
 (function () {
   const J = window.J;
-  const C = window.JLPT_CONFIG || {};
+  const C = window.FE_CONFIG || {};
 
   const loadScript = (src) => new Promise((res, rej) => {
     if (document.querySelector(`script[src="${src}"]`)) return res();
