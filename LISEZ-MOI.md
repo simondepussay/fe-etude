@@ -12,7 +12,7 @@ Trois profils au choix : **français**, **anglais** ou **日本語**. Le japonai
 |---|---|---|
 | 用語 | Terme japonais → sens en français / en anglais, ou **définition en japonais** pour le profil ja | 58 termes |
 | 科目A | Notion + formule + exemples résolus + pièges + QCM | 120 notions, 240 QCM, les 23 中分類 |
-| 科目B | Programme en 擬似言語 + question + déroulé pas à pas | 10 problèmes, 20 QCM |
+| 科目B | 8 points de méthode (trace, indices, boucles, conditions, fonctions, récursivité, structures, sécurité) + 10 problèmes : programme en 擬似言語, question, déroulé pas à pas | 18 fiches, 36 QCM |
 
 Les modules s’activent et se désactivent dans *Réglages* et au premier lancement : on peut réviser le 科目A seul, le 科目B seul, ou tout.
 

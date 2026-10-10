@@ -513,3 +513,4 @@ table.plan td { font: 700 1rem var(--jp); }
 .trace th, .trace td { border: 1px solid #c9bda9; padding: 4px 10px; text-align: center; }
 .trace th { background: #efe7d9; font-weight: 600; }
 .piege { margin-top: 10px; font-size: 13px; }
+.sous-cat { margin: 14px 0 6px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--gris, #8a7f6d); }

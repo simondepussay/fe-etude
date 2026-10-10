@@ -2,7 +2,10 @@
 (function () {
   const J = window.J;
   const { esc, MODS, MOD_ORDER } = J;
-  const L = (fr, en) => J.L(fr, en);
+  const L = (fr, en, ja) => J.L(fr, en, ja);
+  // En japonais J.modName renvoie déjà le nom japonais : on ne l’écrit pas deux fois
+  const modTitre = (m) => `<span class="jp">${MODS[m].jp}</span>${J.modName(m) === MODS[m].jp ? "" : " " + J.modName(m)}`;
+  const catTitre = (jp, nom) => `<span class="jp">${esc(jp)}</span>${nom === jp ? "" : " · " + esc(nom)}`;
   const app = document.getElementById("app");
   let view = { name: "home", p: {} };
   let R = null;   // session en cours (leçon ou entraînement)
@@ -118,7 +121,7 @@
     const head = onlyNew ? `<th>${L("Nouveaux / jour", "New / day")}</th><th>${L("Restants", "Remaining")}</th>`
       : `<th>${L("Réviser", "Review")}</th><th>${L("Apprendre", "Learn")}</th><th>${L("Tester", "Test")}</th>`;
     return `<table class="plan"><thead><tr><th></th>${head}</tr></thead><tbody>
-      ${MOD_ORDER.map((m) => { const p = plan.mods[m]; return `<tr><th><span class="jp">${MODS[m].jp}</span> ${J.modName(m)}</th>${onlyNew ? `<td>${p.new}${p.new < p.needed ? ` <small class="bad">/ ${p.needed} ${L("nécessaires", "needed")}</small>` : ""}</td><td>${p.remaining}</td>` : `<td>${p.due}</td><td>${p.newLeft}</td><td>${p.test}</td>`}</tr>`; }).join("")}
+      ${MOD_ORDER.map((m) => { const p = plan.mods[m]; return `<tr><th>${modTitre(m)}</th>${onlyNew ? `<td>${p.new}${p.new < p.needed ? ` <small class="bad">/ ${p.needed} ${L("nécessaires", "needed")}</small>` : ""}</td><td>${p.remaining}</td>` : `<td>${p.due}</td><td>${p.newLeft}</td><td>${p.test}</td>`}</tr>`; }).join("")}
       </tbody></table>`;
   }
   function planNote(plan) {
@@ -215,7 +218,8 @@
   const ttRow = (jp, tr, n, per) => `<li class="${n ? "" : "off"}"><span class="tt-jp">${jp}</span><span class="tt-fr">${tr}</span>
     ${per ? `<span class="tt-per">${per.map((x, i) => (x ? `<i class="m-${MOD_ORDER[i]}">${MODS[MOD_ORDER[i]].jp[0]}${x}</i>` : "")).join("")}</span>` : ""}<b>${n}</b></li>`;
 
-  const KANJI_MARK = { v: "語", k: "漢", g: "文" };
+  // Marque du ticket : un signe et un numéro par module
+  const MOD_MARK = { v: ["語", "01"], g: ["Ａ", "02"], b: ["Ｂ", "03"] };
   function modSummary(m, plan, proj) {
     const p = plan.mods[m], pr = proj[m];
     let st;
@@ -224,9 +228,9 @@
     else if (pr.onTime) st = stamp("順調", m, "ok") + `<span class="st-fr">${L("Dans les temps", "On track")}</span>`;
     else st = stamp("遅れ", m) + `<span class="st-fr">${L(`Retard ≈ ${Math.ceil(pr.late / 7)} sem.`, `≈ ${Math.ceil(pr.late / 7)} wk behind`)}</span>`;
     return `<button class="ticket t-${m}" data-act="nav" data-v="mod-${m}">
-      <span class="t-stub"><span class="t-kanji">${KANJI_MARK[m]}</span><span class="t-no">No.${m === "v" ? "01" : m === "k" ? "02" : "03"}</span></span>
+      <span class="t-stub"><span class="t-kanji">${(MOD_MARK[m] || ["", "00"])[0]}</span><span class="t-no">No.${(MOD_MARK[m] || ["", "00"])[1]}</span></span>
       <span class="t-body">
-        <span class="t-head"><span class="jp t-jp">${MODS[m].jp}</span><span class="t-fr">${J.modName(m)}</span></span>
+        <span class="t-head"><span class="jp t-jp">${MODS[m].jp}</span>${J.modName(m) === MODS[m].jp ? "" : `<span class="t-fr">${J.modName(m)}</span>`}</span>
         ${bar(p.levels, p.total)}
         <span class="t-n"><b>${p.learned}</b><small>/ ${p.total} ${J.modUnit(m)}</small></span>
         <span class="t-meta">${p.levels[3]} ${L("maîtrisés", "mastered")}${pr.finish ? ` · ${L("fin prévue", "expected end")} ${J.fmtShort(pr.finish)}` : ""}</span>
@@ -251,10 +255,10 @@
   /* Pages module */
   VIEWS.mod = ({ m, f = "all", q = "", page = 0 }) => {
     const c = J.counts(m), acc = J.accuracy(m);
-    const head = `<section class="mod-head"><div><h1><span class="jp">${MODS[m].jp}</span> ${J.modName(m)} <small>${J.LEVEL}</small></h1>
+    const head = `<section class="mod-head"><div><h1>${modTitre(m)} <small>${J.LEVEL}</small></h1>
       ${bar(c.levels, c.total)}
       <div class="legend">${J.LEVELS.map((l, i) => `<span><i class="lv${i}"></i>${l} ${c.levels[i]}</span>`).join("")}${acc !== null ? `<span>${L("Réussite", "Accuracy")} ${Math.round(acc * 100)} %</span>` : ""}</div></div>
-      <div class="row"><button class="btn primary" data-act="practice" data-m="${m}">${L("S’entraîner", "Practice")}</button><button class="btn" data-act="mod-test" data-m="${m}">${L("Test examen", "Exam test")} · ${J.modName(m).toLowerCase()}</button>
+      <div class="row"><button class="btn primary" data-act="practice" data-m="${m}">${L("S’entraîner", "Practice")}</button><button class="btn" data-act="mod-test" data-m="${m}">${L("Test examen", "Exam test", "模擬テスト")} · ${J.lang() === "ja" ? MODS[m].jp : J.modName(m).toLowerCase()}</button>
       </div></section>`;
     const filters = [["all", L("Tous", "All")], ["0", L("Nouveaux", "New")], ["1", L("En cours", "Learning")], ["2", L("Acquis", "Known")], ["3", L("Maîtrisés", "Mastered")], ["weak", L("Points faibles", "Weak spots")], ["due", L("À réviser", "Due")]]
       .concat(m === "v" ? [["out", L("Retirés", "Removed", "除外")]] : []);
@@ -278,8 +282,14 @@
         const pts = list.filter((x) => x.cat === cat.id);
         if (!pts.length) return "";
         const nom = m === "g" ? J.gcat(cat) : J.bcat(cat);
-        return `<h3 class="cat"><span class="jp">${esc(cat.jp)}</span> · ${esc(nom)}</h3><div class="glist">${pts.map((x) =>
+        const rangee = (liste) => `<div class="glist">${liste.map((x) =>
           `<button class="gitem" data-act="open-item" data-m="${m}" data-id="${x.id}"><i class="dot lv${J.levelOf(m, x.id)}"></i><span class="num">${x.n}</span><span class="jp">${esc(x.p)}</span><span class="muted">${esc(m === "g" ? J.gs(x, "s") : J.bs(x, "s"))}</span></button>`).join("")}</div>`;
+        const titre = `<h3 class="cat">${catTitre(cat.jp, nom)}</h3>`;
+        if (m !== "b") return titre + rangee(pts);
+        const lecons = pts.filter((x) => x.kind === "notion"), exos = pts.filter((x) => x.kind !== "notion");
+        return titre
+          + (lecons.length ? `<h4 class="sous-cat">${L("Points de méthode", "Method points", "解き方のポイント")}</h4>` + rangee(lecons) : "")
+          + (exos.length ? `<h4 class="sous-cat">${L("Exercices", "Exercises", "演習問題")}</h4>` + rangee(exos) : "");
       }).join("");
     } else {
       const per = m === "k" ? 240 : 120, pages = Math.max(1, Math.ceil(list.length / per)), pg = Math.min(page, pages - 1);
@@ -313,7 +323,7 @@
   /* Choix d’entraînement */
   VIEWS.practice = ({ m }) => {
     const c = J.counts(m);
-    return `<section class="card"><h1>${L("S’entraîner", "Practice")} · <span class="jp">${MODS[m].jp}</span> ${J.modName(m)}</h1>
+    return `<section class="card"><h1>${L("S’entraîner", "Practice", "演習")} · ${modTitre(m)}</h1>
       <p class="muted">${L("L’entraînement libre ne modifie pas ton planning ; il enregistre seulement tes réussites et tes erreurs.", "Free practice does not change your schedule; it only records your correct answers and mistakes.")}</p>
       <div class="field"><label>${L("Sur quels éléments ?", "Which items?")}</label><div class="seg wrap" id="p-src">
         <button class="on" data-act="pseg" data-g="src" data-v="learned">${L("Déjà vus", "Already seen")} (${c.learned})</button>
@@ -343,7 +353,7 @@
       <div class="card"><h3>${L("Suis-je dans les temps ?", "Am I on track?")}</h3>
         <table class="plan"><thead><tr><th></th><th>${L("Vus", "Seen")}</th><th>${L("Maîtrisés", "Mastered")}</th><th>${L("Réussite", "Accuracy")}</th><th>${L("Rythme", "Pace")}</th><th>${L("Fin prévue", "Expected end")}</th><th>${L("Objectif", "Target")}</th></tr></thead><tbody>
         ${MOD_ORDER.map((m) => { const p = plan.mods[m], pr = proj[m], acc = J.accuracy(m);
-          return `<tr><th><span class="jp">${MODS[m].jp}</span> ${J.modName(m)}</th><td>${p.learned}/${p.total}</td><td>${p.levels[3]}</td><td>${acc === null ? "—" : Math.round(acc * 100) + " %"}</td>
+          return `<tr><th>${modTitre(m)}</th><td>${p.learned}/${p.total}</td><td>${p.levels[3]}</td><td>${acc === null ? "—" : Math.round(acc * 100) + " %"}</td>
           <td>${J.num(pr.perStudyDay)}/${L("jour", "day")}</td><td class="${pr.onTime ? "good" : "bad"}">${pr.finish ? J.fmtShort(pr.finish) : "—"}</td><td>${J.fmtShort(plan.target)}</td></tr>`; }).join("")}
         </tbody></table>
         <p class="muted small">${L(`L’objectif est de tout avoir vu ${J.S.settings.finalDays} jours avant l’examen (${J.fmtDate(J.S.settings.examDate)}), pour garder du temps pour la révision finale. La projection utilise ton rythme réel dès que tu as assez de jours de données.`,
@@ -533,7 +543,7 @@
       <div class="progress ruler"><span style="width:${pct(R.pos, R.queue.length)}%"></span></div>`;
     if (!it) return head + finishView();
     if (it.s !== "learn" && (!EX || EX._pos !== R.pos || EX._lang !== J.lang())) { EX = J.makeEx(it.m, it.id, it.s === "fix" ? "rev" : it.s, it.kind); EX._pos = R.pos; EX._lang = J.lang(); }
-    const modPill = `<span class="pill mod-${it.m}"><span class="jp">${MODS[it.m].jp}</span> ${J.modName(it.m)}</span>`;
+    const modPill = `<span class="pill mod-${it.m}">${modTitre(it.m)}</span>`;
     const tag = `<div class="ex-tag">${modPill}<span class="pill stage-${it.s}">${STAGE()[it.s]}</span>${it.s !== "learn" && EX ? `<span class="muted">${esc(EX.label)}</span>` : ""}</div>`;
     const aside = it.m !== "g" && !it.free ? `<div class="ex-aside"><button data-act="exclude-cur">${L("Ce terme ne te sert pas ? Le retirer des leçons", "Not a useful term? Remove it from lessons", "この用語を外す")}</button></div>` : "";
     if (it.s === "learn") {

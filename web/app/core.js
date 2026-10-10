@@ -10,7 +10,7 @@
   J.MODS = {
     v: { id: "v", jp: "用語", fr: "Terminologie", en: "Terminology", unit: ["termes", "terms"], unitJp: "語" },
     g: { id: "g", jp: "科目A", fr: "Connaissances", en: "Knowledge", unit: ["notions", "topics"], unitJp: "項目" },
-    b: { id: "b", jp: "科目B", fr: "Algorithmes", en: "Algorithms", unit: ["problèmes", "problems"], unitJp: "問" }
+    b: { id: "b", jp: "科目B", fr: "Algorithmes", en: "Algorithms", unit: ["points", "items"], unitJp: "項目" }
   };
 
   /* ───────── Langue : tout ce qui n’est pas japonais est en français OU en anglais ───────── */

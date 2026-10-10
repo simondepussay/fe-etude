@@ -1,5 +1,7 @@
 /* 科目B — problèmes.
-   n : numéro · cat : B1 アルゴリズム / B2 セキュリティ · p : titre · y : lecture
+   n : numéro · cat : B1 アルゴリズム / B2 セキュリティ
+   kind : "notion" (point de méthode à apprendre) ou "probleme" (exercice d'application)
+   p : titre · y : lecture
    s : en une phrase · prog : le programme en 擬似言語, une ligne par entrée
    e : la leçon · trace : déroulé pas à pas (première ligne = en-têtes)
    t : pièges · q : [énoncé, [bonne réponse, distracteurs…]] */
@@ -10,7 +12,7 @@ window.DATA["FE-kamokub-cats"] = [
 ];
 window.DATA["FE-kamokub"] = [
 
-{n:1, cat:"B1", p:"配列の合計", y:"はいれつのごうけい",
+{n:1, cat:"B1", kind:"probleme", p:"配列の合計", y:"はいれつのごうけい",
  s:"Parcourir un tableau en accumulant : le squelette de presque tous les programmes du 科目B",
  prog:["○整数型: goukei(整数型の配列: a)",
        "  整数型: i, sum",
@@ -25,7 +27,7 @@ window.DATA["FE-kamokub"] = [
  q:[["a が {3, 1, 4} のとき、戻り値は＿＿＿である。", ["8","3","4","12"]],
     ["sum ← 0 を for の内側に移すと、a が {3, 1, 4} のときの戻り値は＿＿＿になる。", ["4","8","0","3"]]]},
 
-{n:2, cat:"B1", p:"最大値を探す", y:"さいだいちをさがす",
+{n:2, cat:"B1", kind:"probleme", p:"最大値を探す", y:"さいだいちをさがす",
  s:"Garder le meilleur candidat rencontré jusqu’ici",
  prog:["○整数型: saidai(整数型の配列: a)",
        "  整数型: i, max",
@@ -42,7 +44,7 @@ window.DATA["FE-kamokub"] = [
  q:[["a が {5, 9, 2, 7} のとき、戻り値は＿＿＿である。", ["9","5","7","2"]],
     ["max ← a[1] を max ← 0 に変えたとき、すべての要素が負の配列では戻り値は＿＿＿になる。", ["0","配列の最大値","配列の最小値","エラーになる"]]]},
 
-{n:3, cat:"B1", p:"線形探索", y:"せんけいたんさく",
+{n:3, cat:"B1", kind:"probleme", p:"線形探索", y:"せんけいたんさく",
  s:"Chercher une valeur et renvoyer sa position, ou signaler l’absence",
  prog:["○整数型: tansaku(整数型の配列: a, 整数型: key)",
        "  整数型: i",
@@ -57,7 +59,7 @@ window.DATA["FE-kamokub"] = [
  q:[["a が {4, 8, 15} 、key が 8 のとき、戻り値は＿＿＿である。", ["2","8","1","−1"]],
     ["key が配列のどこにも存在しないとき、戻り値は＿＿＿である。", ["−1","0","aの要素数","未定義"]]]},
 
-{n:4, cat:"B1", p:"階乗（再帰）", y:"かいじょう（さいき）",
+{n:4, cat:"B1", kind:"probleme", p:"階乗（再帰）", y:"かいじょう（さいき）",
  s:"Une fonction qui s’appelle elle-même, et la condition qui l’arrête",
  prog:["○整数型: kaijou(整数型: n)",
        "  if (n ≤ 1)",
@@ -70,7 +72,7 @@ window.DATA["FE-kamokub"] = [
  q:[["kaijou(4) の戻り値は＿＿＿である。", ["24","4","12","10"]],
     ["if (n ≤ 1) return 1 の行を削除すると、どうなるか＿＿＿。", ["呼出しが止まらずスタックがあふれる","戻り値が1大きくなる","戻り値が0になる","結果は変わらない"]]]},
 
-{n:5, cat:"B1", p:"配列の反転", y:"はいれつのはんてん",
+{n:5, cat:"B1", kind:"probleme", p:"配列の反転", y:"はいれつのはんてん",
  s:"Échanger deux éléments en partant des deux bouts vers le centre",
  prog:["○配列: hanten(整数型の配列: a)",
        "  整数型: i, j, tmp",
@@ -90,7 +92,7 @@ window.DATA["FE-kamokub"] = [
  q:[["a が {1, 2, 3, 4} のとき、戻り値は＿＿＿である。", ["{4, 3, 2, 1}","{1, 2, 3, 4}","{4, 1, 2, 3}","{2, 1, 4, 3}"]],
     ["tmp を使わず a[i] ← a[j] 、a[j] ← a[i] と書くと＿＿＿。", ["両方の要素が同じ値になる","正しく交換される","無限ループになる","配列の要素数が変わる"]]]},
 
-{n:6, cat:"B1", p:"10進数を2進数に変換", y:"じっしんすうをにしんすうにへんかん",
+{n:6, cat:"B1", kind:"probleme", p:"10進数を2進数に変換", y:"じっしんすうをにしんすうにへんかん",
  s:"Diviser par deux en accumulant les restes, dans le bon sens",
  prog:["○文字列型: nishin(整数型: n)",
        "  文字列型: s",
@@ -108,7 +110,7 @@ window.DATA["FE-kamokub"] = [
  q:[["n が 13 のとき、戻り値は＿＿＿である。", ["1101","1011","1110","1100"]],
     ["n が 0 のとき、戻り値は＿＿＿である。", ["空文字列","0","1","未定義"]]]},
 
-{n:7, cat:"B1", p:"素数の判定", y:"そすうのはんてい",
+{n:7, cat:"B1", kind:"probleme", p:"素数の判定", y:"そすうのはんてい",
  s:"Chercher un diviseur, et conclure dès qu’on en trouve un",
  prog:["○論理型: sosuu(整数型: n)",
        "  整数型: i",
@@ -126,7 +128,7 @@ window.DATA["FE-kamokub"] = [
  q:[["n が 9 のとき、戻り値は＿＿＿である。", ["false","true","0","1"]],
     ["for の終了値を n − 1 から nの平方根 に変えても結果が変わらないのは＿＿＿だからである。", ["約数は平方根をはさんで対になるから","n が必ず奇数だから","mod の計算が速いから","for が2から始まるから"]]]},
 
-{n:8, cat:"B1", p:"バブルソートの1回分", y:"バブルソートのいっかいぶん",
+{n:8, cat:"B1", kind:"probleme", p:"バブルソートの1回分", y:"バブルソートのいっかいぶん",
  s:"Un seul passage du tri à bulles, et ce qu’il garantit",
  prog:["○配列: ichiPass(整数型の配列: a)",
        "  整数型: i, tmp",
@@ -144,18 +146,133 @@ window.DATA["FE-kamokub"] = [
  q:[["a が {3, 1, 4, 2} のとき、戻り値は＿＿＿である。", ["{1, 3, 2, 4}","{1, 2, 3, 4}","{3, 1, 4, 2}","{1, 3, 4, 2}"]],
     ["1回のパスが終わった時点で必ず確定しているのは＿＿＿である。", ["末尾が最大値になっていること","先頭が最小値になっていること","全体が整列されていること","何も確定しない"]]]},
 
-{n:9, cat:"B2", p:"ファイル共有の権限設定", y:"ファイルきょうゆうのけんげんせってい",
+{n:9, cat:"B2", kind:"probleme", p:"ファイル共有の権限設定", y:"ファイルきょうゆうのけんげんせってい",
  s:"Qui a le droit de lire, d’écrire, et que faire quand quelqu’un part",
  e:"Sur un serveur partagé, les droits se donnent par rôle et non par personne, et on n’accorde que ce que le travail exige. Quand quelqu’un quitte l’entreprise, la priorité est de couper l’accès immédiatement en désactivant le compte : on le supprime plus tard, une fois vérifié que rien d’important n’y est rattaché. Changer son mot de passe ne suffit pas, car une session déjà ouverte ou une clé enregistrée peut rester valide.",
  t:"Supprimer tout de suite le compte est une erreur courante : on perd les traces et parfois la propriété de fichiers. On désactive d’abord, on conserve les journaux, on supprime ensuite.",
  q:[["退職者のアカウントに対して最初に行うべき対応は＿＿＿である。", ["アカウントを無効化する","アカウントを削除する","パスワードを変更する","権限を縮小する"]],
     ["最小権限の原則に沿った権限設定は＿＿＿である。", ["業務に必要な範囲だけを許可する","全員に読取りを許可する","全員に管理者権限を与える","権限設定を行わない"]]]},
 
-{n:10, cat:"B2", p:"マルウェア感染時の初動", y:"マルウェアかんせんじのしょどう",
+{n:10, cat:"B2", kind:"probleme", p:"マルウェア感染時の初動", y:"マルウェアかんせんじのしょどう",
  s:"Les premiers gestes quand un poste est soupçonné d’être infecté",
  e:"La première chose à faire est d’isoler le poste du réseau, pour empêcher la propagation et couper la communication avec l’attaquant : on débranche le câble ou on désactive le sans-fil. On prévient ensuite l’équipe de réponse aux incidents, qui décidera de la suite. On ne coupe pas l’alimentation brutalement et on n’efface rien : la mémoire vive et les journaux contiennent des traces qui serviront à comprendre ce qui s’est passé.",
  t:"Le réflexe d’éteindre le poste est naturel mais contre-productif : tout ce qui n’était qu’en mémoire disparaît, y compris des indices sur l’origine de l’attaque. Isoler n’est pas éteindre.",
  q:[["端末がマルウェアに感染した疑いがあるとき、最初に行うべきことは＿＿＿である。", ["ネットワークから切り離す","端末の電源を切る","ウイルス対策ソフトを削除する","そのまま業務を続ける"]],
-    ["感染が疑われる端末の電源をすぐに切ることが推奨されない理由は＿＿＿である。", ["メモリ上に残る痕跡が失われるため","再起動に時間がかかるため","ファイルが壊れるため","ログの量が増えるため"]]]}
+    ["感染が疑われる端末の電源をすぐに切ることが推奨されない理由は＿＿＿である。", ["メモリ上に残る痕跡が失われるため","再起動に時間がかかるため","ファイルが壊れるため","ログの量が増えるため"]]]},
+
+/* ───────── Points de méthode ───────── */
+
+{n:101, cat:"B1", kind:"notion", p:"トレースの取り方", y:"トレースのとりかた",
+ s:"La méthode qui fait la différence : écrire ce que valent les variables, à chaque tour",
+ prog:["○整数型: rei(整数型: n)",
+       "  整数型: i, x",
+       "  x ← 0",
+       "  for (i を 1 から n まで 1 ずつ増やす)",
+       "    x ← x + i",
+       "  endfor",
+       "  return x"],
+ e:"On ne résout pas un problème du 科目B en lisant le programme : on le déroule. La méthode est toujours la même. On dessine un tableau avec une colonne par variable, on écrit les valeurs initiales sur la première ligne, puis une ligne par passage dans la boucle. On n’essaie jamais de garder les valeurs en tête — c’est précisément là que l’erreur se glisse. Pour une boucle longue, on déroule les deux ou trois premiers tours, on repère la régularité, et on conclut.",
+ trace:[["i","x avant","x après"],["1","0","1"],["2","1","3"],["3","3","6"]],
+ t:"Noter la valeur « avant » et « après » dans la même ligne évite l’erreur la plus fréquente : se tromper d’un tour. Et si le programme contient une condition, il faut écrire si elle est vraie ou fausse à chaque passage, sinon on perd le fil.",
+ q:[["科目B の問題を解く際に、まず行うべきことは＿＿＿である。", ["変数の値を表に書き出して追跡する","プログラム全体を暗記する","選択肢から正解を推測する","最後の行だけを読む"]],
+    ["繰返しの回数が多い場合の対処として適切なものは＿＿＿である。", ["最初の数回を追って規則性を見つける","すべての回を書き出す","途中を飛ばして最後だけ考える","繰返しを無視する"]]]},
+
+{n:102, cat:"B1", kind:"notion", p:"配列と添字の扱い", y:"はいれつとそえじのあつかい",
+ s:"L’indice part de 1, et c’est la source d’erreur numéro un",
+ prog:["整数型の配列: a ← {10, 20, 30}",
+       "/* a[1] は 10 、a[3] は 30 */",
+       "/* a[0] も a[4] も存在しない */",
+       "二次元配列: b ← {{1, 2}, {3, 4}}",
+       "/* b[2, 1] は 3 （行が先、列が後） */"],
+ e:"Dans le pseudo-langage de l’IPA, le premier élément porte l’indice 1, pas 0. Un tableau de n éléments va donc de 1 à n, et l’indice 0 n’existe pas. Pour un tableau à deux dimensions, on écrit la ligne puis la colonne, séparées par une virgule. Les accolades délimitent le contenu, et dans un tableau à deux dimensions les accolades intérieures délimitent une ligne.",
+ t:"Quand on compare a[i] avec a[i + 1], la boucle doit s’arrêter à l’avant-dernier élément, sinon on sort du tableau au dernier tour. Et quand on parcourt à l’envers, c’est l’indice 1 qu’il ne faut pas dépasser par le bas.",
+ q:[["擬似言語において、要素数が 5 の配列 a の最後の要素は＿＿＿である。", ["a[5]","a[4]","a[0]","a[6]"]],
+    ["二次元配列 b において b[2, 3] が指すのは＿＿＿である。", ["2行3列目の要素","3行2列目の要素","2番目の行全体","3番目の列全体"]]]},
+
+{n:103, cat:"B1", kind:"notion", p:"繰返しの三つの形", y:"くりかえしのみっつのかたち",
+ s:"for, while, do-while : la différence se joue sur le cas « zéro tour »",
+ prog:["for (i を 1 から n まで 1 ずつ増やす)",
+       "  /* n が 0 なら一度も実行されない */",
+       "endfor",
+       "",
+       "while (条件)",
+       "  /* 条件が最初から偽なら一度も実行されない */",
+       "endwhile",
+       "",
+       "do",
+       "  /* 必ず一度は実行される */",
+       "while (条件)"],
+ e:"La boucle for sert quand le nombre de tours est connu à l’avance. La boucle while teste la condition avant d’entrer : si elle est fausse dès le départ, le corps n’est jamais exécuté. La boucle do-while teste après : le corps tourne donc au moins une fois, quoi qu’il arrive. C’est exactement cette différence que les énoncés exploitent, en proposant une valeur limite qui fait zéro tour.",
+ t:"La question piège est presque toujours la même : que se passe-t-il quand le tableau est vide, ou quand n vaut 0 ? Avec for et while, rien ne s’exécute et la valeur de retour reste celle de l’initialisation. Avec do-while, le corps s’exécute une fois, parfois sur des données qui n’existent pas.",
+ q:[["条件が最初から偽であるとき、一度も実行されない繰返しは＿＿＿である。", ["while","do-while","どちらも実行される","どちらも実行されない"]],
+    ["繰返しの回数があらかじめ決まっているときに適した構文は＿＿＿である。", ["for","while","do-while","if"]]]},
+
+{n:104, cat:"B1", kind:"notion", p:"条件式の読み方", y:"じょうけんしきのよみかた",
+ s:"and, or, not et leur priorité : l’ordre d’évaluation change le résultat",
+ prog:["if (a > 0 and b > 0)",
+       "  /* 両方が真のときだけ */",
+       "elseif (a > 0 or b > 0)",
+       "  /* 少なくとも一方が真 */",
+       "else",
+       "  /* どちらも偽 */",
+       "endif",
+       "",
+       "/* not (a > 0 and b > 0) は",
+       "   (a ≤ 0) or (b ≤ 0) と同じ */"],
+ e:"Les conditions composées se lisent en respectant la priorité : la négation d’abord, puis le ET, puis le OU. Une chaîne de elseif s’évalue de haut en bas et s’arrête à la première condition vraie — les suivantes ne sont même pas testées, et c’est ce qui explique beaucoup de résultats surprenants. Nier une condition composée oblige à inverser aussi l’opérateur, comme le disent les lois de De Morgan.",
+ t:"Dans une chaîne de elseif, l’ordre compte : si une condition large est placée avant une condition plus précise, la seconde ne sera jamais atteinte. Vérifier systématiquement qu’aucune branche n’est inaccessible fait gagner des points.",
+ q:[["elseif が連なっているとき、実行されるのは＿＿＿である。", ["最初に真になった条件の処理だけ","真になったすべての条件の処理","最後の条件の処理","else の処理のみ"]],
+    ["not (a ≥ 10 and b ≥ 10) と同じ意味の式は＿＿＿である。", ["a < 10 or b < 10","a < 10 and b < 10","a ≥ 10 or b ≥ 10","not a ≥ 10"]]]},
+
+{n:105, cat:"B1", kind:"notion", p:"関数と引数", y:"かんすうとひきすう",
+ s:"Ce qui entre, ce qui sort, et où return interrompt tout",
+ prog:["○整数型: tasu(整数型: x, 整数型: y)",
+       "  return x + y",
+       "",
+       "/* 呼び出す側 */",
+       "整数型: z",
+       "z ← tasu(3, 4)   /* z は 7 */"],
+ e:"La déclaration donne le type de retour, le nom, puis les paramètres avec leur type. À l’appel, les valeurs passées sont recopiées dans les paramètres : modifier un paramètre à l’intérieur ne change pas la variable de l’appelant. L’instruction return fournit la valeur et quitte immédiatement la fonction — tout ce qui suit dans le corps, boucle comprise, est abandonné.",
+ t:"Le return à l’intérieur d’une boucle sort de la fonction entière, pas seulement de la boucle : c’est ce qui rend la recherche linéaire si courte à écrire. En revanche, un tableau passé en paramètre est souvent modifié pour de bon, contrairement à une variable simple.",
+ q:[["繰返しの中で return が実行されると、どうなるか＿＿＿。", ["関数全体を抜ける","その繰返しだけを抜ける","次の繰返しに進む","何も起こらない"]],
+    ["関数 tasu(整数型: x, 整数型: y) を tasu(3, 4) と呼び出したとき、x と y の値は＿＿＿である。", ["x が 3 、y が 4","x が 4 、y が 3","どちらも 7","未定義"]]]},
+
+{n:106, cat:"B1", kind:"notion", p:"再帰の追い方", y:"さいきのおいかた",
+ s:"Descendre jusqu’au cas de base, puis remonter en calculant",
+ prog:["○整数型: f(整数型: n)",
+       "  if (n ≤ 0)",
+       "    return 0",
+       "  endif",
+       "  return n + f(n − 1)"],
+ e:"Pour suivre une fonction récursive, on écrit la descente appel par appel jusqu’au cas de base, puis on remonte en remplaçant chaque appel par sa valeur. Pour f(3) : f(3) attend f(2), qui attend f(1), qui attend f(0) renvoyant 0 ; on remonte alors 1, puis 3, puis 6. Écrire les deux sens séparément évite de se perdre.",
+ trace:[["appel","attend","renvoie"],["f(3)","f(2)","3 + 3 = 6"],["f(2)","f(1)","2 + 1 = 3"],["f(1)","f(0)","1 + 0 = 1"],["f(0)","—","0"]],
+ t:"L’erreur classique est de calculer en descendant au lieu d’attendre la remontée. Rien ne se calcule tant que le cas de base n’est pas atteint : tous les appels sont en attente sur la pile.",
+ q:[["再帰関数を追跡する際の正しい手順は＿＿＿である。", ["基底まで下り、そこから戻りながら計算する","下りながら計算を済ませる","最後の呼出しだけを計算する","順序は関係ない"]],
+    ["上の f において f(3) の戻り値は＿＿＿である。", ["6","3","0","9"]]]},
+
+{n:107, cat:"B1", kind:"notion", p:"擬似言語でのデータ構造", y:"ぎじげんごでのデータこうぞう",
+ s:"Pile, file et liste, telles qu’elles apparaissent dans les énoncés",
+ prog:["/* スタック */",
+       "push(s, x)   /* 積む */",
+       "x ← pop(s)   /* 最後に積んだものを取り出す */",
+       "",
+       "/* キュー */",
+       "enqueue(q, x)   /* 末尾に入れる */",
+       "x ← dequeue(q)  /* 先頭から取り出す */",
+       "",
+       "/* リスト */",
+       "node.value   /* 値 */",
+       "node.next    /* 次の要素 */"],
+ e:"Les énoncés n’expliquent pas ces opérations : ils supposent qu’on sait ce que fait chacune. Pour la pile, c’est le dernier entré qui sort. Pour la file, le premier entré. Pour une liste chaînée, on accède au champ valeur et au champ suivant avec un point, et le dernier élément a un suivant indéfini. Beaucoup de problèmes consistent à suivre une suite d’opérations et à dire ce qui reste.",
+ t:"Le point le plus demandé est l’ordre de sortie, pas le mécanisme interne. Et pour une liste, parcourir jusqu’à la fin signifie avancer tant que le champ suivant n’est pas indéfini — tester l’égalité avec 未定義, pas avec zéro.",
+ q:[["スタックに 1, 2, 3 を順に push した後、pop を2回行うと取り出される値は＿＿＿である。", ["3 と 2","1 と 2","3 と 1","2 と 3"]],
+    ["単方向リストの末尾の要素において、次の要素を指す項目の値は＿＿＿である。", ["未定義","0","自分自身","先頭の要素"]]]},
+
+{n:108, cat:"B2", kind:"notion", p:"科目Bのセキュリティ問題の読み方", y:"かもくビーのセキュリティもんだいのよみかた",
+ s:"Quatre questions sur vingt, et un raisonnement qui ne demande aucun code",
+ e:"Les questions de sécurité du 科目B ne contiennent pas de programme : elles décrivent une situation concrète — un incident, une configuration, une procédure — et demandent quelle action est la plus appropriée. La méthode consiste à repérer ce qui est en jeu parmi les trois axes, confidentialité, intégrité, disponibilité, puis à choisir la réponse qui traite la cause plutôt que le symptôme, et qui respecte l’ordre des priorités : d’abord contenir, ensuite comprendre, enfin corriger.",
+ t:"Les mauvaises réponses sont rarement absurdes : ce sont souvent des actions correctes mais faites au mauvais moment. Supprimer un compte, redémarrer une machine ou prévenir les clients ne sont pas des erreurs en soi — elles le deviennent si on les fait avant d’avoir isolé et conservé les traces.",
+ q:[["科目B のセキュリティ問題で優先される対応の順序は＿＿＿である。", ["封じ込め → 原因の調査 → 復旧","復旧 → 封じ込め → 原因の調査","原因の調査 → 復旧 → 封じ込め","報告 → 復旧 → 封じ込め"]],
+    ["選択肢の多くが「正しいが時期が不適切な対応」である場合、判断の基準となるのは＿＿＿である。", ["被害の拡大を止めることを最優先する","最も費用の安い対応を選ぶ","最も早く終わる対応を選ぶ","担当者の人数が少ない対応を選ぶ"]]]}
 
 ];

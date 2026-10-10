@@ -44,7 +44,7 @@
     return shuffle([...s]);
   }
 
-  const L = (fr, en) => J.L(fr, en);
+  const L = (fr, en, ja) => J.L(fr, en, ja);
   const M = (m, x) => J.mean(m, x);              // sens dans la langue choisie
   const SM = (m, x) => shortMeaning(J.mean(m, x));
   const trad = (jp) => { const t = J.trad(jp); return t ? `<p class="fr-trad">${esc(t)}</p>` : ""; };
