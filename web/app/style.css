@@ -587,11 +587,15 @@ body::before {
 }
 
 /* Double filet : trait d’encre à l’extérieur, filet vermillon à l’intérieur */
-.card::after, .sheet::after, .glesson::after, .stampcard::after, .ticket::after {
+.card::after, .sheet::after, .glesson::after, .stampcard::after {
     content: ""; position: absolute; inset: 5px; border: 1px solid var(--shu);
     opacity: .3; pointer-events: none;
 }
-.ticket::after { inset: 4px 4px 4px 62px; }
+/* Le ticket garde ses encoches : son filet se pose sur le corps, pas sur la planche */
+.t-body::after {
+    content: ""; position: absolute; inset: 4px; border: 1px solid var(--shu);
+    opacity: .28; pointer-events: none;
+}
 .sheet.lesson::after { inset: 5px 5px 5px 36px; }
 .glesson::after { inset: 5px 5px 5px 28px; }
 
@@ -608,3 +612,22 @@ main h1:not(.lp-titre) { position: relative; padding-bottom: .3em; }
 main h1:not(.lp-titre)::after {
     content: ""; position: absolute; left: 0; bottom: 0; width: 2.2em; height: 3px; background: var(--shu);
 }
+
+/* ═══ Le ticket, poussé plus loin ═══════════════════════════════════════
+   硬券 : le carton des guichets, et 改札鋏 — le coup de pince du contrôleur. */
+
+/* Le carton est un peu plus chaud que les feuilles */
+.ticket .t-body { background: color-mix(in srgb, var(--kin) 5%, var(--sheet)) !important; }
+
+/* Un module terminé est poinçonné, comme un billet contrôlé */
+/* .t-body masque ce qui dépasse : le poinçon se pose donc sur la face du billet */
+.ticket.t-fini .t-body::before {
+    content: ""; position: absolute; right: 14px; top: 10px; width: 17px; height: 15px;
+    background: var(--paper); border: 1.5px solid var(--ink);
+    clip-path: polygon(50% 0, 100% 38%, 81% 100%, 19% 100%, 0 38%);
+    z-index: 2; opacity: .85;
+}
+.ticket.t-fini { filter: drop-shadow(4px 4px 0 var(--matcha)); }
+
+/* Le numéro de série, à la façon des billets Edmondson */
+.t-no { font-variant-numeric: tabular-nums; }

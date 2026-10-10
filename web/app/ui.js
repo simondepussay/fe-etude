@@ -262,7 +262,7 @@
     else if (!pr.finish) st = stamp("未着手", m, "grey") + stFr(L("Pas commencé", "Not started"));
     else if (pr.onTime) st = stamp("順調", m, "ok") + stFr(L("Dans les temps", "On track"));
     else st = stamp("遅れ", m) + `<span class="st-fr">${L(`Retard ≈ ${Math.ceil(pr.late / 7)} sem.`, `≈ ${Math.ceil(pr.late / 7)} wk behind`, `約 ${Math.ceil(pr.late / 7)} 週間の遅れ`)}</span>`;
-    return `<button class="ticket t-${m}" data-act="nav" data-v="mod-${m}">
+    return `<button class="ticket t-${m}${p.remaining === 0 ? " t-fini" : ""}" data-act="nav" data-v="mod-${m}">
       <span class="t-stub"><span class="t-kanji">${(MOD_MARK[m] || ["", "00"])[0]}</span><span class="t-no">No.${(MOD_MARK[m] || ["", "00"])[1]}</span></span>
       <span class="t-body">
         <span class="t-head"><span class="jp t-jp">${MODS[m].jp}</span>${J.modName(m) === MODS[m].jp ? "" : `<span class="t-fr">${J.modName(m)}</span>`}</span>
