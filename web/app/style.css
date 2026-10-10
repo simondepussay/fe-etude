@@ -507,6 +507,8 @@ table.plan td { font: 700 1rem var(--jp); }
     white-space: pre;
     tab-size: 2;
 }
+.prog.zu { background: #2b241c; color: #e8dcc8; line-height: 1.45; }
+.prog.zu + .prog { margin-top: 10px; }
 .q-enonce { margin: 12px 0 0; font-weight: 600; }
 .ans-card.b .prog { font-size: 12px; }
 .trace { width: 100%; border-collapse: collapse; font-size: 13px; }

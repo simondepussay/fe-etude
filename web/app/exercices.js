@@ -56,8 +56,11 @@
   /* Affiche un programme en 擬似言語. Les blancs sont notés ［ a ］ dans le texte. */
   J.progBlock = (b) => !b.prog ? "" :
     `<pre class="prog jp" lang="ja">${b.prog.map((l) => esc(l)).join("\n")}</pre>`;
+  /* Schéma facultatif (arbre, liste, pile) affiché avant le programme. */
+  J.zuBlock = (b) => !b.zu ? "" :
+    `<pre class="prog zu jp" lang="ja">${b.zu.map((l) => esc(l)).join("\n")}</pre>`;
   J.kamokubBack = (b) =>
-    `<div class="ans-card b">${J.progBlock(b)}
+    `<div class="ans-card b">${J.zuBlock(b)}${J.progBlock(b)}
       <div class="ans-mean">${esc(J.bs(b, "e"))}</div>
       ${b.t ? `<div class="piege"><b>${L("Piège", "Pitfall", "注意")}</b> ${esc(J.bs(b, "t"))}</div>` : ""}
       <button class="link" data-act="open-item" data-m="b" data-id="${b.id}">${L("Revoir le problème", "Review the problem", "問題を見直す")} →</button></div>`;
@@ -157,7 +160,7 @@
       const opts = b.q[i][1];
       return {
         mode: "choice",
-        prompt: `<p class="q-help">${esc(J.bs(b, "s"))}</p>${J.progBlock(b)}<p class="q-enonce">${esc(J.bq(b, i))}</p>`,
+        prompt: `<p class="q-help">${esc(J.bs(b, "s"))}</p>${J.zuBlock(b)}${J.progBlock(b)}<p class="q-enonce">${esc(J.bq(b, i))}</p>`,
         options: uniqueOptions(opts[0], opts.slice(1)), answer: opts[0], back: J.kamokubBack(b)
       };
     },
@@ -214,6 +217,7 @@
       <div class="g-top"><span class="pill">${b.n} · ${esc(cat ? cat.jp : "")}</span><span class="muted">${esc(cat ? J.bcat(cat) : "")}</span></div>
       <h2 class="g-pattern jp" lang="ja">${esc(b.p)}</h2>${b.y ? `<div class="muted jp" lang="ja">${esc(b.y)}</div>` : ""}
       <p class="g-sens">${esc(J.bs(b, "s"))}</p>
+      ${b.zu ? `<div class="g-box"><h4>図 · ${L("Schéma", "Diagram", "図")}</h4>${J.zuBlock(b)}</div>` : ""}
       ${b.prog ? `<div class="g-box"><h4>擬似言語 · ${L("Programme", "Program", "プログラム")}</h4>${J.progBlock(b)}</div>` : ""}
       <div class="g-box"><h4>${L("Explication", "Explanation", "解説")}</h4><p>${esc(J.bs(b, "e"))}</p></div>
       ${b.trace ? `<div class="g-box"><h4>${L("Déroulé pas à pas", "Step by step", "トレース")}</h4>
