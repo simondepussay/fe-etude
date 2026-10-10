@@ -244,7 +244,7 @@
       ${bar(c.levels, c.total)}
       <div class="legend">${J.LEVELS.map((l, i) => `<span><i class="lv${i}"></i>${l} ${c.levels[i]}</span>`).join("")}${acc !== null ? `<span>${L("Réussite", "Accuracy")} ${Math.round(acc * 100)} %</span>` : ""}</div></div>
       <div class="row"><button class="btn primary" data-act="practice" data-m="${m}">${L("S’entraîner", "Practice")}</button><button class="btn" data-act="mod-test" data-m="${m}">${L("Test examen", "Exam test")} · ${J.modName(m).toLowerCase()}</button>
-      ${m === "g" ? `<a class="btn" href="Fiches-grammaire-N1.html?lang=${J.lang()}" target="_blank">${L("Fiches imprimables", "Printable sheets")}</a>` : ""}</div></section>`;
+      </div></section>`;
     const filters = [["all", L("Tous", "All")], ["0", L("Nouveaux", "New")], ["1", L("En cours", "Learning")], ["2", L("Acquis", "Known")], ["3", L("Maîtrisés", "Mastered")], ["weak", L("Points faibles", "Weak spots")], ["due", L("À réviser", "Due")]]
       .concat(m !== "g" ? [["out", L("Retirés", "Removed")]] : []);
     let list = J.items[m];
@@ -286,8 +286,8 @@
       : `<div class="stat-line"><span class="pill">${J.LEVELS[0]}</span><button class="btn sm" data-act="known" data-m="${m}" data-id="${esc(id)}">${L("Je le connais déjà", "I already know it")}</button></div>`;
     const out = J.isExcluded(m, id);
     const body = (m === "g" ? J.grammarLesson(J.byId.g[id], false) : `<div class="card">${J.learnCard(m, id)}</div>`)
-      + (m !== "g" ? `<div class="row">${out ? `<span class="pill bad">${L("Retiré des leçons", "Removed from lessons")}</span><button class="btn sm" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="0">${L("Remettre dans le N1", "Put back into N1")}</button>`
-        : `<button class="link" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="1">${L("Pas du N1 : retirer des leçons", "Not N1: remove from lessons")}</button>`}</div>` : "");
+      + (m !== "g" ? `<div class="row">${out ? `<span class="pill bad">${L("Retiré des leçons", "Removed from lessons", "レッスンから除外中")}</span><button class="btn sm" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="0">${L("Remettre dans les leçons", "Put back into lessons", "レッスンに戻す")}</button>`
+        : `<button class="link" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="1">${L("Retirer des leçons", "Remove from lessons", "レッスンから外す")}</button>`}</div>` : "");
     return `<div class="item-nav"><button class="link" data-act="nav" data-v="mod-${m}">← ${J.modName(m)}</button>
       <span>${prev ? `<button class="btn sm" data-act="open-item" data-m="${m}" data-id="${esc(prev.id)}">←</button>` : ""}
       ${next ? `<button class="btn sm" data-act="open-item" data-m="${m}" data-id="${esc(next.id)}">→</button>` : ""}</span></div>
@@ -522,7 +522,7 @@
     if (it.s !== "learn" && (!EX || EX._pos !== R.pos || EX._lang !== J.lang())) { EX = J.makeEx(it.m, it.id, it.s === "fix" ? "rev" : it.s, it.kind); EX._pos = R.pos; EX._lang = J.lang(); }
     const modPill = `<span class="pill mod-${it.m}"><span class="jp">${MODS[it.m].jp}</span> ${J.modName(it.m)}</span>`;
     const tag = `<div class="ex-tag">${modPill}<span class="pill stage-${it.s}">${STAGE()[it.s]}</span>${it.s !== "learn" && EX ? `<span class="muted">${esc(EX.label)}</span>` : ""}</div>`;
-    const aside = it.m !== "g" && !it.free ? `<div class="ex-aside"><button data-act="exclude-cur">${it.m === "v" ? L("Ce mot n’est pas du niveau N1 ? Le retirer des leçons", "Not an N1 word? Remove it from lessons") : L("Ce kanji n’est pas du niveau N1 ? Le retirer des leçons", "Not an N1 kanji? Remove it from lessons")}</button></div>` : "";
+    const aside = it.m !== "g" && !it.free ? `<div class="ex-aside"><button data-act="exclude-cur">${L("Ce terme ne te sert pas ? Le retirer des leçons", "Not a useful term? Remove it from lessons", "この用語を外す")}</button></div>` : "";
     if (it.s === "learn") {
       if (!R.learnT0 || R.learnPos !== R.pos) { R.learnT0 = Date.now(); R.learnPos = R.pos; }
       return head + `<section class="card ex"><div class="ex-tag">${modPill}<span class="pill stage-learn">${J.LEVELS[0]}</span></div>

@@ -36,14 +36,15 @@
   J.gcats = D[J.LEVEL + "-grammaire-cats"] || [];
   /* Contenus traduits : sens français des mots et kanji, grammaire en anglais */
   const VFR = D[J.LEVEL + "-vocab-fr"] || {}, VJA = D[J.LEVEL + "-vocab-ja"] || {};
-  const GEN = D[J.LEVEL + "-grammaire-en"] || {}, TFR = D[J.LEVEL + "-grammaire-trad"] || {}, TEN = D[J.LEVEL + "-grammaire-trad-en"] || {};
+  const GEN = D[J.LEVEL + "-grammaire-en"] || {}, GJA = D[J.LEVEL + "-grammaire-ja"] || {};
+  const GL = () => (J.lang() === "en" ? GEN : J.lang() === "ja" ? GJA : null);   // calque de traduction du 科目A
   /* fr : traduction française · ja : définition en japonais · en : sens anglais */
   J.mean = (m, x) => (J.lang() === "ja" ? VJA[x.id] || x.m : J.lang() === "fr" ? VFR[x.id] || x.m : x.m);
   J.hasFr = (m, x) => !!(J.lang() === "ja" ? VJA[x.id] : VFR[x.id]);
-  J.gs = (g, f) => (J.lang() === "en" && GEN[g.n] && GEN[g.n][f] !== undefined ? GEN[g.n][f] : g[f]);
-  J.gex = (g, i) => (J.lang() === "en" && GEN[g.n] && GEN[g.n].ex ? GEN[g.n].ex[i] : g.ex[i][1]);
-  J.gcat = (c) => (J.lang() === "en" ? (GEN.cats || {})[c.id] || c.fr : c.fr);
-  J.trad = (jp) => (J.lang() === "en" ? TEN[jp] : TFR[jp]) || "";
+  J.gs = (g, f) => { const O = GL(); return O && O[g.n] && O[g.n][f] !== undefined ? O[g.n][f] : g[f]; };
+  J.gex = (g, i) => { const O = GL(); return O && O[g.n] && O[g.n].ex ? O[g.n].ex[i] : g.ex[i][1]; };
+  J.gcat = (c) => (J.lang() === "ja" ? c.jp : J.lang() === "en" ? c.en || c.fr : c.fr);
+  J.trad = () => "";   // les énoncés du 科目A portent déjà leur explication
 
 
   /* ───────── Dates ───────── */
