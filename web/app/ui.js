@@ -79,16 +79,20 @@
   /* Premier écran : on ne montre que le choix de la langue, et chaque option parle
      d’elle-même dans sa propre langue — autrement elle serait illisible au mauvais réglage. */
   const LANGUES = [
-    ["fr", "Français", "L’interface et le sens des termes en français. Les 用語 et les énoncés restent en japonais."],
-    ["en", "English", "The interface and the meaning of terms in English. The 用語 and the questions stay in Japanese."],
-    ["ja", "日本語", "画面も用語の説明もすべて日本語。読み方の問題は出ません。"]
+    ["fr", "仏", "Français", "L’interface et le sens des termes en français. Les 用語 et les énoncés restent en japonais."],
+    ["en", "英", "English", "The interface and the meaning of terms in English. The 用語 and the questions stay in Japanese."],
+    ["ja", "和", "日本語", "画面も用語の説明もすべて日本語。読み方の問題は出ません。"]
   ];
   VIEWS.langpick = () => `<section class="langpick">
-    <h1 class="jp">言語を選ぶ</h1>
+    <h1 class="jp lp-titre">言語を選ぶ</h1>
     <p class="lp-sub">Choisis ta langue · Choose your language</p>
-    <div class="lp-list">${LANGUES.map(([id, nom, note]) =>
-      `<button class="lp-card ${J.S.langChosen && J.lang() === id ? "on" : ""}" data-act="pick-lang" data-l="${id}" lang="${id}">
-        <span class="lp-nom">${nom}</span><span class="lp-note">${note}</span></button>`).join("")}</div>
+    <div class="lp-list">${LANGUES.map(([id, han, nom, note]) => {
+      const choisi = J.S.langChosen && J.lang() === id;
+      return `<button class="lp-card ${choisi ? "on" : ""}" data-act="pick-lang" data-l="${id}" lang="${id}">
+        <span class="stamp lp-han" style="--r:${rot(id)}deg">${han}</span>
+        <span class="lp-texte"><span class="lp-nom">${nom}</span><span class="lp-note">${note}</span></span>
+        ${choisi ? HANAMARU : ""}</button>`;
+    }).join("")}</div>
     <p class="lp-pied">Tu pourras en changer à tout moment dans les réglages. · You can change this later in the settings. · あとから設定で変更できます。</p>
   </section>`;
 
@@ -97,7 +101,7 @@
     const plan = J.plan();
     return `<section class="card onboard">
       <h1>ようこそ ${sous(L("Bienvenue", "Welcome"))}</h1>
-      <p class="muted lang-rappel">${L("Langue", "Language", "表示言語")} : <b>${(LANGUES.find((x) => x[0] === J.lang()) || LANGUES[0])[1]}</b>
+      <p class="muted lang-rappel">${L("Langue", "Language", "表示言語")} : <b>${(LANGUES.find((x) => x[0] === J.lang()) || LANGUES[0])[2]}</b>
         · <button class="link" data-act="nav" data-v="langpick">${L("changer", "change", "変更する")}</button></p>
       <p>${L("Chaque jour, l’appli te prépare une petite leçon : <b>réviser</b> ce qui est dû, <b>apprendre</b> de nouveaux éléments, puis <b>te tester</b>. Ce que tu rates revient à la fin de la leçon.",
         "Every day, the app prepares a short lesson for you: <b>review</b> what is due, <b>learn</b> new items, then <b>test yourself</b>. Whatever you miss comes back at the end of the lesson.", "毎日、短いレッスンが用意されます。期限の来た項目を<b>復習</b>し、新しい項目を<b>学習</b>し、最後に<b>テスト</b>します。間違えた項目はレッスンの終わりにもう一度出ます。")}</p>

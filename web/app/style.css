@@ -518,20 +518,40 @@ table.plan td { font: 700 1rem var(--jp); }
 .sous-cat { margin: 14px 0 6px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--gris, #8a7f6d); }
 
 /* ── Premier écran : le choix de la langue, seul ── */
-.langpick { max-width: 540px; margin: 0 auto; padding: 48px 16px 64px; text-align: center; }
-.langpick h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: .14em; }
-.lp-sub { margin: 0 0 30px; color: var(--gris, #8a7f6d); font-size: 14px; }
-.lp-list { display: flex; flex-direction: column; gap: 12px; }
+.langpick { max-width: 560px; margin: 0 auto; padding: 52px 16px 64px; }
+.lp-titre { margin: 0; text-align: center; font-size: 2rem; letter-spacing: .22em; text-indent: .22em; }
+.lp-sub { margin: 6px 0 30px; text-align: center; font-size: .82rem; letter-spacing: .06em; color: var(--muted);
+  position: relative; padding-bottom: 18px; }
+.lp-sub::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 58px; height: 2px;
+  margin-left: -29px; background: var(--shu); opacity: .8; }
+.lp-list { display: flex; flex-direction: column; gap: 16px; }
+
+/* Chaque langue est une feuille tamponnée, comme les cartes du reste du site */
 .lp-card {
-    display: block; width: 100%; padding: 16px 18px; text-align: left;
-    border: 1.5px solid var(--ink); border-radius: 8px;
-    background: var(--sheet); color: inherit; cursor: pointer;
-    transition: transform .12s, box-shadow .12s;
+    position: relative; display: flex; align-items: center; gap: 16px; width: 100%;
+    padding: 16px 20px 16px 22px; text-align: left; cursor: pointer;
+    background: var(--sheet); color: var(--ink);
+    border: 1.5px solid var(--ink); box-shadow: var(--press);
+    background-image: linear-gradient(90deg, transparent 0 8px, var(--shu) 8px 9.5px, transparent 9.5px);
+    transition: transform .14s, box-shadow .14s;
 }
-.lp-card:hover, .lp-card:focus-visible { transform: translateY(-2px); box-shadow: 3px 3px 0 var(--ink); }
-.lp-card.on { border-width: 3px; }
-.lp-nom { display: block; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-.lp-note { display: block; font-size: 13px; line-height: 1.6; color: var(--gris, #8a7f6d); }
-.lp-pied { margin: 26px 0 0; font-size: 12px; line-height: 1.8; color: var(--gris, #8a7f6d); }
+.lp-card:hover, .lp-card:focus-visible { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.lp-card:active { transform: translate(2px, 2px); box-shadow: var(--press-sm); }
+.lp-card.on { background-image: linear-gradient(90deg, transparent 0 8px, var(--shu) 8px 9.5px, transparent 9.5px),
+    linear-gradient(color-mix(in srgb, var(--kin) 12%, transparent), color-mix(in srgb, var(--kin) 12%, transparent)); }
+.lp-han { flex: none; font-size: 1.5rem; }
+.lp-texte { display: block; min-width: 0; }
+.lp-nom { display: block; font-size: 1.25rem; font-weight: 700; margin-bottom: 3px; }
+.lp-note { display: block; font-size: .82rem; line-height: 1.65; color: var(--ink-2); }
+.lp-card .hanamaru { left: auto; right: 10px; top: 50%; width: 52px; height: 52px; margin-top: -26px; opacity: .9; }
+.lp-card.on .lp-texte { padding-right: 58px; }   /* le 花丸 ne doit pas tomber sur le texte */
+.lp-pied { margin: 28px 0 0; text-align: center; font-size: .72rem; line-height: 1.9; color: var(--muted); }
 .lang-rappel { margin: 0 0 14px; }
-@media (max-width: 480px) { .langpick { padding: 28px 14px 48px; } .langpick h1 { font-size: 24px; } }
+@media (max-width: 480px) {
+    .langpick { padding: 30px 14px 48px; }
+    .lp-titre { font-size: 1.5rem; }
+    .lp-card { padding: 14px 16px 14px 18px; gap: 12px; }
+    .lp-nom { font-size: 1.1rem; }
+    .lp-card .hanamaru { width: 42px; height: 42px; margin-top: -21px; right: 6px; }
+    .lp-card.on .lp-texte { padding-right: 44px; }
+}
