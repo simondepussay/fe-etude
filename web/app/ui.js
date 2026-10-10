@@ -3,6 +3,10 @@
   const J = window.J;
   const { esc, MODS, MOD_ORDER } = J;
   const L = (fr, en, ja) => J.L(fr, en, ja);
+  /* Sous-titre d’un titre déjà écrit en japonais : remplacé, ou supprimé, sur le profil ja */
+  const sous = (txt, ja = "") => (J.lang() === "ja" ? (ja ? `<small>${ja}</small>` : "") : `<small>${txt}</small>`);
+  const apres = (txt) => (J.lang() === "ja" ? "" : " · " + txt);
+  const aCote = (txt) => (J.lang() === "ja" ? "" : ` <span>${txt}</span>`);
   // En japonais J.modName renvoie déjà le nom japonais : on ne l’écrit pas deux fois
   const modTitre = (m) => `<span class="jp">${MODS[m].jp}</span>${J.modName(m) === MODS[m].jp ? "" : " " + J.modName(m)}`;
   const catTitre = (jp, nom) => `<span class="jp">${esc(jp)}</span>${nom === jp ? "" : " · " + esc(nom)}`;
@@ -28,9 +32,9 @@
     try { body = VIEWS[view.name](view.p); }
     catch (e) {
       console.error(e);
-      body = `<section class="card"><h2>${L("Oups, un problème d’affichage", "Oops, a display problem")}</h2>
-        <p class="muted small">${esc(e.message)}</p><p>${L("Ta progression est enregistrée.", "Your progress is saved.")}</p>
-        <div class="row"><button class="btn primary" data-act="end-run">${L("Retour à l’accueil", "Back to home")}</button></div></section>`;
+      body = `<section class="card"><h2>${L("Oups, un problème d’affichage", "Oops, a display problem", "表示に問題が発生しました")}</h2>
+        <p class="muted small">${esc(e.message)}</p><p>${L("Ta progression est enregistrée.", "Your progress is saved.", "学習の記録は保存されています。")}</p>
+        <div class="row"><button class="btn primary" data-act="end-run">${L("Retour à l’accueil", "Back to home", "ホームに戻る")}</button></div></section>`;
     }
     app.innerHTML = (inRun ? "" : nav()) + `<main class="${inRun ? "run" : ""}">${body}</main>`;
     if (view.name === "run" && R && R.timed) {
@@ -52,8 +56,8 @@
     const cur = view.name === "mod" ? "mod-" + view.p.m : view.name === "item" ? "mod-" + view.p.m : view.name;
     const u = J.user(), bad = J.store.status === "error" || J.store.status === "offline" || J.store.expired;
     const st = u
-      ? `<button class="save ${bad ? "err" : "ok"} ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${esc(J.store.error || L("Progression synchronisée sur ton compte", "Progress synced to your account"))}">${bad ? "⚠︎" : "●"} ${esc(u.name || u.email || L("Mon compte", "My account"))}</button>`
-      : `<button class="save warn ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${L("Sans compte, la progression reste dans ce navigateur", "Without an account, progress stays in this browser")}">${L("Se connecter", "Sign in")}</button>`;
+      ? `<button class="save ${bad ? "err" : "ok"} ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${esc(J.store.error || L("Progression synchronisée sur ton compte", "Progress synced to your account", "学習記録はアカウントに同期されています"))}">${bad ? "⚠︎" : "●"} ${esc(u.name || u.email || L("Mon compte", "My account", "アカウント"))}</button>`
+      : `<button class="save warn ${cur === "account" ? "on" : ""}" data-act="nav" data-v="account" title="${L("Sans compte, la progression reste dans ce navigateur", "Without an account, progress stays in this browser", "アカウントがない場合、記録はこのブラウザにだけ残ります")}">${L("Se connecter", "Sign in", "ログイン")}</button>`;
     return `<header class="top"><div class="brand"><span class="hanko" aria-hidden="true">基本<br>情報</span><span class="brand-t">基本情報 Étude</span></div>
       <nav>${tabs.map(([v, jp, tr]) => `<button class="tab ${cur === v ? "on" : ""}" data-act="nav" data-v="${v}"><span class="jp">${jp}</span><span class="tfr">${tr}</span></button>`).join("")}</nav>${langSwitch()}${st}</header>`;
   }
@@ -61,7 +65,7 @@
   const fmtClock = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
   const fmtMin = (m) => (m >= 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}` : `${m} min`);
   const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
-  const dpw = () => L("j/sem", "days/wk");
+  const dpw = () => L("j/sem", "days/wk", "日／週");
   const bar = (levels, total) =>
     `<div class="lvbar">${[3, 2, 1].map((l) => `<span class="lv${l}" style="width:${(levels[l] / total) * 100}%"></span>`).join("")}</div>`;
 
@@ -73,20 +77,20 @@
     const s = J.S.settings, sessions = [];
     const plan = J.plan();
     return `<section class="card onboard">
-      <h1>ようこそ <small>${L("Bienvenue", "Welcome")}</small></h1>
+      <h1>ようこそ ${sous(L("Bienvenue", "Welcome"))}</h1>
       <div class="field"><label>${L("Langue de l’interface et des traductions", "Language of the interface and translations", "表示言語")}</label>${langSwitch()}</div>
       <p>${L("Chaque jour, l’appli te prépare une petite leçon : <b>réviser</b> ce qui est dû, <b>apprendre</b> de nouveaux éléments, puis <b>te tester</b>. Ce que tu rates revient à la fin de la leçon.",
-        "Every day, the app prepares a short lesson for you: <b>review</b> what is due, <b>learn</b> new items, then <b>test yourself</b>. Whatever you miss comes back at the end of the lesson.")}</p>
+        "Every day, the app prepares a short lesson for you: <b>review</b> what is due, <b>learn</b> new items, then <b>test yourself</b>. Whatever you miss comes back at the end of the lesson.", "毎日、短いレッスンが用意されます。期限の来た項目を<b>復習</b>し、新しい項目を<b>学習</b>し、最後に<b>テスト</b>します。間違えた項目はレッスンの終わりにもう一度出ます。")}</p>
       ${settingsCore(s, sessions)}
       <div class="preview">
-        <h3>${L("Ton planning de départ", "Your starting plan")}</h3>
+        <h3>${L("Ton planning de départ", "Your starting plan", "最初の学習計画")}</h3>
         ${planTable(plan, true)}
         <p class="muted">${planNote(plan)}</p>
       </div>
       <p class="muted">${L("Tu connais déjà une partie du programme ? Pendant les leçons, le bouton <b>« Déjà connu »</b> permet de passer vite ce que tu sais déjà.",
-        "Already know part of the syllabus? During lessons, the <b>“Already known”</b> button lets you skip what you already know.")}</p>
-      <div class="row"><button class="btn primary big" data-act="finish-onboard">${L("Commencer", "Start")}</button>
-      ${J.authReady ? `<button class="link" data-act="nav" data-v="account">${L("J’ai déjà un compte : me connecter", "I already have an account: sign in")}</button>` : ""}</div>
+        "Already know part of the syllabus? During lessons, the <b>“Already known”</b> button lets you skip what you already know.", "すでに知っている範囲があれば、レッスン中の<b>「知っている」</b>ボタンで飛ばせます。")}</p>
+      <div class="row"><button class="btn primary big" data-act="finish-onboard">${L("Commencer", "Start", "はじめる")}</button>
+      ${J.authReady ? `<button class="link" data-act="nav" data-v="account">${L("J’ai déjà un compte : me connecter", "I already have an account: sign in", "アカウントを持っている場合はログイン")}</button>` : ""}</div>
     </section>`;
   };
 
@@ -99,13 +103,13 @@
           "Unticked modules no longer appear in the daily lessons.",
           "外した分野は、毎日のレッスンに出なくなります。")}</p></div>`;
     const champDate = sessions.length
-      ? `<div class="field"><label>${L("Ma session", "My session")} ${J.LEVEL}</label>
+      ? `<div class="field"><label>${L("Ma session", "My session", "受験する試験")} ${J.LEVEL}</label>
         <div class="seg wrap">${sessions.map((d) => `<button class="${s.examDate === d ? "on" : ""}" data-act="set-exam" data-d="${d}">${J.fmtDate(d)}</button>`).join("")}
-        <label class="seg-date ${isCustom ? "on" : ""}">${L("Autre date", "Other date")} <input type="date" data-set="examDate" value="${s.examDate}"></label></div></div>`
-      : `<div class="field"><label>${L("Ma date d’examen", "My exam date")}</label>
+        <label class="seg-date ${isCustom ? "on" : ""}">${L("Autre date", "Other date", "日付を指定")} <input type="date" data-set="examDate" value="${s.examDate}"></label></div></div>`
+      : `<div class="field"><label>${L("Ma date d’examen", "My exam date", "試験日")}</label>
         <input type="date" data-set="examDate" value="${s.examDate}"></div>`;
     return choix + champDate + `
-      <div class="field"><label>${L("Jours d’étude prévus par semaine", "Planned study days per week")}</label>
+      <div class="field"><label>${L("Jours d’étude prévus par semaine", "Planned study days per week", "1週間の学習予定日数")}</label>
         <div class="seg">${[1, 2, 3, 4, 5, 6, 7].map((n) => `<button class="${s.daysPerWeek === n ? "on" : ""}" data-act="set-dpw" data-n="${n}">${n}</button>`).join("")}</div></div>
       <div class="field"><label>${L("Temps maximum par jour d’étude", "Maximum time per study day", "1日の学習時間の上限")}</label>
         <div class="seg wrap">${[15, 20, 30, 45, 60, 90, 120, 0].map((n) => `<button class="${s.maxMinutes === n ? "on" : ""}" data-act="set-max" data-n="${n}">${n ? fmtMin(n) : L("Sans limite", "No limit", "上限なし")}</button>`).join("")}</div></div>
@@ -118,20 +122,23 @@
   }
 
   function planTable(plan, onlyNew) {
-    const head = onlyNew ? `<th>${L("Nouveaux / jour", "New / day")}</th><th>${L("Restants", "Remaining")}</th>`
-      : `<th>${L("Réviser", "Review")}</th><th>${L("Apprendre", "Learn")}</th><th>${L("Tester", "Test")}</th>`;
+    const head = onlyNew ? `<th>${L("Nouveaux / jour", "New / day", "1日の新規")}</th><th>${L("Restants", "Remaining", "残り")}</th>`
+      : `<th>${L("Réviser", "Review", "復習")}</th><th>${L("Apprendre", "Learn", "学習")}</th><th>${L("Tester", "Test", "テスト")}</th>`;
     return `<table class="plan"><thead><tr><th></th>${head}</tr></thead><tbody>
-      ${MOD_ORDER.map((m) => { const p = plan.mods[m]; return `<tr><th>${modTitre(m)}</th>${onlyNew ? `<td>${p.new}${p.new < p.needed ? ` <small class="bad">/ ${p.needed} ${L("nécessaires", "needed")}</small>` : ""}</td><td>${p.remaining}</td>` : `<td>${p.due}</td><td>${p.newLeft}</td><td>${p.test}</td>`}</tr>`; }).join("")}
+      ${MOD_ORDER.map((m) => { const p = plan.mods[m]; return `<tr><th>${modTitre(m)}</th>${onlyNew ? `<td>${p.new}${p.new < p.needed ? ` <small class="bad">/ ${p.needed} ${L("nécessaires", "needed", "必要")}</small>` : ""}</td><td>${p.remaining}</td>` : `<td>${p.due}</td><td>${p.newLeft}</td><td>${p.test}</td>`}</tr>`; }).join("")}
       </tbody></table>`;
   }
   function planNote(plan) {
     const fw = J.S.settings.finalDays;
     if (plan.finalPhase) return L(`Il reste moins de ${fw} jour(s) avant l’examen : plus de nouveaux éléments, uniquement révisions et tests.`,
-      `Less than ${fw} day(s) left before the exam: no more new items, only reviews and tests.`);
+      `Less than ${fw} day(s) left before the exam: no more new items, only reviews and tests.`,
+      `試験まで残り ${fw} 日を切りました。新しい項目はもう出題されず、復習とテストだけになります。`);
     let t = L(`${plan.studyDays} jours d’étude d’ici le ${J.fmtDate(plan.target)} (tu gardes ${fw} jours de révision finale avant l’examen). Durée estimée d’une leçon : <b>${fmtMin(plan.minutes)}</b>.`,
-      `${plan.studyDays} study days until ${J.fmtDate(plan.target)} (you keep ${fw} days of final review before the exam). Estimated lesson length: <b>${fmtMin(plan.minutes)}</b>.`);
+      `${plan.studyDays} study days until ${J.fmtDate(plan.target)} (you keep ${fw} days of final review before the exam). Estimated lesson length: <b>${fmtMin(plan.minutes)}</b>.`,
+      `${J.fmtDate(plan.target)} までの学習日は ${plan.studyDays} 日です（試験前に ${fw} 日の最終復習を残しています）。1回のレッスンの目安は <b>${fmtMin(plan.minutes)}</b>。`);
     if (plan.capped) t += ` <br><span class="bad">${L(`Pour tout voir à temps, il faudrait environ ${fmtMin(plan.fullMinutes)} par jour d’étude : avec ton maximum, tu seras en retard. Augmente le temps ou les jours, ou choisis une session plus tardive.`,
-      `To cover everything in time you would need about ${fmtMin(plan.fullMinutes)} per study day: with your maximum, you will fall behind. Increase the time or the days, or pick a later session.`)}</span>`;
+      `To cover everything in time you would need about ${fmtMin(plan.fullMinutes)} per study day: with your maximum, you will fall behind. Increase the time or the days, or pick a later session.`,
+      `期限までにすべて見るには、1学習日あたり約 ${fmtMin(plan.fullMinutes)} 必要です。今の上限のままでは間に合いません。時間か日数を増やすか、受験日を遅らせてください。`)}</span>`;
     return t;
   }
 
@@ -172,10 +179,10 @@
       sheet = `<div class="sheet lesson done">
         <div class="sheet-side">今日の勉強</div>
         ${enso(1, `<b>${Math.round(J.day().sec / 60)}</b><span>分</span>`)}
-        <div class="lesson-body"><h2 class="hand">おつかれさま！<small>${L("Leçon du jour terminée", "Today’s lesson done")}</small></h2>
-          <p>${L(`${Ls.ok} bonnes réponses · ${Ls.ko} erreurs.`, `${Ls.ok} correct · ${Ls.ko} mistakes.`)}</p>
-          <p class="muted">${L("Demain : environ", "Tomorrow: about")} ${J.MOD_ORDER.reduce((a, m) => a + J.dueList(m, J.addDays(J.today(), 1)).length, 0)} ${L("révisions prévues.", "reviews planned.")}</p>
-          <div class="row">${(Ls.mult || 1) === 1 ? `<button class="btn primary" data-act="lesson-double"><span class="jp">倍</span> ${L("Doubler la journée", "Make it a double day")}</button>` : ""}<button class="btn" data-act="exam-start">${L("Petit test", "Quick test")}</button><button class="btn" data-act="nav" data-v="mod-${J.MOD_ORDER[0]}">${L("Revoir", "Review", "復習")} · ${J.modName(J.MOD_ORDER[0])}</button></div></div>
+        <div class="lesson-body"><h2 class="hand">おつかれさま！${sous(L("Leçon du jour terminée", "Today’s lesson done"))}</h2>
+          <p>${L(`${Ls.ok} bonnes réponses · ${Ls.ko} erreurs.`, `${Ls.ok} correct · ${Ls.ko} mistakes.`, `正解 ${Ls.ok} 問・誤答 ${Ls.ko} 問。`)}</p>
+          <p class="muted">${L("Demain : environ", "Tomorrow: about", "明日はおよそ")} ${J.MOD_ORDER.reduce((a, m) => a + J.dueList(m, J.addDays(J.today(), 1)).length, 0)} ${L("révisions prévues.", "reviews planned.", "件の復習があります。")}</p>
+          <div class="row">${(Ls.mult || 1) === 1 ? `<button class="btn primary" data-act="lesson-double"><span class="jp">倍</span> ${L("Doubler la journée", "Make it a double day", "もう一度同じ量を")}</button>` : ""}<button class="btn" data-act="exam-start">${L("Petit test", "Quick test", "ミニテスト")}</button><button class="btn" data-act="nav" data-v="mod-${J.MOD_ORDER[0]}">${L("Revoir", "Review", "復習")} · ${J.modName(J.MOD_ORDER[0])}</button></div></div>
         ${Ls.mult === 2 ? stamp("倍", J.today(), "big gold") : stamp("済", J.today(), "big")}</div>`;
     } else if (Ls) {
       const left = Ls.queue.slice(Ls.pos).filter((i) => !i.skip);
@@ -183,39 +190,42 @@
       sheet = `<div class="sheet lesson">
         <div class="sheet-side">今日の勉強</div>
         ${enso(Ls.pos / Ls.queue.length, `<b>${pct(Ls.pos, Ls.queue.length)}</b><span>%</span>`)}
-        <div class="lesson-body"><h2 class="hand">つづき${Ls.mult === 2 ? ` <span class="badge-x2">×2</span>` : ""}<small>${L("Leçon en cours", "Lesson in progress")}${Ls.mult === 2 ? " · " + L("double journée", "double day") : ""}</small></h2>
-          <ol class="timetable">${ttRow("復習", L("Réviser", "Review"), cnt("rev"))}${ttRow("新出", L("Apprendre", "Learn"), cnt("learn"))}${ttRow("小テスト", L("Tester", "Test"), cnt("test"))}${ttRow("やり直し", L("Rattrapage", "Retry"), cnt("fix"))}</ol>
-          <button class="btn primary big" data-act="lesson-start" autofocus>${L("Reprendre", "Resume")} <span class="jp">→</span></button></div></div>`;
+        <div class="lesson-body"><h2 class="hand">つづき${Ls.mult === 2 ? ` <span class="badge-x2">×2</span>` : ""}${sous(L("Leçon en cours", "Lesson in progress") + (Ls.mult === 2 ? " · " + L("double journée", "double day") : ""))}</h2>
+          <ol class="timetable">${ttRow("復習", L("Réviser", "Review", "復習"), cnt("rev"))}${ttRow("新出", L("Apprendre", "Learn", "学習"), cnt("learn"))}${ttRow("小テスト", L("Tester", "Test", "テスト"), cnt("test"))}${ttRow("やり直し", L("Rattrapage", "Retry", "やりなおし"), cnt("fix"))}</ol>
+          <button class="btn primary big" data-act="lesson-start" autofocus>${L("Reprendre", "Resume", "再開する")} <span class="jp">→</span></button></div></div>`;
     } else {
       const sum = (k) => MOD_ORDER.reduce((a, m) => a + plan.mods[m][k], 0);
       const total = sum("due") + sum("newLeft") + sum("test");
       sheet = `<div class="sheet lesson">
         <div class="sheet-side">今日の勉強</div>
         ${enso(Math.min(1, plan.minutes / Math.max(15, J.S.settings.maxMinutes || 60)), `<b>${plan.minutes}</b><span>分</span>`)}
-        <div class="lesson-body"><h2 class="hand">今日のレッスン<small>${L("Leçon du jour · environ", "Today’s lesson · about")} ${fmtMin(plan.minutes)}</small></h2>
+        <div class="lesson-body"><h2 class="hand">今日のレッスン${sous(L("Leçon du jour · environ", "Today’s lesson · about") + " " + fmtMin(plan.minutes), "約" + fmtMin(plan.minutes))}</h2>
           <ol class="timetable">
-            ${ttRow("復習", L("Réviser", "Review"), sum("due"), MOD_ORDER.map((m) => plan.mods[m].due))}
-            ${ttRow("新出", L("Apprendre", "Learn"), sum("newLeft"), MOD_ORDER.map((m) => plan.mods[m].newLeft))}
-            ${ttRow("小テスト", L("Tester", "Test"), sum("test"), MOD_ORDER.map((m) => plan.mods[m].test))}
+            ${ttRow("復習", L("Réviser", "Review", "復習"), sum("due"), MOD_ORDER.map((m) => plan.mods[m].due))}
+            ${ttRow("新出", L("Apprendre", "Learn", "学習"), sum("newLeft"), MOD_ORDER.map((m) => plan.mods[m].newLeft))}
+            ${ttRow("小テスト", L("Tester", "Test", "テスト"), sum("test"), MOD_ORDER.map((m) => plan.mods[m].test))}
           </ol>
-          <div class="dose"><span class="dose-l">${L("Dose du jour", "Today’s dose")}</span><div class="seg">
-            <button class="${plan.mult === 1 ? "on" : ""}" data-act="set-mult" data-n="1">${L("Normale", "Normal")}</button>
-            <button class="${plan.mult === 2 ? "on" : ""}" data-act="set-mult" data-n="2"><span class="jp">倍</span> ${L("Double", "Double")} ×2</button></div></div>
-          ${total ? `<button class="btn primary big" data-act="lesson-start" autofocus>はじめる <span>${L("Commencer", "Start")}</span></button>`
-            : `<p>${L("Rien de prévu aujourd’hui.", "Nothing planned today.")}</p><button class="btn" data-act="exam-start">${L("Petit test", "Quick test")}</button>`}
-          ${plan.mult === 2 ? `<p class="muted small">${L(`Double journée : deux leçons d’affilée, environ ${fmtMin(plan.minutes)}.`, `Double day: two lessons in a row, about ${fmtMin(plan.minutes)}.`)}</p>`
-            : plan.capped ? `<p class="muted small">${L(`Limitée à ${fmtMin(J.S.settings.maxMinutes)} (ton réglage).`, `Limited to ${fmtMin(J.S.settings.maxMinutes)} (your setting).`)}</p>` : ""}</div></div>`;
+          <div class="dose"><span class="dose-l">${L("Dose du jour", "Today’s dose", "今日の量")}</span><div class="seg">
+            <button class="${plan.mult === 1 ? "on" : ""}" data-act="set-mult" data-n="1">${L("Normale", "Normal", "ふつう")}</button>
+            <button class="${plan.mult === 2 ? "on" : ""}" data-act="set-mult" data-n="2"><span class="jp">倍</span> ${J.lang() === "ja" ? "" : L("Double", "Double") + " "}×2</button></div></div>
+          ${total ? `<button class="btn primary big" data-act="lesson-start" autofocus>はじめる${aCote(L("Commencer", "Start"))}</button>`
+            : `<p>${L("Rien de prévu aujourd’hui.", "Nothing planned today.", "今日の予定はありません。")}</p><button class="btn" data-act="exam-start">${L("Petit test", "Quick test", "ミニテスト")}</button>`}
+          ${plan.mult === 2 ? `<p class="muted small">${L(`Double journée : deux leçons d’affilée, environ ${fmtMin(plan.minutes)}.`, `Double day: two lessons in a row, about ${fmtMin(plan.minutes)}.`, `倍の量：レッスン2回分、約 ${fmtMin(plan.minutes)}。`)}</p>`
+            : plan.capped ? `<p class="muted small">${L(`Limitée à ${fmtMin(J.S.settings.maxMinutes)} (ton réglage).`, `Limited to ${fmtMin(J.S.settings.maxMinutes)} (your setting).`, `${fmtMin(J.S.settings.maxMinutes)} に制限しています（設定による）。`)}</p>` : ""}</div></div>`;
     }
     return `<section class="hero">${himekuri}${sheet}</section>
-      ${warn ? `<div class="sheet alert"><div class="alert-mark">!</div><div><b>${L("Ton rythme réel est différent de ton planning.", "Your actual pace differs from your plan.")}</b>
+      ${warn ? `<div class="sheet alert"><div class="alert-mark">!</div><div><b>${L("Ton rythme réel est différent de ton planning.", "Your actual pace differs from your plan.", "実際のペースが計画とずれています。")}</b>
         <p>${L(`Tu as prévu <b>${warn.planned} jours</b> d’étude par semaine, mais sur les dernières semaines tu en fais en moyenne <b>${J.num(warn.measured)}</b>. Les leçons sont calculées pour ${warn.planned} jours : en étudiant moins souvent, tu prends du retard.`,
-          `You planned <b>${warn.planned} study days</b> a week, but over the last weeks you averaged <b>${J.num(warn.measured)}</b>. Lessons are sized for ${warn.planned} days: studying less often puts you behind.`)}</p>
-        <div class="row"><button class="btn primary" data-act="pace-adapt" data-n="${warn.suggest}">${L(`Adapter les leçons à ${warn.suggest} ${dpw()}`, `Adapt lessons to ${warn.suggest} ${dpw()}`)}</button><button class="btn" data-act="pace-keep">${L(`Je garde ${warn.planned} ${dpw()}`, `Keep ${warn.planned} ${dpw()}`)}</button></div></div></div>` : ""}
+          `You planned <b>${warn.planned} study days</b> a week, but over the last weeks you averaged <b>${J.num(warn.measured)}</b>. Lessons are sized for ${warn.planned} days: studying less often puts you behind.`,
+          `1週間に <b>${warn.planned} 日</b> 学習する予定ですが、ここ数週間の平均は <b>${J.num(warn.measured)}</b> 日です。レッスンは ${warn.planned} 日を前提に組まれているため、このままでは遅れます。`)}</p>
+        <div class="row"><button class="btn primary" data-act="pace-adapt" data-n="${warn.suggest}">${L(`Adapter les leçons à ${warn.suggest} ${dpw()}`, `Adapt lessons to ${warn.suggest} ${dpw()}`, `レッスンを ${warn.suggest} ${dpw()} に合わせる`)}</button><button class="btn" data-act="pace-keep">${L(`Je garde ${warn.planned} ${dpw()}`, `Keep ${warn.planned} ${dpw()}`, `${warn.planned} ${dpw()} のままにする`)}</button></div></div></div>` : ""}
       <section class="tickets">${MOD_ORDER.map((m) => modSummary(m, plan, proj)).join("")}</section>
       ${weekStrip()}`;
   };
   // Ligne d’emploi du temps : total + détail par module
-  const ttRow = (jp, tr, n, per) => `<li class="${n ? "" : "off"}"><span class="tt-jp">${jp}</span><span class="tt-fr">${tr}</span>
+  /* Mention sous le tampon : le tampon est déjà en japonais, inutile de la répéter */
+  const stFr = (txt) => (J.lang() === "ja" ? "" : `<span class="st-fr">${txt}</span>`);
+  const ttRow = (jp, tr, n, per) => `<li class="${n ? "" : "off"}"><span class="tt-jp">${jp}</span>${J.lang() === "ja" ? "" : `<span class="tt-fr">${tr}</span>`}
     ${per ? `<span class="tt-per">${per.map((x, i) => (x ? `<i class="m-${MOD_ORDER[i]}">${MODS[MOD_ORDER[i]].jp[0]}${x}</i>` : "")).join("")}</span>` : ""}<b>${n}</b></li>`;
 
   // Marque du ticket : un signe et un numéro par module
@@ -223,17 +233,17 @@
   function modSummary(m, plan, proj) {
     const p = plan.mods[m], pr = proj[m];
     let st;
-    if (p.remaining === 0) st = stamp("完了", m + "done", "ok") + `<span class="st-fr">${L("Tout vu", "All seen")}</span>`;
-    else if (!pr.finish) st = stamp("未着手", m, "grey") + `<span class="st-fr">${L("Pas commencé", "Not started")}</span>`;
-    else if (pr.onTime) st = stamp("順調", m, "ok") + `<span class="st-fr">${L("Dans les temps", "On track")}</span>`;
-    else st = stamp("遅れ", m) + `<span class="st-fr">${L(`Retard ≈ ${Math.ceil(pr.late / 7)} sem.`, `≈ ${Math.ceil(pr.late / 7)} wk behind`)}</span>`;
+    if (p.remaining === 0) st = stamp("完了", m + "done", "ok") + stFr(L("Tout vu", "All seen"));
+    else if (!pr.finish) st = stamp("未着手", m, "grey") + stFr(L("Pas commencé", "Not started"));
+    else if (pr.onTime) st = stamp("順調", m, "ok") + stFr(L("Dans les temps", "On track"));
+    else st = stamp("遅れ", m) + `<span class="st-fr">${L(`Retard ≈ ${Math.ceil(pr.late / 7)} sem.`, `≈ ${Math.ceil(pr.late / 7)} wk behind`, `約 ${Math.ceil(pr.late / 7)} 週間の遅れ`)}</span>`;
     return `<button class="ticket t-${m}" data-act="nav" data-v="mod-${m}">
       <span class="t-stub"><span class="t-kanji">${(MOD_MARK[m] || ["", "00"])[0]}</span><span class="t-no">No.${(MOD_MARK[m] || ["", "00"])[1]}</span></span>
       <span class="t-body">
         <span class="t-head"><span class="jp t-jp">${MODS[m].jp}</span>${J.modName(m) === MODS[m].jp ? "" : `<span class="t-fr">${J.modName(m)}</span>`}</span>
         ${bar(p.levels, p.total)}
         <span class="t-n"><b>${p.learned}</b><small>/ ${p.total} ${J.modUnit(m)}</small></span>
-        <span class="t-meta">${p.levels[3]} ${L("maîtrisés", "mastered")}${pr.finish ? ` · ${L("fin prévue", "expected end")} ${J.fmtShort(pr.finish)}` : ""}</span>
+        <span class="t-meta">${p.levels[3]} ${L("maîtrisés", "mastered", "定着")}${pr.finish ? ` · ${L("fin prévue", "expected end", "終了予定")} ${J.fmtShort(pr.finish)}` : ""}</span>
         <span class="t-status">${st}</span>
       </span></button>`;
   }
@@ -243,7 +253,7 @@
     for (let i = 6; i >= 0; i--) days.push(J.addDays(J.today(), -i));
     const streak = J.streak();
     return `<section class="stampcard">
-      <div class="sc-head"><h3 class="hand">がんばりカード</h3><span class="muted small">${L("Carte de tampons", "Stamp card")} · ${L("prévu", "planned")} ${J.S.settings.daysPerWeek} ${dpw()} · ${L("réel", "actual")} ${J.measuredDPW() === null ? "—" : J.num(J.measuredDPW())}</span>
+      <div class="sc-head"><h3 class="hand">がんばりカード</h3><span class="muted small">${J.lang() === "ja" ? "" : L("Carte de tampons", "Stamp card") + " · "}${L("prévu", "planned", "予定")} ${J.S.settings.daysPerWeek} ${dpw()} · ${L("réel", "actual", "実績")} ${J.measuredDPW() === null ? "—" : J.num(J.measuredDPW())}</span>
         <span class="sc-streak"><b>${streak}</b>日連続</span></div>
       <div class="sc-grid">${days.map((d) => {
         const x = J.S.days[d], min = x ? Math.round(x.sec / 60) : 0, today = d === J.today();
@@ -257,10 +267,10 @@
     const c = J.counts(m), acc = J.accuracy(m);
     const head = `<section class="mod-head"><div><h1>${modTitre(m)} <small>${J.LEVEL}</small></h1>
       ${bar(c.levels, c.total)}
-      <div class="legend">${J.LEVELS.map((l, i) => `<span><i class="lv${i}"></i>${l} ${c.levels[i]}</span>`).join("")}${acc !== null ? `<span>${L("Réussite", "Accuracy")} ${Math.round(acc * 100)} %</span>` : ""}</div></div>
-      <div class="row"><button class="btn primary" data-act="practice" data-m="${m}">${L("S’entraîner", "Practice")}</button><button class="btn" data-act="mod-test" data-m="${m}">${L("Test examen", "Exam test", "模擬テスト")} · ${J.lang() === "ja" ? MODS[m].jp : J.modName(m).toLowerCase()}</button>
+      <div class="legend">${J.LEVELS.map((l, i) => `<span><i class="lv${i}"></i>${l} ${c.levels[i]}</span>`).join("")}${acc !== null ? `<span>${L("Réussite", "Accuracy", "正答率")} ${Math.round(acc * 100)} %</span>` : ""}</div></div>
+      <div class="row"><button class="btn primary" data-act="practice" data-m="${m}">${L("S’entraîner", "Practice", "演習")}</button><button class="btn" data-act="mod-test" data-m="${m}">${L("Test examen", "Exam test", "模擬テスト")} · ${J.lang() === "ja" ? MODS[m].jp : J.modName(m).toLowerCase()}</button>
       </div></section>`;
-    const filters = [["all", L("Tous", "All")], ["0", L("Nouveaux", "New")], ["1", L("En cours", "Learning")], ["2", L("Acquis", "Known")], ["3", L("Maîtrisés", "Mastered")], ["weak", L("Points faibles", "Weak spots")], ["due", L("À réviser", "Due")]]
+    const filters = [["all", L("Tous", "All", "すべて")], ["0", L("Nouveaux", "New", "未学習")], ["1", L("En cours", "Learning", "学習中")], ["2", L("Acquis", "Known", "習得")], ["3", L("Maîtrisés", "Mastered", "定着")], ["weak", L("Points faibles", "Weak spots", "弱点")], ["due", L("À réviser", "Due", "復習の期限")]]
       .concat(m === "v" ? [["out", L("Retirés", "Removed", "除外")]] : []);
     let list = J.items[m];
     if (f === "out") list = J.all[m].filter((x) => J.isExcluded(m, x.id));
@@ -273,7 +283,7 @@
         : m === "b" ? x.p + J.bs(x, "s") + (x.prog || []).join(" ")
         : x.p + J.gs(x, "s") + x.f).toLowerCase().includes(ql));
     }
-    const ctrl = `<div class="filters"><input id="search" data-m="${m}" placeholder="${L("Rechercher…", "Search…")}" value="${esc(q)}">
+    const ctrl = `<div class="filters"><input id="search" data-m="${m}" placeholder="${L("Rechercher…", "Search…", "検索…")}" value="${esc(q)}">
       <div class="seg wrap">${filters.map(([k, l]) => `<button class="${f === k ? "on" : ""}" data-act="filter" data-m="${m}" data-f="${k}">${l}</button>`).join("")}</div></div>`;
     let body = "";
     if (m === "g" || m === "b") {
@@ -297,9 +307,9 @@
       body = m === "k"
         ? `<div class="kgrid">${slice.map((k) => `<button class="ktile lv${J.levelOf("k", k.id)} jp" data-act="open-item" data-m="k" data-id="${esc(k.id)}" title="${esc(J.mean("k", k))}">${esc(k.k)}</button>`).join("")}</div>`
         : `<div class="vlist">${slice.map((v) => `<button class="vrow" data-act="open-item" data-m="v" data-id="${esc(v.id)}"><i class="dot lv${J.levelOf("v", v.id)}"></i><span class="jp w">${esc(v.w)}</span><span class="jp r">${esc(v.r)}</span><span class="mm">${esc(J.shortMeaning(J.mean("v", v)))}</span></button>`).join("")}</div>`;
-      if (pages > 1) body += `<div class="pager">${pg > 0 ? `<button class="btn" data-act="page" data-m="${m}" data-pg="${pg - 1}">← ${L("Précédent", "Previous")}</button>` : ""}<span>Page ${pg + 1} / ${pages} · ${list.length} ${L("éléments", "items")}</span>${pg < pages - 1 ? `<button class="btn" data-act="page" data-m="${m}" data-pg="${pg + 1}">${L("Suivant", "Next")} →</button>` : ""}</div>`;
+      if (pages > 1) body += `<div class="pager">${pg > 0 ? `<button class="btn" data-act="page" data-m="${m}" data-pg="${pg - 1}">← ${L("Précédent", "Previous", "前へ")}</button>` : ""}<span>Page ${pg + 1} / ${pages} · ${list.length} ${L("éléments", "items", "件")}</span>${pg < pages - 1 ? `<button class="btn" data-act="page" data-m="${m}" data-pg="${pg + 1}">${L("Suivant", "Next", "次へ")} →</button>` : ""}</div>`;
     }
-    return head + ctrl + (body || `<p class="muted">${L("Aucun élément.", "No items.")}</p>`);
+    return head + ctrl + (body || `<p class="muted">${L("Aucun élément.", "No items.", "該当する項目はありません。")}</p>`);
   };
 
   /* Fiche d’un élément */
@@ -307,8 +317,8 @@
     const r = J.rec(m, id), lv = J.levelOf(m, id);
     const list = J.all[m], idx = list.findIndex((x) => x.id === id);
     const prev = list[idx - 1], next = list[idx + 1];
-    const stat = r && r.at ? `<div class="stat-line"><span class="pill lv${lv}">${J.LEVELS[lv]}</span><span>${L("Appris le", "Learned on")} ${J.fmtShort(r.at)}</span><span>${L("Prochaine révision", "Next review")} : ${r.due ? J.fmtShort(r.due) : "—"}</span><span>✓ ${r.ok} · ✗ ${r.ko}</span></div>`
-      : `<div class="stat-line"><span class="pill">${J.LEVELS[0]}</span><button class="btn sm" data-act="known" data-m="${m}" data-id="${esc(id)}">${L("Je le connais déjà", "I already know it")}</button></div>`;
+    const stat = r && r.at ? `<div class="stat-line"><span class="pill lv${lv}">${J.LEVELS[lv]}</span><span>${L("Appris le", "Learned on", "学習日")} ${J.fmtShort(r.at)}</span><span>${L("Prochaine révision", "Next review", "次の復習")} : ${r.due ? J.fmtShort(r.due) : "—"}</span><span>✓ ${r.ok} · ✗ ${r.ko}</span></div>`
+      : `<div class="stat-line"><span class="pill">${J.LEVELS[0]}</span><button class="btn sm" data-act="known" data-m="${m}" data-id="${esc(id)}">${L("Je le connais déjà", "I already know it", "すでに知っている")}</button></div>`;
     const out = J.isExcluded(m, id);
     const body = (m === "g" ? J.grammarLesson(J.byId.g[id], false) : m === "b" ? J.kamokubLesson(J.byId.b[id]) : `<div class="card">${J.learnCard(m, id)}</div>`)
       + (m === "v" ? `<div class="row">${out ? `<span class="pill bad">${L("Retiré des leçons", "Removed from lessons", "レッスンから除外中")}</span><button class="btn sm" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="0">${L("Remettre dans les leçons", "Put back into lessons", "レッスンに戻す")}</button>`
@@ -317,21 +327,21 @@
       <span>${prev ? `<button class="btn sm" data-act="open-item" data-m="${m}" data-id="${esc(prev.id)}">←</button>` : ""}
       ${next ? `<button class="btn sm" data-act="open-item" data-m="${m}" data-id="${esc(next.id)}">→</button>` : ""}</span></div>
       ${stat}${body}
-      ${m === "g" ? `<div class="row"><button class="btn primary" data-act="drill" data-m="g" data-id="${id}">${L("M’entraîner sur ce point (5 questions)", "Practice this point (5 questions)")}</button></div>` : ""}`;
+      ${m === "g" ? `<div class="row"><button class="btn primary" data-act="drill" data-m="g" data-id="${id}">${L("M’entraîner sur ce point (5 questions)", "Practice this point (5 questions)", "この項目を演習する（5問）")}</button></div>` : ""}`;
   };
 
   /* Choix d’entraînement */
   VIEWS.practice = ({ m }) => {
     const c = J.counts(m);
     return `<section class="card"><h1>${L("S’entraîner", "Practice", "演習")} · ${modTitre(m)}</h1>
-      <p class="muted">${L("L’entraînement libre ne modifie pas ton planning ; il enregistre seulement tes réussites et tes erreurs.", "Free practice does not change your schedule; it only records your correct answers and mistakes.")}</p>
-      <div class="field"><label>${L("Sur quels éléments ?", "Which items?")}</label><div class="seg wrap" id="p-src">
-        <button class="on" data-act="pseg" data-g="src" data-v="learned">${L("Déjà vus", "Already seen")} (${c.learned})</button>
-        <button data-act="pseg" data-g="src" data-v="weak">${L("Points faibles", "Weak spots")} (${J.weak(m, 999).length})</button>
-        <button data-act="pseg" data-g="src" data-v="all">${L("Tous", "All")} (${c.total})</button></div></div>
-      <div class="field"><label>${L("Nombre de questions", "Number of questions")}</label><div class="seg" id="p-n">
+      <p class="muted">${L("L’entraînement libre ne modifie pas ton planning ; il enregistre seulement tes réussites et tes erreurs.", "Free practice does not change your schedule; it only records your correct answers and mistakes.", "自由演習は学習計画を変えません。正答と誤答だけが記録されます。")}</p>
+      <div class="field"><label>${L("Sur quels éléments ?", "Which items?", "どの項目から出題するか")}</label><div class="seg wrap" id="p-src">
+        <button class="on" data-act="pseg" data-g="src" data-v="learned">${L("Déjà vus", "Already seen", "学習済み")} (${c.learned})</button>
+        <button data-act="pseg" data-g="src" data-v="weak">${L("Points faibles", "Weak spots", "弱点")} (${J.weak(m, 999).length})</button>
+        <button data-act="pseg" data-g="src" data-v="all">${L("Tous", "All", "すべて")} (${c.total})</button></div></div>
+      <div class="field"><label>${L("Nombre de questions", "Number of questions", "問題数")}</label><div class="seg" id="p-n">
         ${[10, 20, 30, 50].map((n, i) => `<button class="${i === 0 ? "on" : ""}" data-act="pseg" data-g="n" data-v="${n}">${n}</button>`).join("")}</div></div>
-      <button class="btn primary big" data-act="practice-go" data-m="${m}">${L("Démarrer", "Start")}</button></section>`;
+      <button class="btn primary big" data-act="practice-go" data-m="${m}">${L("Démarrer", "Start", "はじめる")}</button></section>`;
   };
 
   /* Progression */
@@ -342,24 +352,25 @@
     for (let i = 13; i >= 0; i--) days.push(J.addDays(J.today(), -i));
     const maxSec = Math.max(60, ...days.map((d) => (J.S.days[d] ? J.S.days[d].sec : 0)));
     let totalSec = 0; for (const d in J.S.days) totalSec += J.S.days[d].sec;
-    return `<h1>進捗 · ${L("Progression", "Progress")}</h1>
+    return `<h1>進捗${apres(L("Progression", "Progress"))}</h1>
       <div class="kpis">
-        <div class="kpi"><b>${J.streak()}</b><span>${L("jours d’affilée", "day streak")}</span></div>
-        <div class="kpi"><b>${fmtMin(Math.round(totalSec / 60))}</b><span>${L("temps total", "total time")}</span></div>
-        <div class="kpi"><b>${J.S.settings.daysPerWeek}</b><span>${L("j/sem prévus", "planned days/wk")}</span></div>
-        <div class="kpi"><b>${mdpw === null ? "—" : J.num(mdpw)}</b><span>${L("j/sem réels (4 sem.)", "actual days/wk (4 wk)")}</span></div>
-        <div class="kpi"><b>J-${Math.max(0, plan.examIn)}</b><span>${L("avant l’examen", "until the exam")}</span></div>
+        <div class="kpi"><b>${J.streak()}</b><span>${L("jours d’affilée", "day streak", "日連続")}</span></div>
+        <div class="kpi"><b>${fmtMin(Math.round(totalSec / 60))}</b><span>${L("temps total", "total time", "合計時間")}</span></div>
+        <div class="kpi"><b>${J.S.settings.daysPerWeek}</b><span>${L("j/sem prévus", "planned days/wk", "予定（日／週）")}</span></div>
+        <div class="kpi"><b>${mdpw === null ? "—" : J.num(mdpw)}</b><span>${L("j/sem réels (4 sem.)", "actual days/wk (4 wk)", "実績（日／週・4週間）")}</span></div>
+        <div class="kpi"><b>J-${Math.max(0, plan.examIn)}</b><span>${L("avant l’examen", "until the exam", "試験まで")}</span></div>
       </div>
-      <div class="card"><h3>${L("Suis-je dans les temps ?", "Am I on track?")}</h3>
-        <table class="plan"><thead><tr><th></th><th>${L("Vus", "Seen")}</th><th>${L("Maîtrisés", "Mastered")}</th><th>${L("Réussite", "Accuracy")}</th><th>${L("Rythme", "Pace")}</th><th>${L("Fin prévue", "Expected end")}</th><th>${L("Objectif", "Target")}</th></tr></thead><tbody>
+      <div class="card"><h3>${L("Suis-je dans les temps ?", "Am I on track?", "計画どおり進んでいるか")}</h3>
+        <table class="plan"><thead><tr><th></th><th>${L("Vus", "Seen", "学習済み")}</th><th>${L("Maîtrisés", "Mastered", "定着")}</th><th>${L("Réussite", "Accuracy", "正答率")}</th><th>${L("Rythme", "Pace", "ペース")}</th><th>${L("Fin prévue", "Expected end", "終了予定")}</th><th>${L("Objectif", "Target", "目標")}</th></tr></thead><tbody>
         ${MOD_ORDER.map((m) => { const p = plan.mods[m], pr = proj[m], acc = J.accuracy(m);
           return `<tr><th>${modTitre(m)}</th><td>${p.learned}/${p.total}</td><td>${p.levels[3]}</td><td>${acc === null ? "—" : Math.round(acc * 100) + " %"}</td>
-          <td>${J.num(pr.perStudyDay)}/${L("jour", "day")}</td><td class="${pr.onTime ? "good" : "bad"}">${pr.finish ? J.fmtShort(pr.finish) : "—"}</td><td>${J.fmtShort(plan.target)}</td></tr>`; }).join("")}
+          <td>${J.num(pr.perStudyDay)}/${L("jour", "day", "日")}</td><td class="${pr.onTime ? "good" : "bad"}">${pr.finish ? J.fmtShort(pr.finish) : "—"}</td><td>${J.fmtShort(plan.target)}</td></tr>`; }).join("")}
         </tbody></table>
         <p class="muted small">${L(`L’objectif est de tout avoir vu ${J.S.settings.finalDays} jours avant l’examen (${J.fmtDate(J.S.settings.examDate)}), pour garder du temps pour la révision finale. La projection utilise ton rythme réel dès que tu as assez de jours de données.`,
-          `The target is to have seen everything ${J.S.settings.finalDays} days before the exam (${J.fmtDate(J.S.settings.examDate)}), to keep time for final review. The projection uses your actual pace once there are enough days of data.`)}</p>
+          `The target is to have seen everything ${J.S.settings.finalDays} days before the exam (${J.fmtDate(J.S.settings.examDate)}), to keep time for final review. The projection uses your actual pace once there are enough days of data.`,
+          `試験（${J.fmtDate(J.S.settings.examDate)}）の ${J.S.settings.finalDays} 日前までに、すべてを一度見終えることを目標にしています。最終復習の時間を残すためです。日数のデータがたまると、予測には実際のペースが使われます。`)}</p>
         <p class="small">${planNote(plan)}</p></div>
-      <div class="card"><h3>${L("Temps d’étude, 14 derniers jours", "Study time, last 14 days")}</h3><div class="bars">${days.map((d) => { const s = J.S.days[d] ? J.S.days[d].sec : 0;
+      <div class="card"><h3>${L("Temps d’étude, 14 derniers jours", "Study time, last 14 days", "学習時間（直近14日）")}</h3><div class="bars">${days.map((d) => { const s = J.S.days[d] ? J.S.days[d].sec : 0;
           return `<div class="b" title="${J.fmtShort(d)} : ${Math.round(s / 60)} min"><span style="height:${(s / maxSec) * 100}%"></span><i>${J.parse(d).getDate()}</i></div>`; }).join("")}</div>
         <p class="muted small">${L("Temps moyen mesuré par nouvel élément", "Measured average time per new item", "新しい項目あたりの実測平均時間")} : ${MOD_ORDER.map((m) => {
             const s = (J.S.timing[m] || { learn: 0 }).learn;
@@ -367,10 +378,10 @@
           }).join(" · ")}. ${L("Ces valeurs s’ajustent toutes seules et servent à estimer la durée des leçons.",
           "These values adjust automatically and are used to estimate lesson length.",
           "この値は自動で調整され、レッスンの所要時間の見積りに使われる。")}</p></div>
-      <div class="card"><h3>${L("Calendrier", "Calendar")}</h3>${heatmap()}</div>
+      <div class="card"><h3>${L("Calendrier", "Calendar", "カレンダー")}</h3>${heatmap()}</div>
       <div class="grid3">${MOD_ORDER.map((m) => { const w = J.weak(m, 8);
-        return `<div class="card"><h3>${L("Points faibles", "Weak spots")} · ${J.modName(m)}</h3>${w.length ? w.map((x) => `<button class="weak" data-act="open-item" data-m="${m}" data-id="${esc(x.id)}"><span class="jp">${esc(m === "v" ? x.w : m === "k" ? x.k : x.p)}</span><span class="muted">✗ ${J.rec(m, x.id).ko}</span></button>`).join("") : `<p class="muted">${L("Aucun pour l’instant.", "None yet.")}</p>`}</div>`; }).join("")}</div>
-      <div class="row"><button class="btn primary" data-act="exam-start">${L("Petit test (30 questions)", "Quick test (30 questions)")}</button></div>`;
+        return `<div class="card"><h3>${L("Points faibles", "Weak spots", "弱点")} · ${J.modName(m)}</h3>${w.length ? w.map((x) => `<button class="weak" data-act="open-item" data-m="${m}" data-id="${esc(x.id)}"><span class="jp">${esc(m === "v" ? x.w : m === "k" ? x.k : x.p)}</span><span class="muted">✗ ${J.rec(m, x.id).ko}</span></button>`).join("") : `<p class="muted">${L("Aucun pour l’instant.", "None yet.", "今のところありません。")}</p>`}</div>`; }).join("")}</div>
+      <div class="row"><button class="btn primary" data-act="exam-start">${L("Petit test (30 questions)", "Quick test (30 questions)", "ミニテスト（30問）")}</button></div>`;
   };
 
   function heatmap() {
@@ -384,7 +395,7 @@
       const lv = min === 0 ? 0 : min < 10 ? 1 : min < 25 ? 2 : min < 45 ? 3 : 4;
       cells.push(`<i class="h${lv}" title="${J.fmtShort(d)} : ${Math.round(min)} min"></i>`);
     }
-    return `<div class="heat">${cells.join("")}</div><div class="heat-legend">${L("Moins", "Less")} <i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i> ${L("Plus", "More")}</div>`;
+    return `<div class="heat">${cells.join("")}</div><div class="heat-legend">${L("Moins", "Less", "少なく")} <i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i> ${L("Plus", "More", "多く")}</div>`;
   }
 
   /* Réglages */
@@ -392,21 +403,21 @@
     const s = J.S.settings;
     const u = J.user();
     const st = u
-      ? `<p>${L("Ta progression est synchronisée sur ton compte", "Your progress is synced to your account")} <b>${esc(u.email || u.name || "")}</b>.${J.store.lastSave ? ` ${L("Dernière synchronisation", "Last sync")} : ${J.store.lastSave.toLocaleTimeString(J.locale())}.` : ""}</p>${J.store.error ? `<p class="bad">${esc(J.store.error)}</p>` : ""}`
-      : `<p class="bad">${L("Tu n’es pas connecté : ta progression est gardée dans ce navigateur seulement.", "You are not signed in: your progress is only kept in this browser.")} <button class="link" data-act="nav" data-v="account">${L("Se connecter", "Sign in")}</button></p>`;
-    return `<h1>設定 · ${L("Réglages", "Settings")}</h1>
+      ? `<p>${L("Ta progression est synchronisée sur ton compte", "Your progress is synced to your account", "学習記録はアカウントに同期されています")} <b>${esc(u.email || u.name || "")}</b>.${J.store.lastSave ? ` ${L("Dernière synchronisation", "Last sync", "最終同期")} : ${J.store.lastSave.toLocaleTimeString(J.locale())}.` : ""}</p>${J.store.error ? `<p class="bad">${esc(J.store.error)}</p>` : ""}`
+      : `<p class="bad">${L("Tu n’es pas connecté : ta progression est gardée dans ce navigateur seulement.", "You are not signed in: your progress is only kept in this browser.", "ログインしていません。学習記録はこのブラウザにのみ保存されます。")} <button class="link" data-act="nav" data-v="account">${L("Se connecter", "Sign in", "ログイン")}</button></p>`;
+    return `<h1>設定${apres(L("Réglages", "Settings"))}</h1>
       <section class="card">
         <div class="field"><label>${L("Langue de l’interface et des traductions", "Language of the interface and translations", "表示言語")}</label>${langSwitch()}</div>
         ${settingsCore(s, [])}
-        <div class="field"><label>${L("Questions de test par leçon", "Test questions per lesson")}</label><div class="row">${MOD_ORDER.map((m) => `<label class="num">${J.modName(m)} <input type="number" min="0" max="30" data-set="test-${m}" value="${s.tests[m]}"></label>`).join("")}</div></div>
-        <div class="field"><label>${L("Vitesse de la voix japonaise", "Japanese voice speed")}</label><input type="range" min="0.6" max="1.2" step="0.05" data-set="rate" value="${s.rate}"></div>
-        <div class="preview"><h3>${L("Effet sur ton planning", "Effect on your plan")}</h3>${planTable(J.plan(), true)}<p class="muted">${planNote(J.plan())}</p></div>
+        <div class="field"><label>${L("Questions de test par leçon", "Test questions per lesson", "レッスンごとのテスト問題数")}</label><div class="row">${MOD_ORDER.map((m) => `<label class="num">${J.modName(m)} <input type="number" min="0" max="30" data-set="test-${m}" value="${s.tests[m]}"></label>`).join("")}</div></div>
+        <div class="field"><label>${L("Vitesse de la voix japonaise", "Japanese voice speed", "読み上げの速さ")}</label><input type="range" min="0.6" max="1.2" step="0.05" data-set="rate" value="${s.rate}"></div>
+        <div class="preview"><h3>${L("Effet sur ton planning", "Effect on your plan", "学習計画への影響")}</h3>${planTable(J.plan(), true)}<p class="muted">${planNote(J.plan())}</p></div>
       </section>
-      <section class="card"><h3>${L("Sauvegarde", "Backup")}</h3>${st}
-        <div class="row"><button class="btn" data-act="export">${L("Exporter une copie (.json)", "Export a copy (.json)")}</button>
-        <button class="btn" data-act="import">${L("Importer une sauvegarde", "Import a backup")}</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
-        <p class="muted small">${L("L’export est une copie de secours ; il peut être réimporté sur n’importe quel appareil.", "The export is a safety copy; it can be imported again on any device.")}</p></section>
-      <section class="card danger"><h3>${L("Zone sensible", "Danger zone")}</h3><button class="btn" data-act="reset">${L("Tout réinitialiser…", "Reset everything…")}</button></section>`;
+      <section class="card"><h3>${L("Sauvegarde", "Backup", "バックアップ")}</h3>${st}
+        <div class="row"><button class="btn" data-act="export">${L("Exporter une copie (.json)", "Export a copy (.json)", "書き出す（.json）")}</button>
+        <button class="btn" data-act="import">${L("Importer une sauvegarde", "Import a backup", "バックアップを読み込む")}</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
+        <p class="muted small">${L("L’export est une copie de secours ; il peut être réimporté sur n’importe quel appareil.", "The export is a safety copy; it can be imported again on any device.", "書き出したファイルは控えです。どの端末でも読み込めます。")}</p></section>
+      <section class="card danger"><h3>${L("Zone sensible", "Danger zone", "取り扱い注意")}</h3><button class="btn" data-act="reset">${L("Tout réinitialiser…", "Reset everything…", "すべて初期化…")}</button></section>`;
   };
 
   /* Compte */
@@ -415,29 +426,29 @@
     const u = J.user();
     if (u) {
       const status = J.store.expired
-        ? `<p class="bad">${L("Ta session a expiré. Reconnecte-toi pour reprendre la synchronisation (rien n’est perdu, tout est gardé dans ce navigateur).", "Your session has expired. Sign in again to resume syncing (nothing is lost, everything is kept in this browser).")}</p><button class="btn primary" data-act="relogin">${L("Se reconnecter", "Sign in again")}</button>`
+        ? `<p class="bad">${L("Ta session a expiré. Reconnecte-toi pour reprendre la synchronisation (rien n’est perdu, tout est gardé dans ce navigateur).", "Your session has expired. Sign in again to resume syncing (nothing is lost, everything is kept in this browser).", "セッションの有効期限が切れました。同期を再開するにはログインし直してください。データは失われず、このブラウザに残っています。")}</p><button class="btn primary" data-act="relogin">${L("Se reconnecter", "Sign in again", "ログインし直す")}</button>`
         : J.store.error ? `<p class="bad">${esc(J.store.error)}</p>`
-        : `<p class="good">● ${L("Progression synchronisée", "Progress synced")}${J.store.lastSave ? ` (${L("dernière fois à", "last at")} ${J.store.lastSave.toLocaleTimeString(J.locale())})` : ""}.</p>`;
-      return `<h1>アカウント · ${L("Mon compte", "My account")}</h1>
+        : `<p class="good">● ${L("Progression synchronisée", "Progress synced", "同期済み")}${J.store.lastSave ? ` (${L("dernière fois à", "last at", "最終")} ${J.store.lastSave.toLocaleTimeString(J.locale())})` : ""}.</p>`;
+      return `<h1>アカウント${apres(L("Mon compte", "My account"))}</h1>
         <section class="card"><div class="acct"><div class="avatar">${esc((u.name || u.email || "?")[0].toUpperCase())}</div>
-          <div><b>${esc(u.name || "")}</b><div class="muted">${esc(u.email || "")} · ${L("connexion", "signed in with")} ${esc(PROV[u.provider] || u.provider)}</div></div></div>
+          <div><b>${esc(u.name || "")}</b><div class="muted">${esc(u.email || "")} · ${L("connexion", "signed in with", "ログイン")} ${esc(PROV[u.provider] || u.provider)}</div></div></div>
           ${status}
-          <div class="row"><button class="btn" data-act="sync-now">${L("Synchroniser maintenant", "Sync now")}</button><button class="btn" data-act="logout">${L("Se déconnecter", "Sign out")}</button></div>
-          <p class="muted small">${L("Sur un ordinateur partagé, déconnecte-toi : la progression est alors effacée de ce navigateur (elle reste sur ton compte).", "On a shared computer, sign out: your progress is then removed from this browser (it stays on your account).")}</p></section>
-        <section class="card danger"><h3>${L("Supprimer mon compte", "Delete my account")}</h3><p class="muted">${L("Efface définitivement ton compte et toute ta progression enregistrée en ligne.", "Permanently deletes your account and all progress saved online.")}</p>
-          <button class="btn" data-act="delete-account">${L("Supprimer mon compte…", "Delete my account…")}</button></section>`;
+          <div class="row"><button class="btn" data-act="sync-now">${L("Synchroniser maintenant", "Sync now", "今すぐ同期する")}</button><button class="btn" data-act="logout">${L("Se déconnecter", "Sign out", "ログアウト")}</button></div>
+          <p class="muted small">${L("Sur un ordinateur partagé, déconnecte-toi : la progression est alors effacée de ce navigateur (elle reste sur ton compte).", "On a shared computer, sign out: your progress is then removed from this browser (it stays on your account).", "共用のパソコンではログアウトしてください。学習記録はこのブラウザから消えますが、アカウントには残ります。")}</p></section>
+        <section class="card danger"><h3>${L("Supprimer mon compte", "Delete my account", "アカウントを削除する")}</h3><p class="muted">${L("Efface définitivement ton compte et toute ta progression enregistrée en ligne.", "Permanently deletes your account and all progress saved online.", "アカウントと、オンラインに保存された学習記録をすべて完全に削除します。")}</p>
+          <button class="btn" data-act="delete-account">${L("Supprimer mon compte…", "Delete my account…", "アカウントを削除…")}</button></section>`;
     }
     const P = Object.fromEntries(J.providers.map((p) => [p.id, p.enabled]));
-    return `<h1>アカウント · ${L("Se connecter", "Sign in")}</h1>
+    return `<h1>アカウント${apres(L("Se connecter", "Sign in"))}</h1>
       <section class="card login">
-        <p>${L("Connecte-toi pour retrouver ta progression sur tous tes appareils (et plus tard dans l’appli iPhone). Sans compte, elle reste uniquement dans ce navigateur.", "Sign in to keep your progress on all your devices (and later in the iPhone app). Without an account, it only stays in this browser.")}</p>
+        <p>${L("Connecte-toi pour retrouver ta progression sur tous tes appareils (et plus tard dans l’appli iPhone). Sans compte, elle reste uniquement dans ce navigateur.", "Sign in to keep your progress on all your devices (and later in the iPhone app). Without an account, it only stays in this browser.", "ログインすると、どの端末でも学習記録を引き継げます（将来の iPhone アプリでも）。アカウントがない場合は、このブラウザにだけ残ります。")}</p>
         ${J.authReady ? `<div class="auth-btns">
           ${P.google ? `<div id="g-btn" class="g-btn"></div>` : ""}
-          ${P.apple ? `<button class="btn auth apple" data-act="login-apple"><span aria-hidden="true"></span> ${L("Continuer avec Apple", "Continue with Apple")}</button>` : ""}
-          ${P.microsoft ? `<button class="btn auth ms" data-act="login-ms"><span class="ms-logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span> ${L("Continuer avec Microsoft", "Continue with Microsoft")}</button>` : ""}
-        </div>` : `<p class="bad">${L("La connexion n’est pas encore activée sur ce site.", "Sign-in is not enabled on this site yet.")}</p>`}
+          ${P.apple ? `<button class="btn auth apple" data-act="login-apple"><span aria-hidden="true"></span> ${L("Continuer avec Apple", "Continue with Apple", "Apple で続ける")}</button>` : ""}
+          ${P.microsoft ? `<button class="btn auth ms" data-act="login-ms"><span class="ms-logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span> ${L("Continuer avec Microsoft", "Continue with Microsoft", "Microsoft で続ける")}</button>` : ""}
+        </div>` : `<p class="bad">${L("La connexion n’est pas encore activée sur ce site.", "Sign-in is not enabled on this site yet.", "このサイトではログインはまだ有効になっていません。")}</p>`}
         <div id="auth-msg" class="bad"></div>
-        <p class="muted small">${L("Ce que tu as déjà fait ici sans compte sera ajouté à ton compte. Aucun mot de passe n’est stocké par 基本情報 Étude.", "What you have already done here without an account will be added to your account. 基本情報 Étude never stores passwords.")}</p>
+        <p class="muted small">${L("Ce que tu as déjà fait ici sans compte sera ajouté à ton compte. Aucun mot de passe n’est stocké par 基本情報 Étude.", "What you have already done here without an account will be added to your account. 基本情報 Étude never stores passwords.", "アカウントなしでここまで進めた分は、アカウントに引き継がれます。基本情報 Étude がパスワードを保存することはありません。")}</p>
       </section>`;
   };
 
@@ -501,7 +512,7 @@
   const TITLES = { lesson: "今日のレッスン", practice: "練習", test: "テスト", quick: "ミニテスト" };
   function runTitle() {
     if (R.type === "lesson") return TITLES.lesson + (R.mult === 2 ? " ×2" : "");
-    if (R.kind === "quick") return `${TITLES.quick} · ${L("Petit test", "Quick test")}`;
+    if (R.kind === "quick") return `${TITLES.quick}${apres(L("Petit test", "Quick test"))}`;
     if (R.kind === "drill") return `${TITLES.practice} · ${J.byId.g[R.ref].p}`;
     return `${R.kind === "test" ? TITLES.test : TITLES.practice} · ${J.modName(R.ref)}`;
   }
@@ -536,13 +547,13 @@
     J.go("run");
   }
 
-  const STAGE = () => ({ rev: L("Réviser", "Review"), learn: L("Apprendre", "Learn"), check: L("Vérifier", "Check"), test: L("Tester", "Test"), fix: L("Rattrapage", "Retry") });
+  const STAGE = () => ({ rev: L("Réviser", "Review", "復習"), learn: L("Apprendre", "Learn", "学習"), check: L("Vérifier", "Check", "確認"), test: L("Tester", "Test", "テスト"), fix: L("Rattrapage", "Retry", "やりなおし") });
 
   VIEWS.run = () => {
     if (!R) return VIEWS.home();
     while (R.pos < R.queue.length && (R.queue[R.pos].skip || !J.byId[R.queue[R.pos].m][R.queue[R.pos].id])) R.pos++;
     const it = R.queue[R.pos];
-    const head = `<div class="run-head"><button class="link" data-act="quit">✕ ${L("Quitter", "Quit")}</button><span class="run-title jp">${esc(runTitle())}</span>
+    const head = `<div class="run-head"><button class="link" data-act="quit">✕ ${L("Quitter", "Quit", "やめる")}</button><span class="run-title jp">${esc(runTitle())}</span>
       ${R.timed ? `<span id="timer" class="timer">${fmtClock((Date.now() - R.started) / 1000)}</span>` : `<span class="muted">${Math.min(R.pos + 1, R.queue.length)} / ${R.queue.length}</span>`}</div>
       <div class="progress ruler"><span style="width:${pct(R.pos, R.queue.length)}%"></span></div>`;
     if (!it) return head + finishView();
@@ -554,7 +565,7 @@
       if (!R.learnT0 || R.learnPos !== R.pos) { R.learnT0 = Date.now(); R.learnPos = R.pos; }
       return head + `<section class="card ex"><div class="ex-tag">${modPill}<span class="pill stage-learn">${J.LEVELS[0]}</span></div>
         ${J.learnCard(it.m, it.id)}
-        <div class="row end"><button class="btn" data-act="learn-known">${L("Déjà connu", "Already known")}</button><button class="btn primary" data-act="learn-next" autofocus>${L("J’ai compris → Suivant", "Got it → Next")} <kbd>↵</kbd></button></div></section>${aside}`;
+        <div class="row end"><button class="btn" data-act="learn-known">${L("Déjà connu", "Already known", "知っている")}</button><button class="btn primary" data-act="learn-next" autofocus>${L("J’ai compris → Suivant", "Got it → Next", "わかった → 次へ")} <kbd>↵</kbd></button></div></section>${aside}`;
     }
     return head + `<section class="card ex">${tag}${exBody(EX)}</section>${aside}`;
   };
@@ -570,10 +581,10 @@
       }).join("")}</div>`;
       if (ex.answered) h += feedback(ex.correct, ex.correct ? "" : ex.answer) + ex.back + contBtn(ex);
     } else if (ex.mode === "self") {
-      if (!ex.revealed) h += `<div class="row center"><button class="btn primary" data-act="reveal" autofocus>${L("Afficher la réponse", "Show answer")} <kbd>${L("espace", "space")}</kbd></button></div>`;
-      else h += ex.back + `<p class="q-help center">${L("Comment t’en es-tu sorti ?", "How did you do?")}</p><div class="grades">
-        <button class="g0" data-act="grade" data-q="0"><span class="jp">×</span>${L("Raté", "Missed")}<kbd>1</kbd></button><button class="g1" data-act="grade" data-q="1"><span class="jp">△</span>${L("Difficile", "Hard")}<kbd>2</kbd></button>
-        <button class="g2" data-act="grade" data-q="2"><span class="jp">○</span>${L("Bien", "Good")}<kbd>3</kbd></button><button class="g3" data-act="grade" data-q="3"><span class="jp">◎</span>${L("Facile", "Easy")}<kbd>4</kbd></button></div>`;
+      if (!ex.revealed) h += `<div class="row center"><button class="btn primary" data-act="reveal" autofocus>${L("Afficher la réponse", "Show answer", "答えを見る")} <kbd>${L("espace", "space", "スペース")}</kbd></button></div>`;
+      else h += ex.back + `<p class="q-help center">${L("Comment t’en es-tu sorti ?", "How did you do?", "できばえは？")}</p><div class="grades">
+        <button class="g0" data-act="grade" data-q="0"><span class="jp">×</span>${L("Raté", "Missed", "できなかった")}<kbd>1</kbd></button><button class="g1" data-act="grade" data-q="1"><span class="jp">△</span>${L("Difficile", "Hard", "むずかしい")}<kbd>2</kbd></button>
+        <button class="g2" data-act="grade" data-q="2"><span class="jp">○</span>${L("Bien", "Good", "できた")}<kbd>3</kbd></button><button class="g3" data-act="grade" data-q="3"><span class="jp">◎</span>${L("Facile", "Easy", "かんたん")}<kbd>4</kbd></button></div>`;
     } else if (ex.mode === "order") {
       const slots = [0, 1, 2, 3].map((k) => {
         const p = ex.picks[k];
@@ -583,19 +594,19 @@
       h += `<div class="sentence jp order" lang="ja">${esc(ex.pre)}${slots}${esc(ex.post)}</div>`;
       if (!ex.answered) {
         h += `<div class="pieces">${ex.order.map((i) => `<button class="piece jp" data-act="piece" data-i="${i}" ${ex.picks.includes(i) ? "disabled" : ""}>${esc(ex.pieces[i])}</button>`).join("")}</div>
-          <div class="row center"><button class="btn" data-act="order-clear">${L("Effacer", "Clear")}</button>${ex.picks.length === 4 ? `<button class="btn primary" data-act="order-check" autofocus>${L("Vérifier", "Check")} <kbd>↵</kbd></button>` : ""}</div>`;
+          <div class="row center"><button class="btn" data-act="order-clear">${L("Effacer", "Clear", "消す")}</button>${ex.picks.length === 4 ? `<button class="btn primary" data-act="order-check" autofocus>${L("Vérifier", "Check", "確認")} <kbd>↵</kbd></button>` : ""}</div>`;
       } else {
         h += feedback(ex.correct, ex.correct ? "" : `★ = ${ex.pieces[ex.star]}`) + ex.back + contBtn(ex);
       }
     }
     return h;
   }
-  const feedback = (ok, ans) => `<div class="fb ${ok ? "ok" : "ko"}"><span class="fb-jp">${ok ? "正解！" : "ざんねん"}</span><span>${ok ? L("Correct", "Correct") : `${L("La bonne réponse", "The right answer")} : <b class="jp">${esc(ans)}</b>`}</span></div>`;
+  const feedback = (ok, ans) => `<div class="fb ${ok ? "ok" : "ko"}"><span class="fb-jp">${ok ? "正解！" : "ざんねん"}</span><span>${ok ? L("Correct", "Correct", "正解") : `${L("La bonne réponse", "The right answer", "正しい答え")} : <b class="jp">${esc(ans)}</b>`}</span></div>`;
   // Dernière question réussie : le bouton annonce la fin plutôt que « Continuer »
   const isLast = (ex) => R && R.pos >= R.queue.length - 1 && (ex.correct || R.noFix || (R.fix[R.queue[R.pos].m + ":" + R.queue[R.pos].id] || 0) >= 3);
   const contBtn = (ex) => isLast(ex)
-    ? `<div class="row end"><button class="btn primary big finish-btn" data-act="cont" autofocus>おつかれさま！ <span>${L("Terminer", "Finish")}</span></button></div>`
-    : `<div class="row end"><button class="btn primary" data-act="cont" autofocus>${L("Continuer", "Continue")} <kbd>↵</kbd></button></div>`;
+    ? `<div class="row end"><button class="btn primary big finish-btn" data-act="cont" autofocus>おつかれさま！${aCote(L("Terminer", "Finish"))}</button></div>`
+    : `<div class="row end"><button class="btn primary" data-act="cont" autofocus>${L("Continuer", "Continue", "続ける")} <kbd>↵</kbd></button></div>`;
 
   function finishView() {
     const lesson = R.type === "lesson";
@@ -604,11 +615,11 @@
     const errs = [...new Map((R.errors || []).filter((e) => J.byId[e.m][e.id]).map((e) => [e.m + e.id, e])).values()];
     return `<section class="card finish"><h1>${lesson ? "お疲れさまでした！" : "終了！"}</h1>
       <p class="score">${tot ? Math.round((R.ok / tot) * 100) : 0} % <small>${R.ok} ✓ · ${R.ko} ✗</small></p>
-      <p>${L("Durée", "Time")} : ${fmtClock((Date.now() - R.started) / 1000)}</p>
-      ${errs.length ? `<h3>${L("À revoir", "To review")}</h3><div class="errs">${errs.map((e) => { const x = J.byId[e.m][e.id];
-        return `<button class="weak" data-act="open-item" data-m="${e.m}" data-id="${esc(e.id)}"><span class="pill mod-${e.m} jp">${MODS[e.m].jp}</span><span class="jp">${esc(e.m === "v" ? x.w : e.m === "k" ? x.k : x.p)}</span></button>`; }).join("")}</div>` : `<p>${L("Aucune erreur, bravo !", "No mistakes, well done!")}</p>`}
-      ${lesson ? `<p class="muted">${L("Ce que tu as raté reviendra dans tes prochaines révisions.", "What you missed will come back in your next reviews.")}</p>` : ""}
-      <div class="row center"><button class="btn primary" data-act="end-run">${L("Retour à l’accueil", "Back to home")}</button></div></section>`;
+      <p>${L("Durée", "Time", "所要時間")} : ${fmtClock((Date.now() - R.started) / 1000)}</p>
+      ${errs.length ? `<h3>${L("À revoir", "To review", "見直す項目")}</h3><div class="errs">${errs.map((e) => { const x = J.byId[e.m][e.id];
+        return `<button class="weak" data-act="open-item" data-m="${e.m}" data-id="${esc(e.id)}"><span class="pill mod-${e.m} jp">${MODS[e.m].jp}</span><span class="jp">${esc(e.m === "v" ? x.w : e.m === "k" ? x.k : x.p)}</span></button>`; }).join("")}</div>` : `<p>${L("Aucune erreur, bravo !", "No mistakes, well done!", "全問正解です。")}</p>`}
+      ${lesson ? `<p class="muted">${L("Ce que tu as raté reviendra dans tes prochaines révisions.", "What you missed will come back in your next reviews.", "間違えた項目は次の復習に出ます。")}</p>` : ""}
+      <div class="row center"><button class="btn primary" data-act="end-run">${L("Retour à l’accueil", "Back to home", "ホームに戻る")}</button></div></section>`;
   }
 
   /* Résultat d’un exercice */
@@ -720,19 +731,19 @@
     cont: () => { if (EX && EX.answered) { result(EX.correct ? 2 : 0); advance(); } },
     "login-apple": () => J.signInApple(),
     "login-ms": () => J.signInMicrosoft(),
-    logout: () => { if (!confirm(L("Se déconnecter ? La progression sera retirée de ce navigateur (elle reste sur ton compte).", "Sign out? Your progress will be removed from this browser (it stays on your account)."))) return; J.logout(); R = null; J.go("onboarding"); },
+    logout: () => { if (!confirm(L("Se déconnecter ? La progression sera retirée de ce navigateur (elle reste sur ton compte).", "Sign out? Your progress will be removed from this browser (it stays on your account).", "ログアウトしますか。学習記録はこのブラウザから削除されます（アカウントには残ります）。"))) return; J.logout(); R = null; J.go("onboarding"); },
     relogin: () => { J.dropSession(); J.go("account"); },
     "sync-now": () => { J.save(true); setTimeout(render, 1500); },
     "delete-account": async () => {
-      if (!confirm(L("Supprimer ton compte et toute ta progression en ligne ?", "Delete your account and all your online progress?"))) return;
-      if (!confirm(L("C’est définitif. Confirmer la suppression ?", "This is permanent. Confirm deletion?"))) return;
-      try { await J.deleteAccount(); R = null; alert(L("Ton compte a été supprimé.", "Your account has been deleted.")); J.go("onboarding"); } catch (e) { alert(e.message); }
+      if (!confirm(L("Supprimer ton compte et toute ta progression en ligne ?", "Delete your account and all your online progress?", "アカウントとオンラインの学習記録をすべて削除しますか。"))) return;
+      if (!confirm(L("C’est définitif. Confirmer la suppression ?", "This is permanent. Confirm deletion?", "この操作は取り消せません。削除を実行しますか。"))) return;
+      try { await J.deleteAccount(); R = null; alert(L("Ton compte a été supprimé.", "Your account has been deleted.", "アカウントを削除しました。")); J.go("onboarding"); } catch (e) { alert(e.message); }
     },
     export: () => J.exportFile(),
     import: () => document.getElementById("importFile").click(),
     reset: () => {
-      if (!confirm(L("Effacer toute ta progression ? (Pense à exporter une copie avant.)", "Erase all your progress? (Export a copy first.)"))) return;
-      if (!confirm(L("Vraiment tout effacer ? Cette action est définitive.", "Really erase everything? This cannot be undone."))) return;
+      if (!confirm(L("Effacer toute ta progression ? (Pense à exporter une copie avant.)", "Erase all your progress? (Export a copy first.)", "学習記録をすべて消去しますか。先に書き出しておくことをおすすめします。"))) return;
+      if (!confirm(L("Vraiment tout effacer ? Cette action est définitive.", "Really erase everything? This cannot be undone.", "本当にすべて消去しますか。この操作は取り消せません。"))) return;
       const lang = J.S.settings.lang;
       J.S = J.defaultState(); J.S.settings.lang = lang; J.refreshItems(); J.save(true); R = null; J.go("onboarding");
     }
@@ -748,7 +759,7 @@
     const t = e.target;
     if (t.id === "importFile" && t.files[0]) {
       t.files[0].text().then((txt) => {
-        try { J.importObject(JSON.parse(txt)); alert(L("Sauvegarde importée.", "Backup imported.")); J.go("home"); } catch (err) { alert(err.message); }
+        try { J.importObject(JSON.parse(txt)); alert(L("Sauvegarde importée.", "Backup imported.", "バックアップを読み込みました。")); J.go("home"); } catch (err) { alert(err.message); }
       });
       return;
     }

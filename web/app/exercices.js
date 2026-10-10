@@ -52,7 +52,7 @@
   /* ───────── Fiches de réponse ───────── */
   J.vocabBack = (v) =>
     `<div class="ans-card"><div class="ans-word jp" lang="ja">${esc(v.w)}</div><div class="ans-read jp" lang="ja">${esc(v.r)}</div><div class="ans-mean">${esc(M("v", v))}</div>
-     <button class="icon-btn" data-act="say" data-say="${esc(v.r)}" title="${L("Écouter", "Listen")}">🔊</button></div>`;
+     <button class="icon-btn" data-act="say" data-say="${esc(v.r)}" title="${L("Écouter", "Listen", "読み上げ")}">🔊</button></div>`;
   /* Affiche un programme en 擬似言語. Les blancs sont notés ［ a ］ dans le texte. */
   J.progBlock = (b) => !b.prog ? "" :
     `<pre class="prog jp" lang="ja">${b.prog.map((l) => esc(l)).join("\n")}</pre>`;
@@ -68,7 +68,7 @@
   J.gramBack = (g, extra = "") =>
     `<div class="ans-card left"><div class="ans-pattern jp" lang="ja">${esc(g.p)}</div><div class="ans-mean">${esc(J.gs(g, "s"))}</div>
       <div class="ans-form jp" lang="ja">${esc(g.f)}</div>${extra}
-      <button class="link" data-act="open-item" data-m="g" data-id="${g.id}">${L("Revoir la leçon", "Review the lesson")} →</button></div>`;
+      <button class="link" data-act="open-item" data-m="g" data-id="${g.id}">${L("Revoir la leçon", "Review the lesson", "解説に戻る")} →</button></div>`;
   const exLine = (g, i) => `<div class="sentence small jp" lang="ja">${hl(g.ex[i][0])}</div><p class="fr-trad">${esc(J.gex(g, i))}</p>`;
 
   /* ───────── Types d’exercices par module et par étape ───────── */
@@ -82,7 +82,7 @@
     "g-qcm": ["知識問題", "Connaissances", "Knowledge"], "g-cloze": ["穴埋め", "Énoncé à trous", "Fill the gap"], "g-rev": ["説明 → 用語", "De la définition au terme", "Definition → term"], "g-ord": ["順序の並べ替え", "Étapes à ordonner ★", "Steps in order ★"], "g-flash": ["カード", "Rappel", "Recall"],
     "b-qcm": ["科目B", "Trace du programme", "Program trace"], "b-flash": ["カード", "Rappel", "Recall"]
   };
-  J.kindLabel = (k) => `${LABELS[k][0]} · ${L(LABELS[k][1], LABELS[k][2])}`;
+  J.kindLabel = (k) => (J.lang() === "ja" ? LABELS[k][0] : `${LABELS[k][0]} · ${L(LABELS[k][1], LABELS[k][2])}`);
 
   function usable(m, id, kind) {
     const x = J.byId[m][id];
@@ -108,22 +108,22 @@
     /* Vocabulaire */
     "v-read": (v) => ({
       mode: "choice",
-      prompt: `<p class="q-help">${L("Choisis la bonne lecture.", "Choose the correct reading.")}</p><div class="big-jp jp" lang="ja">${esc(v.w)}</div>`,
+      prompt: `<p class="q-help">${L("Choisis la bonne lecture.", "Choose the correct reading.", "正しい読みを選びなさい。")}</p><div class="big-jp jp" lang="ja">${esc(v.w)}</div>`,
       options: readingOptions(v.w, v.r), answer: v.r, back: J.vocabBack(v), say: v.r, jpOpts: true
     }),
     "v-mean": (v) => {
       const opts = uniqueOptions(SM("v", v), otherItems("v", v.id, 8).map((x) => SM("v", x)));
-      return { mode: "choice", prompt: `<p class="q-help">${L("Que signifie ce mot ?", "What does this word mean?")}</p><div class="big-jp jp" lang="ja">${esc(v.w)}</div>`,
+      return { mode: "choice", prompt: `<p class="q-help">${L("Que signifie ce mot ?", "What does this word mean?", "この用語の意味はどれか。")}</p><div class="big-jp jp" lang="ja">${esc(v.w)}</div>`,
         options: opts, answer: SM("v", v), back: J.vocabBack(v), say: v.r };
     },
     "v-word": (v) => {
       const sameLen = otherItems("v", v.id, 12, (x) => x.w.length === v.w.length && x.w !== v.w);
       const opts = uniqueOptions(v.w, sameLen.map((x) => x.w).concat(otherItems("v", v.id, 6).map((x) => x.w)));
-      return { mode: "choice", prompt: `<p class="q-help">${L("Quel mot correspond à ce sens ?", "Which word matches this meaning?")}</p><div class="big-fr">${esc(SM("v", v))}</div>`,
+      return { mode: "choice", prompt: `<p class="q-help">${L("Quel mot correspond à ce sens ?", "Which word matches this meaning?", "この説明に当てはまる用語はどれか。")}</p><div class="big-fr">${esc(SM("v", v))}</div>`,
         options: opts, answer: v.w, back: J.vocabBack(v), say: v.r, jpOpts: true };
     },
     "v-flash": (v) => ({
-      mode: "self", prompt: `<p class="q-help">${L("Lis le mot dans ta tête, donne son sens, puis vérifie.", "Read the word in your head, give its meaning, then check.")}</p><div class="big-jp jp" lang="ja">${esc(v.w)}</div>`,
+      mode: "self", prompt: `<p class="q-help">${L("Lis le mot dans ta tête, donne son sens, puis vérifie.", "Read the word in your head, give its meaning, then check.", "用語を読み、意味を思い浮かべてから確かめる。")}</p><div class="big-jp jp" lang="ja">${esc(v.w)}</div>`,
       back: J.vocabBack(v), say: v.r
     }),
     /* 科目A */
@@ -170,7 +170,7 @@
     }),
 
     "g-flash": (g) => ({
-      mode: "self", prompt: `<p class="q-help">${L("Donne le sens et la construction, puis vérifie.", "Give the meaning and the construction, then check.")}</p><div class="big-jp jp" lang="ja">${esc(g.p)}</div>`,
+      mode: "self", prompt: `<p class="q-help">${L("Donne la définition et le point clé, puis vérifie.", "Give the definition and the key point, then check.", "内容と要点を思い出してから確かめる。")}</p><div class="big-jp jp" lang="ja">${esc(g.p)}</div>`,
       back: J.gramBack(g, exLine(g, 0)), say: g.ex[0][0]
     })
   };
@@ -181,7 +181,7 @@
     if (m === "v") {
       return `<div class="learn v">
         <div class="learn-head"><div class="big-jp jp" lang="ja">${esc(x.w)}</div><div class="ans-read jp" lang="ja">${esc(x.r)}</div>
-        <button class="icon-btn" data-act="say" data-say="${esc(x.r)}" title="${L("Écouter", "Listen")}">🔊</button></div>
+        <button class="icon-btn" data-act="say" data-say="${esc(x.r)}" title="${L("Écouter", "Listen", "読み上げ")}">🔊</button></div>
         <div class="learn-mean">${esc(M("v", x))}</div>
       </div>`;
     }
@@ -196,14 +196,14 @@
       <div class="g-top"><span class="pill">${g.n} · ${esc(cat ? cat.jp : "")}</span><span class="muted">${esc(cat ? J.gcat(cat) : "")}</span></div>
       <h2 class="g-pattern jp" lang="ja">${esc(g.p)}</h2>${g.y ? `<div class="muted jp" lang="ja">${esc(g.y)}</div>` : ""}
       <p class="g-sens">${esc(J.gs(g, "s"))}</p>
-      <div class="g-box"><h4>接続 · ${L("Construction", "Construction")}</h4><div class="jp" lang="ja">${esc(g.f)}</div></div>
-      <div class="g-box"><h4>${L("Explication", "Explanation")}</h4><p>${esc(J.gs(g, "e"))}</p></div>
-      <div class="g-box"><h4>例文 · ${L("Exemples", "Examples")}</h4>${g.ex.map(([jp], i) => `<div class="exline">
-        <button class="icon-btn sm" data-act="say" data-say="${esc(strip(jp))}" title="${L("Écouter", "Listen")}">🔊</button>
+      <div class="g-box"><h4>接続 · ${L("Formule, méthode", "Formula, method", "要点・公式")}</h4><div class="jp" lang="ja">${esc(g.f)}</div></div>
+      <div class="g-box"><h4>${L("Explication", "Explanation", "解説")}</h4><p>${esc(J.gs(g, "e"))}</p></div>
+      <div class="g-box"><h4>例文 · ${L("Exemples", "Examples", "例")}</h4>${g.ex.map(([jp], i) => `<div class="exline">
+        <button class="icon-btn sm" data-act="say" data-say="${esc(strip(jp))}" title="${L("Écouter", "Listen", "読み上げ")}">🔊</button>
         <div><div class="jp" lang="ja">${hl(jp)}</div><div class="fr-trad">${esc(J.gex(g, i))}</div></div></div>`).join("")}</div>
-      ${piege ? `<div class="g-box warn"><h4>⚠︎ ${L("Piège", "Watch out")}</h4><p>${esc(piege)}</p></div>` : ""}
-      ${compact ? "" : `<div class="g-box"><h4>${L("Mes notes et mes phrases", "My notes and sentences")}</h4>
-        <textarea id="notes" data-key="g:${g.id}" rows="4" placeholder="${L("Écris ici tes propres phrases avec ce point : c’est le meilleur moyen de le retenir.", "Write your own sentences with this point here: it’s the best way to remember it.")}">${esc(J.S.notes["g:" + g.id] || "")}</textarea></div>`}
+      ${piege ? `<div class="g-box warn"><h4>⚠︎ ${L("Piège", "Watch out", "注意")}</h4><p>${esc(piege)}</p></div>` : ""}
+      ${compact ? "" : `<div class="g-box"><h4>${L("Mes notes", "My notes", "メモ")}</h4>
+        <textarea id="notes" data-key="g:${g.id}" rows="4" placeholder="${L("Refais le calcul ou réécris la règle avec tes mots : c’est le meilleur moyen de la retenir.", "Redo the calculation or restate the rule in your own words: that is the best way to remember it.", "計算をやり直すか、自分の言葉で書き直しておく。覚えるにはこれが一番速い。")}">${esc(J.S.notes["g:" + g.id] || "")}</textarea></div>`}
     </article>`;
   };
 

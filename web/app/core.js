@@ -139,7 +139,7 @@
       const r = await fetch("/api/" + path, { ...opts, headers, cache: "no-store" });
       let body = null;
       if (r.status !== 204) { try { body = await r.json(); } catch (e) {} }
-      if (r.status === 401) { J.store.error = J.L("Session expirée", "Session expired"); J.store.expired = true; }
+      if (r.status === 401) { J.store.error = J.L("Session expirée", "Session expired", "セッションの期限切れ"); J.store.expired = true; }
       return { status: r.status, body };
     },
     async load() {
@@ -214,7 +214,7 @@
         J.store.status = "ok";
       } catch (e) {
         J.store.status = "offline";
-        J.store.error = J.L("Hors ligne : la progression sera envoyée dès que possible.", "Offline: your progress will be sent as soon as possible.");
+        J.store.error = J.L("Hors ligne : la progression sera envoyée dès que possible.", "Offline: your progress will be sent as soon as possible.", "オフラインです。学習記録は接続でき次第送信されます。");
       }
       if (state) state.owner = s.user.id;
     }
@@ -242,7 +242,7 @@
         J.store.error = null;
       } catch (e) {
         J.store.status = "error";
-        J.store.error = J.L("Synchronisation impossible (" + e.message + ") : les données restent dans ce navigateur.", "Sync failed (" + e.message + "): your data stays in this browser.");
+        J.store.error = J.L("Synchronisation impossible (" + e.message + ") : les données restent dans ce navigateur.", "Sync failed (" + e.message + "): your data stays in this browser.", "同期できませんでした（" + e.message + "）。データはこのブラウザに残っています。");
       }
       saving = false;
       document.dispatchEvent(new Event("j:saved"));
@@ -261,7 +261,7 @@
       body: JSON.stringify({ provider, idToken, nonce, name })
     });
     const body = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(body.error || J.L("Connexion refusée", "Sign-in refused"));
+    if (!r.ok) throw new Error(body.error || J.L("Connexion refusée", "Sign-in refused", "ログインが拒否されました"));
     sessSet({ token: body.token, user: body.user });
     J.store.expired = false;
     J.store.error = null;
@@ -292,7 +292,7 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
   J.importObject = function (o) {
-    if (!o || !o.version || !o.items) throw new Error(J.L("Ce fichier n’est pas une sauvegarde 基本情報 Étude.", "This file is not a 基本情報 Étude backup."));
+    if (!o || !o.version || !o.items) throw new Error(J.L("Ce fichier n’est pas une sauvegarde 基本情報 Étude.", "This file is not a 基本情報 Étude backup.", "このファイルは 基本情報 Étude のバックアップではありません。"));
     const owner = J.S.owner;
     J.S = migrate(o);
     if (owner) J.S.owner = owner;
@@ -321,7 +321,7 @@
   J.isLearned = (m, id) => { const r = J.rec(m, id); return !!(r && r.at); };
   // 0 nouveau · 1 en cours · 2 acquis · 3 maîtrisé
   J.levelOf = (m, id) => { const r = J.rec(m, id); if (!r || !r.at) return 0; return r.iv >= 21 ? 3 : r.iv >= 7 ? 2 : 1; };
-  Object.defineProperty(J, "LEVELS", { get: () => J.L(["Nouveau", "En cours", "Acquis", "Maîtrisé"], ["New", "Learning", "Known", "Mastered"]) });
+  Object.defineProperty(J, "LEVELS", { get: () => J.L(["Nouveau", "En cours", "Acquis", "Maîtrisé"], ["New", "Learning", "Known", "Mastered"], ["未学習", "学習中", "習得", "定着"]) });
 
   J.day = (d = J.today()) => {
     const S = J.S;
