@@ -225,6 +225,7 @@
   // Ligne d’emploi du temps : total + détail par module
   /* Mention sous le tampon : le tampon est déjà en japonais, inutile de la répéter */
   const stFr = (txt) => (J.lang() === "ja" ? "" : `<span class="st-fr">${txt}</span>`);
+  const vRow = (v) => `<button class="vrow" data-act="open-item" data-m="v" data-id="${esc(v.id)}"><i class="dot lv${J.levelOf("v", v.id)}"></i><span class="jp w">${esc(v.w)}</span><span class="jp r">${esc(v.r)}</span><span class="mm">${esc(J.shortMeaning(J.mean("v", v)))}</span></button>`;
   const ttRow = (jp, tr, n, per) => `<li class="${n ? "" : "off"}"><span class="tt-jp">${jp}</span>${J.lang() === "ja" ? "" : `<span class="tt-fr">${tr}</span>`}
     ${per ? `<span class="tt-per">${per.map((x, i) => (x ? `<i class="m-${MOD_ORDER[i]}">${MODS[MOD_ORDER[i]].jp[0]}${x}</i>` : "")).join("")}</span>` : ""}<b>${n}</b></li>`;
 
@@ -286,13 +287,15 @@
     const ctrl = `<div class="filters"><input id="search" data-m="${m}" placeholder="${L("Rechercher…", "Search…", "検索…")}" value="${esc(q)}">
       <div class="seg wrap">${filters.map(([k, l]) => `<button class="${f === k ? "on" : ""}" data-act="filter" data-m="${m}" data-f="${k}">${l}</button>`).join("")}</div></div>`;
     let body = "";
-    if (m === "g" || m === "b") {
-      const cats = m === "g" ? J.gcats : J.bcats;
+    if ((m === "g" || m === "b" || m === "v") && (m !== "v" || J.vcats.length)) {
+      const cats = m === "g" ? J.gcats : m === "b" ? J.bcats : J.vcats;
       body = cats.map((cat) => {
         const pts = list.filter((x) => x.cat === cat.id);
         if (!pts.length) return "";
-        const nom = m === "g" ? J.gcat(cat) : J.bcat(cat);
-        const rangee = (liste) => `<div class="glist">${liste.map((x) =>
+        const nom = m === "g" ? J.gcat(cat) : m === "b" ? J.bcat(cat) : J.vcat(cat);
+        const rangee = (liste) => m === "v"
+          ? `<div class="vlist">${liste.map((v) => vRow(v)).join("")}</div>`
+          : `<div class="glist">${liste.map((x) =>
           `<button class="gitem" data-act="open-item" data-m="${m}" data-id="${x.id}"><i class="dot lv${J.levelOf(m, x.id)}"></i><span class="num">${x.n}</span><span class="jp">${esc(x.p)}</span><span class="muted">${esc(m === "g" ? J.gs(x, "s") : J.bs(x, "s"))}</span></button>`).join("")}</div>`;
         const titre = `<h3 class="cat">${catTitre(cat.jp, nom)}</h3>`;
         if (m !== "b") return titre + rangee(pts);
@@ -306,7 +309,7 @@
       const slice = list.slice(pg * per, pg * per + per);
       body = m === "k"
         ? `<div class="kgrid">${slice.map((k) => `<button class="ktile lv${J.levelOf("k", k.id)} jp" data-act="open-item" data-m="k" data-id="${esc(k.id)}" title="${esc(J.mean("k", k))}">${esc(k.k)}</button>`).join("")}</div>`
-        : `<div class="vlist">${slice.map((v) => `<button class="vrow" data-act="open-item" data-m="v" data-id="${esc(v.id)}"><i class="dot lv${J.levelOf("v", v.id)}"></i><span class="jp w">${esc(v.w)}</span><span class="jp r">${esc(v.r)}</span><span class="mm">${esc(J.shortMeaning(J.mean("v", v)))}</span></button>`).join("")}</div>`;
+        : `<div class="vlist">${slice.map((v) => vRow(v)).join("")}</div>`;
       if (pages > 1) body += `<div class="pager">${pg > 0 ? `<button class="btn" data-act="page" data-m="${m}" data-pg="${pg - 1}">← ${L("Précédent", "Previous", "前へ")}</button>` : ""}<span>Page ${pg + 1} / ${pages} · ${list.length} ${L("éléments", "items", "件")}</span>${pg < pages - 1 ? `<button class="btn" data-act="page" data-m="${m}" data-pg="${pg + 1}">${L("Suivant", "Next", "次へ")} →</button>` : ""}</div>`;
     }
     return head + ctrl + (body || `<p class="muted">${L("Aucun élément.", "No items.", "該当する項目はありません。")}</p>`);

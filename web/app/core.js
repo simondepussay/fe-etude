@@ -46,6 +46,7 @@
   for (const m of J.MODS_ALL) J.byId[m] = Object.fromEntries(J.all[m].map((x) => [x.id, x]));
   J.gcats = D[J.LEVEL + "-grammaire-cats"] || [];
   J.bcats = D[J.LEVEL + "-kamokub-cats"] || [];
+  J.vcats = D[J.LEVEL + "-vocab-cats"] || [];
   /* Contenus traduits : sens français des mots et kanji, grammaire en anglais */
   const VFR = D[J.LEVEL + "-vocab-fr"] || {}, VJA = D[J.LEVEL + "-vocab-ja"] || {};
   const GEN = D[J.LEVEL + "-grammaire-en"] || {}, GJA = D[J.LEVEL + "-grammaire-ja"] || {};
@@ -56,6 +57,7 @@
   /* Énoncé de la i-ème question d’un problème, traduit si disponible. */
   J.bq = (b, i) => { const O = BL(); return (O && O[b.n] && O[b.n].q && O[b.n].q[i]) || b.q[i][0]; };
   J.bcat = (c) => (J.lang() === "ja" ? c.jp : J.lang() === "en" ? c.en || c.fr : c.fr);
+  J.vcat = (c) => (J.lang() === "ja" ? c.jp : J.lang() === "en" ? c.en || c.fr : c.fr);
   /* fr : traduction française · ja : définition en japonais · en : sens anglais */
   J.mean = (m, x) => (J.lang() === "ja" ? VJA[x.id] || x.m : J.lang() === "fr" ? VFR[x.id] || x.m : x.m);
   J.hasFr = (m, x) => !!(J.lang() === "ja" ? VJA[x.id] : VFR[x.id]);

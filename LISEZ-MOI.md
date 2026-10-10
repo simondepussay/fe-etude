@@ -10,7 +10,7 @@ Trois profils au choix : **français**, **anglais** ou **日本語**. Le japonai
 
 | Module | Contenu | État |
 |---|---|---|
-| 用語 | Terme japonais → sens en français / en anglais, ou **définition en japonais** pour le profil ja | 58 termes |
+| 用語 | Terme japonais → sens en français / en anglais, ou **définition en japonais** pour le profil ja. Réparti selon les douze domaines du programme (基礎理論 → 企業と法務) | 273 termes |
 | 科目A | Notion + formule + exemples résolus + pièges + QCM | 120 notions, 240 QCM, les 23 中分類 |
 | 科目B | 16 points de méthode + 39 exercices, répartis en six catégories : プログラムの基本, データ構造, 探索と整列, 数値と文字列, オブジェクト指向, 情報セキュリティ. Chaque fiche porte son programme en 擬似言語, son explication, son déroulé pas à pas et son piège | 55 fiches, 110 QCM |
 
