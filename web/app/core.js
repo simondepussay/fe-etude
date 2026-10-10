@@ -25,14 +25,23 @@
   J.modName = (m) => (J.lang() === "ja" ? J.MODS[m].jp : J.MODS[m][J.lang() === "en" ? "en" : "fr"]);
   J.modUnit = (m) => (J.lang() === "ja" ? J.MODS[m].unitJp || J.MODS[m].unit[1] : J.MODS[m].unit[J.lang() === "en" ? 1 : 0]);
   J.num = (x) => Number(x).toLocaleString(J.locale(), { maximumFractionDigits: 1 });
-  J.MOD_ORDER = ["v", "g"];
+  J.MODS_ALL = ["v", "g"];          // tous les modules existants
+  /* Les modules que l’utilisateur a choisi d’étudier. Tableau muté sur place :
+     ui.js le déstructure au chargement, le remplacer casserait la référence. */
+  J.MOD_ORDER = J.MODS_ALL.slice();
+  J.refreshMods = () => {
+    const choisis = (J.S && J.S.settings && J.S.settings.mods) || {};
+    const actifs = J.MODS_ALL.filter((m) => choisis[m] !== false);
+    J.MOD_ORDER.length = 0;
+    J.MOD_ORDER.push(...(actifs.length ? actifs : J.MODS_ALL));   // jamais vide
+  };
 
   const vocab = (D[J.LEVEL + "-vocab"] || []).map((x) => ({ ...x, id: x.w + "|" + x.r }));
   const gram = (D[J.LEVEL + "-grammaire"] || []).slice().sort((a, b) => a.n - b.n).map((x) => ({ ...x, id: String(x.n) }));
   J.all = { v: vocab, g: gram };
   J.items = { v: vocab, g: gram }; // sans les éléments retirés par l’utilisateur
   J.byId = {};
-  for (const m of J.MOD_ORDER) J.byId[m] = Object.fromEntries(J.all[m].map((x) => [x.id, x]));
+  for (const m of J.MODS_ALL) J.byId[m] = Object.fromEntries(J.all[m].map((x) => [x.id, x]));
   J.gcats = D[J.LEVEL + "-grammaire-cats"] || [];
   /* Contenus traduits : sens français des mots et kanji, grammaire en anglais */
   const VFR = D[J.LEVEL + "-vocab-fr"] || {}, VJA = D[J.LEVEL + "-vocab-ja"] || {};
@@ -76,6 +85,7 @@
       examDate: J.defaultExamDate(),
       daysPerWeek: 4,
       maxMinutes: 45,
+      mods: { v: true, g: true },
       tests: { v: 5, g: 4 },
       revCap: 200,
       rate: 0.9,
@@ -196,6 +206,7 @@
     }
     J.S = state || J.defaultState();
     if (s) J.S.owner = s.user.id;
+    J.refreshMods();
     J.refreshItems();
     if (s && J.store.status === "ok") J.save(true);
   };
@@ -248,6 +259,7 @@
     try { localStorage.removeItem(LS_KEY); } catch (e) {}
     J.store = { mode: "local", status: "idle", lastSave: null, error: null, user: null };
     J.S = J.defaultState();
+    J.refreshMods();
     J.refreshItems();
   };
   J.dropSession = function () { sessSet(null); J.store.mode = "local"; J.store.expired = false; J.store.error = null; J.store.user = null; };
@@ -270,6 +282,7 @@
     const owner = J.S.owner;
     J.S = migrate(o);
     if (owner) J.S.owner = owner;
+    J.refreshMods();
     J.refreshItems();
     J.save(true);
   };
@@ -277,11 +290,12 @@
   /* Éléments retirés (« Pas du N1 ») */
   J.isExcluded = (m, id) => !!(J.S.excluded || {})[m + ":" + id];
   J.refreshItems = function () {
-    for (const m of J.MOD_ORDER) J.items[m] = J.all[m].filter((x) => !J.isExcluded(m, x.id));
+    for (const m of J.MODS_ALL) J.items[m] = J.all[m].filter((x) => !J.isExcluded(m, x.id));
   };
   J.setExcluded = function (m, id, on) {
     J.S.excluded = J.S.excluded || {};
     J.S.excluded[m + ":" + id] = on;
+    J.refreshMods();
     J.refreshItems();
     J.save();
   };

@@ -90,13 +90,18 @@
   function settingsCore(s, sessions) {
     const isCustom = !sessions.includes(s.examDate);
     // Le 基本情報技術者試験 est en CBT : on choisit librement sa date de passage.
+    const choix = `<div class="field"><label>${L("Ce que je veux étudier", "What I want to study", "学習する分野")}</label>
+        <div class="seg wrap">${J.MODS_ALL.map((m) => `<button class="${J.MOD_ORDER.includes(m) ? "on" : ""}" data-act="toggle-mod" data-m="${m}"><span class="jp">${MODS[m].jp}</span> ${J.modName(m)}</button>`).join("")}</div>
+        <p class="muted small">${L("Les modules décochés ne sont plus proposés dans les leçons quotidiennes.",
+          "Unticked modules no longer appear in the daily lessons.",
+          "外した分野は、毎日のレッスンに出なくなります。")}</p></div>`;
     const champDate = sessions.length
       ? `<div class="field"><label>${L("Ma session", "My session")} ${J.LEVEL}</label>
         <div class="seg wrap">${sessions.map((d) => `<button class="${s.examDate === d ? "on" : ""}" data-act="set-exam" data-d="${d}">${J.fmtDate(d)}</button>`).join("")}
         <label class="seg-date ${isCustom ? "on" : ""}">${L("Autre date", "Other date")} <input type="date" data-set="examDate" value="${s.examDate}"></label></div></div>`
       : `<div class="field"><label>${L("Ma date d’examen", "My exam date")}</label>
         <input type="date" data-set="examDate" value="${s.examDate}"></div>`;
-    return champDate + `
+    return choix + champDate + `
       <div class="field"><label>${L("Jours d’étude prévus par semaine", "Planned study days per week")}</label>
         <div class="seg">${[1, 2, 3, 4, 5, 6, 7].map((n) => `<button class="${s.daysPerWeek === n ? "on" : ""}" data-act="set-dpw" data-n="${n}">${n}</button>`).join("")}</div></div>
       <div class="field"><label>${L("Temps maximum par jour d’étude", "Maximum time per study day", "1日の学習時間の上限")}</label>
@@ -623,6 +628,12 @@
   const A = {
     nav: (d) => { const v = d.v; if (v.startsWith("mod-")) J.go("mod", { m: v.slice(4) }); else J.go(v); },
     "set-lang": (d) => { J.S.settings.lang = d.l; J.save(); render(); },
+    "toggle-mod": (d) => {
+      const s = J.S.settings.mods, actifs = J.MODS_ALL.filter((m) => s[m] !== false);
+      if (actifs.length === 1 && actifs[0] === d.m) return;   // on ne retire pas le dernier
+      s[d.m] = s[d.m] === false;
+      J.refreshMods(); J.save(); render();
+    },
     "set-exam": (d) => { J.S.settings.examDate = d.d; J.save(); render(); },
     "set-dpw": (d) => { J.S.settings.daysPerWeek = +d.n; J.S.paceAck = null; J.save(); render(); },
     "set-max": (d) => { J.S.settings.maxMinutes = +d.n; J.save(); render(); },
