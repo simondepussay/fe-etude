@@ -5,7 +5,7 @@
    - microsoftClientId : Azure Portal → Inscriptions d'applications (comptes personnels + professionnels, jetons d'ID activés)
    Les mêmes valeurs doivent être renseignées côté API (paramètres de l'application Azure). */
 window.FE_CONFIG = {
-  googleClientId: "",
+  googleClientId: "214657172277-tnul12drld7399iduhj8kjtmsd98e7nh.apps.googleusercontent.com",
   appleClientId: "",
   microsoftClientId: ""
 };
