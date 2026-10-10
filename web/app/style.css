@@ -516,3 +516,22 @@ table.plan td { font: 700 1rem var(--jp); }
 .trace th { background: #efe7d9; font-weight: 600; }
 .piege { margin-top: 10px; font-size: 13px; }
 .sous-cat { margin: 14px 0 6px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--gris, #8a7f6d); }
+
+/* ── Premier écran : le choix de la langue, seul ── */
+.langpick { max-width: 540px; margin: 0 auto; padding: 48px 16px 64px; text-align: center; }
+.langpick h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: .14em; }
+.lp-sub { margin: 0 0 30px; color: var(--gris, #8a7f6d); font-size: 14px; }
+.lp-list { display: flex; flex-direction: column; gap: 12px; }
+.lp-card {
+    display: block; width: 100%; padding: 16px 18px; text-align: left;
+    border: 1.5px solid var(--ink); border-radius: 8px;
+    background: var(--sheet); color: inherit; cursor: pointer;
+    transition: transform .12s, box-shadow .12s;
+}
+.lp-card:hover, .lp-card:focus-visible { transform: translateY(-2px); box-shadow: 3px 3px 0 var(--ink); }
+.lp-card.on { border-width: 3px; }
+.lp-nom { display: block; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.lp-note { display: block; font-size: 13px; line-height: 1.6; color: var(--gris, #8a7f6d); }
+.lp-pied { margin: 26px 0 0; font-size: 12px; line-height: 1.8; color: var(--gris, #8a7f6d); }
+.lang-rappel { margin: 0 0 14px; }
+@media (max-width: 480px) { .langpick { padding: 28px 14px 48px; } .langpick h1 { font-size: 24px; } }

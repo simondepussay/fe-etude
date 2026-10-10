@@ -86,7 +86,8 @@
 
   function usable(m, id, kind) {
     const x = J.byId[m][id];
-    if (kind === "v-read") return x.w !== x.r && /[一-龯]/.test(x.w);
+    // la lecture d’un 用語 n’apprend rien à un locuteur natif
+    if (kind === "v-read") return J.lang() !== "ja" && x.w !== x.r && /[一-龯]/.test(x.w);
     if (kind === "g-ord") return !!x.o;
     if (kind === "g-cloze") return x.ex && x.ex.length;
     if (kind === "b-qcm") return x.q && x.q.length;

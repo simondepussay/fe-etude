@@ -26,8 +26,9 @@
   function render() {
     clearInterval(tick);
     document.documentElement.lang = J.lang();
-    if (!J.S.onboarded && view.name !== "onboarding" && view.name !== "account") view = { name: "onboarding", p: {} };
-    const inRun = view.name === "run";
+    if (!J.S.langChosen && !J.S.onboarded) view = { name: "langpick", p: {} };
+    else if (!J.S.onboarded && view.name !== "onboarding" && view.name !== "account" && view.name !== "langpick") view = { name: "onboarding", p: {} };
+    const inRun = view.name === "run" || view.name === "langpick";
     let body;
     try { body = VIEWS[view.name](view.p); }
     catch (e) {
@@ -73,12 +74,29 @@
   const VIEWS = {};
 
   /* Premier lancement */
+  /* Premier écran : on ne montre que le choix de la langue, et chaque option parle
+     d’elle-même dans sa propre langue — autrement elle serait illisible au mauvais réglage. */
+  const LANGUES = [
+    ["fr", "Français", "L’interface et le sens des termes en français. Les 用語 et les énoncés restent en japonais."],
+    ["en", "English", "The interface and the meaning of terms in English. The 用語 and the questions stay in Japanese."],
+    ["ja", "日本語", "画面も用語の説明もすべて日本語。読み方の問題は出ません。"]
+  ];
+  VIEWS.langpick = () => `<section class="langpick">
+    <h1 class="jp">言語を選ぶ</h1>
+    <p class="lp-sub">Choisis ta langue · Choose your language</p>
+    <div class="lp-list">${LANGUES.map(([id, nom, note]) =>
+      `<button class="lp-card ${J.S.langChosen && J.lang() === id ? "on" : ""}" data-act="pick-lang" data-l="${id}" lang="${id}">
+        <span class="lp-nom">${nom}</span><span class="lp-note">${note}</span></button>`).join("")}</div>
+    <p class="lp-pied">Tu pourras en changer à tout moment dans les réglages. · You can change this later in the settings. · あとから設定で変更できます。</p>
+  </section>`;
+
   VIEWS.onboarding = () => {
     const s = J.S.settings, sessions = [];
     const plan = J.plan();
     return `<section class="card onboard">
       <h1>ようこそ ${sous(L("Bienvenue", "Welcome"))}</h1>
-      <div class="field"><label>${L("Langue de l’interface et des traductions", "Language of the interface and translations", "表示言語")}</label>${langSwitch()}</div>
+      <p class="muted lang-rappel">${L("Langue", "Language", "表示言語")} : <b>${(LANGUES.find((x) => x[0] === J.lang()) || LANGUES[0])[1]}</b>
+        · <button class="link" data-act="nav" data-v="langpick">${L("changer", "change", "変更する")}</button></p>
       <p>${L("Chaque jour, l’appli te prépare une petite leçon : <b>réviser</b> ce qui est dû, <b>apprendre</b> de nouveaux éléments, puis <b>te tester</b>. Ce que tu rates revient à la fin de la leçon.",
         "Every day, the app prepares a short lesson for you: <b>review</b> what is due, <b>learn</b> new items, then <b>test yourself</b>. Whatever you miss comes back at the end of the lesson.", "毎日、短いレッスンが用意されます。期限の来た項目を<b>復習</b>し、新しい項目を<b>学習</b>し、最後に<b>テスト</b>します。間違えた項目はレッスンの終わりにもう一度出ます。")}</p>
       ${settingsCore(s, sessions)}
@@ -410,7 +428,10 @@
       : `<p class="bad">${L("Tu n’es pas connecté : ta progression est gardée dans ce navigateur seulement.", "You are not signed in: your progress is only kept in this browser.", "ログインしていません。学習記録はこのブラウザにのみ保存されます。")} <button class="link" data-act="nav" data-v="account">${L("Se connecter", "Sign in", "ログイン")}</button></p>`;
     return `<h1>設定${apres(L("Réglages", "Settings"))}</h1>
       <section class="card">
-        <div class="field"><label>${L("Langue de l’interface et des traductions", "Language of the interface and translations", "表示言語")}</label>${langSwitch()}</div>
+        <div class="field"><label>${L("Langue de l’interface et des traductions", "Language of the interface and translations", "表示言語")}</label>${langSwitch()}
+          <p class="muted small">${L("Les 用語 et les énoncés restent toujours en japonais : la langue change l’interface, le sens des termes et les explications. Le profil 日本語 donne une définition en japonais au lieu d’une traduction, et ne pose pas de question de lecture.",
+            "The 用語 and the questions always stay in Japanese: the language changes the interface, the meaning of terms and the explanations. The 日本語 profile gives a Japanese definition instead of a translation, and asks no reading questions.",
+            "用語も問題文も常に日本語のままです。変わるのは画面、用語の説明、解説です。日本語を選ぶと、訳ではなく日本語の定義が表示され、読み方の問題は出題されません。")}</p></div>
         ${settingsCore(s, [])}
         <div class="field"><label>${L("Questions de test par leçon", "Test questions per lesson", "レッスンごとのテスト問題数")}</label><div class="row">${MOD_ORDER.map((m) => `<label class="num">${J.modName(m)} <input type="number" min="0" max="30" data-set="test-${m}" value="${s.tests[m]}"></label>`).join("")}</div></div>
         <div class="field"><label>${L("Vitesse de la voix japonaise", "Japanese voice speed", "読み上げの速さ")}</label><input type="range" min="0.6" max="1.2" step="0.05" data-set="rate" value="${s.rate}"></div>
@@ -660,6 +681,7 @@
   const A = {
     nav: (d) => { const v = d.v; if (v.startsWith("mod-")) J.go("mod", { m: v.slice(4) }); else J.go(v); },
     "set-lang": (d) => { J.S.settings.lang = d.l; J.save(); render(); },
+    "pick-lang": (d) => { J.S.settings.lang = d.l; J.S.langChosen = true; J.save(); J.go(J.S.onboarded ? "settings" : "onboarding"); },
     "toggle-mod": (d) => {
       const s = J.S.settings.mods, actifs = J.MODS_ALL.filter((m) => s[m] !== false);
       if (actifs.length === 1 && actifs[0] === d.m) return;   // on ne retire pas le dernier

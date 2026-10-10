@@ -109,7 +109,8 @@
     notes: {},
     excluded: {},
     lesson: null,
-    paceAck: null
+    paceAck: null,
+    langChosen: false
   });
   J.S = J.defaultState();
 
@@ -119,6 +120,7 @@
     s.settings = { ...d.settings, ...(o.settings || {}) };
     s.settings.tests = { ...d.settings.tests, ...((o.settings || {}).tests || {}) };
     s.timing = { ...d.timing, ...(o.timing || {}) };
+    if (o.onboarded) s.langChosen = true;
     return s;
   }
 
