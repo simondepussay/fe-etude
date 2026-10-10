@@ -28,7 +28,8 @@
     document.documentElement.lang = J.lang();
     if (!J.S.langChosen && !J.S.onboarded) view = { name: "langpick", p: {} };
     else if (!J.S.onboarded && view.name !== "onboarding" && view.name !== "account" && view.name !== "langpick") view = { name: "onboarding", p: {} };
-    const inRun = view.name === "run" || view.name === "langpick";
+    // rien à naviguer tant que le compte n’est pas réglé : on cache la barre du haut
+    const inRun = view.name === "run" || view.name === "langpick" || view.name === "onboarding";
     let body;
     try { body = VIEWS[view.name](view.p); }
     catch (e) {
