@@ -138,10 +138,12 @@
       const marque = `<p class="q-src">${esc(q.src)} 科目A 問${q.num} · ${L("question publiée par l’IPA", "question published by the IPA", "IPA 公開問題")}</p>`;
       return {
         mode: "choice", jpOpts: true,
-        prompt: marque + `<div class="koukai-q jp" lang="ja">${esc(q.q)}</div>`,
+        prompt: marque + `<div class="koukai-q jp" lang="ja">${esc(q.q)}</div>`
+          + (q.zu ? `<pre class="prog zu jp" lang="ja">${q.zu.map((l) => esc(l)).join("\n")}</pre>` : ""),
         options: q.ch.slice(), answer: q.ch[q.r],
         back: `<div class="ans-card koukai">
           <div class="ans-grand jp" lang="ja"><b>${"アイウエ"[q.r]}</b> ${esc(q.ch[q.r])}</div>
+          ${q.zu ? `<pre class="prog zu jp" lang="ja">${q.zu.map((l) => esc(l)).join("\n")}</pre>` : ""}
           ${marque}
           <button class="link" data-act="open-item" data-m="g" data-id="${g.id}">${L("Revoir la leçon", "Review the lesson", "解説を見る")} →</button></div>`
       };
