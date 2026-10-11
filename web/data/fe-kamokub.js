@@ -541,7 +541,7 @@ window.DATA["FE-kamokub"] = [
     ["要素数が 1000 のとき、二分探索の最大比較回数はおよそ＿＿＿である。", ["10 回","100 回","500 回","1000 回"]]]},
 
 {n:111, cat:"B3", kind:"notion", p:"整列の三つの基本形", y:"せいれつのみっつのきほんけい",
- s:"Ce que chaque tri garantit après un seul passage — c’est là-dessus qu’on est interrogé",
+ s:"Ce que chaque tri a définitivement placé après un seul passage",
  e:"Les questions sur le tri demandent rarement le résultat final : elles demandent l’état du tableau après un passage, ou après deux. Il faut donc savoir ce que chaque méthode a terminé à ce moment-là. Le tri à bulles compare les voisins deux à deux et les échange dans le désordre : après un passage, le plus grand est arrivé au bout. Le tri par sélection cherche le minimum du reste et l’échange avec la première case non triée : après un passage, c’est le plus petit qui est définitivement placé, au début. Le tri par insertion prend l’élément suivant et le glisse à sa place parmi ceux déjà rangés : après un passage, les deux premiers sont triés entre eux, mais aucun n’est à sa place définitive.",
  trace:[["méthode","après un passage","échanges"],["交換（バブル）","le maximum est au bout","beaucoup"],["選択","le minimum est au début","un seul par passage"],["挿入","le début est trié entre lui","décalages"]],
  t:"Le tri par insertion est le seul des trois à devenir rapide quand le tableau est déjà presque trié : la boucle interne s’arrête tout de suite. Les examinateurs posent souvent la question sous cette forme — « quel tri choisir si les données arrivent déjà presque en ordre ».",

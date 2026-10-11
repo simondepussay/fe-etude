@@ -126,7 +126,7 @@ window.DATA["FE-kamokub-en"] = {
    q:["Binary search requires the array to be ___.",
       "With 1000 elements, binary search needs at most about ___ comparisons."],
    t:"Writing « low ← mid » instead of « low ← mid + 1 » gives an infinite loop as soon as the bounds meet: the middle lands on the same cell for ever. The two ± 1 are not polish, they are the stopping condition."},
-111:{s:"What each sort guarantees after a single pass — that is what you are asked",
+111:{s:"What each sort has settled for good after a single pass",
    e:"Sorting questions rarely ask for the final result: they ask for the state of the array after one pass, or after two. So you need to know what each method has finished by then. Bubble sort compares neighbours pairwise and swaps them when out of order: after one pass the largest has reached the end. Selection sort finds the minimum of the rest and swaps it into the first unsorted cell: after one pass the smallest is settled for good, at the start. Insertion sort takes the next element and slides it into place among those already arranged: after one pass the first two are sorted against each other, but neither is in its final place.",
    q:["The sort that settles the maximum at the end after one pass is ___.",
       "On an array that is already nearly sorted, the fastest of the three is ___."],

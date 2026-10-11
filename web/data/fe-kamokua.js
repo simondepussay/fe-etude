@@ -105,7 +105,7 @@ window.DATA["FE-grammaire"] = [
 
 {n:7, cat:"T11", p:"公開鍵暗号とディジタル署名", y:"こうかいかぎあんごうとディジタルしょめい",
  f:"暗号化：受信者の公開鍵で暗号化 → 受信者の秘密鍵で復号 ／ 署名：送信者の秘密鍵で署名 → 送信者の公開鍵で検証",
- s:"Qui chiffre avec quelle clé — la question la plus posée de la section sécurité",
+ s:"Avec quelle clé on chiffre, avec laquelle on signe, et ce que chacune garantit",
  e:"Dans le chiffrement à clé publique, chacun possède deux clés liées : une publique que tout le monde peut avoir, une privée qu’on ne donne jamais. Ce qui est chiffré avec l’une ne se déchiffre qu’avec l’autre. Pour « envoyer un secret », on chiffre avec la clé publique du destinataire : lui seul pourra lire. Pour « signer », on fait l’inverse : on chiffre avec sa propre clé privée, et n’importe qui peut vérifier avec notre clé publique que cela vient bien de nous.",
  ex:[["AさんがBさんに秘密のメッセージを送る：[[Bさんの公開鍵]]で暗号化する。",
       "Seul B possède la clé privée correspondante, donc seul B peut lire."],
@@ -142,7 +142,7 @@ window.DATA["FE-grammaire"] = [
 {n:10, cat:"T11", p:"マルウェアの種類", y:"マルウェアのしゅるい",
  f:"ウイルス：宿主が必要 ／ ワーム：単独で自己増殖 ／ トロイの木馬：正体を偽り増殖しない ／ ランサムウェア：暗号化して身代金",
  s:"Les familles de logiciels malveillants et ce qui les sépare",
- e:"L’examen teste surtout la distinction entre les familles. Le virus a besoin d’un fichier hôte pour se propager. Le ver se reproduit seul et se répand par le réseau sans intervention. Le cheval de Troie se fait passer pour un programme utile et ne se reproduit pas. Le rançongiciel chiffre les données et réclame une rançon. Le logiciel espion et l’enregistreur de frappe volent des informations discrètement.",
+ e:"L’examen teste surtout la distinction entre les familles. Le virus a besoin d’un fichier hôte pour se propager. Le ver se reproduit seul et se répand par le réseau sans intervention. Le cheval de Troie se fait passer pour un programme utile et ne se reproduit pas. Le rançongiciel chiffre les données et réclame une rançon. Le logiciel espion et l’enregistreur de frappe dérobent des informations à l’insu de l’utilisateur.",
  ex:[["宿主ファイルがなくても、ネットワーク経由で単独で広がる → [[ワーム]]",
       "C’est l’autonomie de propagation qui définit le ver."],
      ["便利なソフトに見せかけて導入させ、裏で不正動作する → [[トロイの木馬]]",
@@ -165,7 +165,7 @@ window.DATA["FE-grammaire"] = [
 
 {n:12, cat:"T11", p:"Webの脆弱性と対策", y:"ウェブのぜいじゃくせいとたいさく",
  f:"SQLインジェクション → プレースホルダ ／ XSS → エスケープ処理 ／ CSRF → トークン",
- s:"Les trois failles web classiques et la parade attendue pour chacune",
+ s:"Injection SQL, script entre sites, falsification de requête : la faille et sa parade",
  e:"L’injection SQL glisse du code SQL dans un champ de saisie pour détourner la requête ; la parade est d’utiliser des requêtes préparées avec paramètres, jamais de concaténer la saisie. Le script intersites fait exécuter du script dans le navigateur d’un autre utilisateur ; la parade est d’échapper les caractères spéciaux à l’affichage. La falsification de requête fait exécuter une action à l’insu de l’utilisateur connecté ; la parade est un jeton unique par formulaire.",
  ex:[["入力欄に ' OR '1'='1 と入れて認証を回避する → [[SQLインジェクション]]",
       "La saisie est interprétée comme du code au lieu d’être traitée comme une donnée."],
@@ -337,7 +337,7 @@ window.DATA["FE-grammaire"] = [
 
 {n:26, cat:"T10", p:"伝送時間の計算", y:"でんそうじかんのけいさん",
  f:"実効速度 = 回線速度 × 伝送効率 ／ 伝送時間 = データ量(ビット) ÷ 実効速度 ／ 1バイト = 8ビット",
- s:"Le calcul de débit qui tombe presque à chaque session",
+ s:"Combien de temps pour transmettre une quantité de données sur une ligne donnée",
  e:"Trois étapes, toujours les mêmes. On convertit la quantité de données en bits (un octet vaut huit bits). On calcule la vitesse réellement utilisable en multipliant la vitesse de la ligne par le rendement de transmission. On divise la première par la seconde. La difficulté n’est jamais la formule mais les unités : mégaoctets contre mégabits, et le rendement exprimé en pourcentage.",
  ex:[["5 MB のファイルを 10 Mbps・伝送効率 80% の回線で送る：",
       "D’abord les bits : 5 × 8 = 40 Mbit."],

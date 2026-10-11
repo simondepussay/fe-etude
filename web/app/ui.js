@@ -723,7 +723,7 @@
       startPractice(d.m, src, n, false);
     },
     drill: (d) => {
-      R = { type: "practice", kind: "drill", ref: d.id, queue: ["g-qcm", "g-cloze", "g-ord", "g-qcm"].map((k) => ({ s: "rev", m: "g", id: d.id, free: true, kind: k })), pos: 0, fix: {}, ok: 0, ko: 0, errors: [], started: Date.now(), noFix: true };
+      R = { type: "practice", kind: "drill", ref: d.id, queue: ["g-koukai", "g-koukai", "g-koukai", "g-koukai", "g-koukai"].map((k) => ({ s: "rev", m: "g", id: d.id, free: true, kind: k })), pos: 0, fix: {}, ok: 0, ko: 0, errors: [], started: Date.now(), noFix: true };
       EX = null; J.go("run");
     },
     filter: (d) => J.go("mod", { m: d.m, f: d.f, q: (document.getElementById("search") || {}).value || "" }),

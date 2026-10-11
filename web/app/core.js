@@ -47,6 +47,9 @@
   J.gcats = D[J.LEVEL + "-grammaire-cats"] || [];
   J.bcats = D[J.LEVEL + "-kamokub-cats"] || [];
   J.vcats = D[J.LEVEL + "-vocab-cats"] || [];
+  /* 公開問題 : les vraies questions de l’IPA, rattachées à une notion du 科目A */
+  J.koukai = D[J.LEVEL + "-koukai"] || [];
+  J.koukaiDe = (n) => J.koukai.filter((q) => q.g === n);
   /* Contenus traduits : sens français des mots et kanji, grammaire en anglais */
   const VFR = D[J.LEVEL + "-vocab-fr"] || {}, VJA = D[J.LEVEL + "-vocab-ja"] || {};
   const GEN = D[J.LEVEL + "-grammaire-en"] || {}, GJA = D[J.LEVEL + "-grammaire-ja"] || {};

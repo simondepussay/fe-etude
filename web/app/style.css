@@ -691,3 +691,22 @@ main h1:not(.lp-titre)::after {
 .ava-gd { width: 48px; height: 48px; }
 .ava-gd.ava-han { font-size: 1.4rem; }
 @media (max-width: 700px) { .save-nom { display: none; } }
+
+/* ═══ 公開問題 ═══════════════════════════════════════════════════════════
+   Les vraies questions de l’IPA. L’énoncé garde ses retours à la ligne :
+   les tableaux du livret y tiennent leurs lignes. */
+.q-src {
+    margin: 0 0 10px; font: 700 .68rem var(--ui); letter-spacing: .1em;
+    text-transform: uppercase; color: var(--shu);
+}
+.koukai-q {
+    white-space: pre-wrap; font-size: 1.05rem; line-height: 1.9; margin: 0;
+}
+/* La bonne réponse doit sauter aux yeux, pas se noyer dans la fiche */
+.ans-grand {
+    font-size: 1.5rem; font-weight: 700; line-height: 1.6; margin-bottom: 12px;
+    padding-bottom: 10px; border-bottom: 2px solid var(--shu);
+}
+.ans-grand b { color: var(--shu); margin-right: .4em; }
+.ans-card.koukai .q-src { margin: 0 0 12px; }
+@media (max-width: 600px) { .koukai-q { font-size: .98rem; } .ans-grand { font-size: 1.2rem; } }

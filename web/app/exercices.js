@@ -74,12 +74,12 @@
   /* ───────── Types d’exercices par module et par étape ───────── */
   const KINDS = {
     v: { rev: ["v-read", "v-mean", "v-word", "v-flash", "v-read"], check: ["v-mean", "v-read"], test: ["v-read", "v-word"] },
-    g: { rev: ["g-qcm", "g-cloze", "g-ord", "g-flash", "g-qcm"], check: ["g-qcm", "g-cloze"], test: ["g-qcm", "g-ord", "g-qcm"] },
+    g: { rev: ["g-koukai", "g-flash"], check: ["g-koukai", "g-flash"], test: ["g-koukai", "g-flash"] },
     b: { rev: ["b-qcm", "b-flash", "b-qcm"], check: ["b-qcm"], test: ["b-qcm"] }
   };
   const LABELS = {
     "v-read": ["読み方", "Lecture", "Reading"], "v-mean": ["意味", "Sens", "Meaning"], "v-word": ["語彙", "Quel mot ?", "Which word?"], "v-flash": ["カード", "Rappel", "Recall"],
-    "g-qcm": ["知識問題", "Connaissances", "Knowledge"], "g-cloze": ["穴埋め", "Énoncé à trous", "Fill the gap"], "g-ord": ["順序の並べ替え", "Étapes à ordonner ★", "Steps in order ★"], "g-flash": ["カード", "Rappel", "Recall"],
+    "g-koukai": ["公開問題", "Question d’examen", "Exam question"], "g-flash": ["カード", "Rappel", "Recall"],
     "b-qcm": ["科目B", "Trace du programme", "Program trace"], "b-flash": ["カード", "Rappel", "Recall"]
   };
   J.kindLabel = (k) => (J.lang() === "ja" ? LABELS[k][0] : `${LABELS[k][0]} · ${L(LABELS[k][1], LABELS[k][2])}`);
@@ -88,8 +88,9 @@
     const x = J.byId[m][id];
     // la lecture d’un 用語 n’apprend rien à un locuteur natif
     if (kind === "v-read") return J.lang() !== "ja" && x.w !== x.r && /[一-龯]/.test(x.w);
-    if (kind === "g-ord") return !!x.o;
-    if (kind === "g-cloze") return x.ex && x.ex.length;
+    if (kind === "g-koukai") return J.koukaiDe(x.n).length > 0;
+    // sans vraie question, la notion se révise en carte plutôt qu’en question inventée
+    if (kind === "g-flash") return J.koukaiDe(x.n).length === 0;
     if (kind === "b-qcm") return x.q && x.q.length;
     return true;
   }
@@ -128,25 +129,22 @@
       back: J.vocabBack(v), say: v.r
     }),
     /* 科目A */
-    "g-qcm": (g) => {
-      const [q, c] = pick(g.q);
-      const filled = q.includes("＿＿＿") ? q.replace("＿＿＿", c[0]) : "";
-      const full = filled ? esc(q).replace("＿＿＿", `<mark>${esc(c[0])}</mark>`) : "";
-      return { mode: "choice", prompt: `<p class="q-help">（　）に入る最もよいものを選びなさい。</p><div class="sentence jp" lang="ja">${esc(q).replace("＿＿＿", '<span class="blank">（　　　）</span>')}</div>`,
-        options: shuffle(c), answer: c[0], back: J.gramBack(g, full ? `<div class="sentence small jp" lang="ja">${full}</div>${trad(filled)}` : ""), say: filled, jpOpts: true };
-    },
-    "g-cloze": (g) => {
-      const i = Math.floor(Math.random() * g.ex.length);
-      return { mode: "self", prompt: `<p class="q-help">${L("Quel est le terme manquant ? Dis-le à voix haute, puis vérifie.", "Which term is missing? Say it out loud, then check.", "空欄に入る語は何か。声に出してから確かめる。")}</p>
-        <div class="sentence jp" lang="ja">${blank(g.ex[i][0])}</div><p class="fr-trad">${esc(J.gex(g, i))}</p>`,
-        back: J.gramBack(g, `<div class="sentence small jp" lang="ja">${hl(g.ex[i][0])}</div>`), say: strip(g.ex[i][0]) };
-    },
-    "g-ord": (g) => {
-      const [pre, pcs, post, star] = g.o;
-      const full = pre + pcs.join("") + post;
-      return { mode: "order", pre, post, pieces: pcs, star, order: shuffle([0, 1, 2, 3]), picks: [],
-        prompt: `<p class="q-help">正しい順序に並べ替え、★ の位置に入るものを答えなさい。</p>`,
-        back: J.gramBack(g, `<div class="sentence small jp" lang="ja">${esc(pre)}${pcs.map((p, i) => (i === star ? `<mark>${esc(p)}</mark>` : esc(p))).join("")}${esc(post)}</div>${trad(full)}`), say: full };
+    /* 公開問題 : une vraie question de l’IPA, rattachée à cette notion.
+       L’ordre ア〜エ est celui du livret : on ne le mélange pas. La clé de
+       correction de l’IPA s’y réfère, et c’est l’énoncé d’origine. */
+    "g-koukai": (g) => {
+      const pool = J.koukaiDe(g.n);
+      const q = pool[Math.floor(Math.random() * pool.length)];
+      const marque = `<p class="q-src">${esc(q.src)} 科目A 問${q.num} · ${L("question publiée par l’IPA", "question published by the IPA", "IPA 公開問題")}</p>`;
+      return {
+        mode: "choice", jpOpts: true,
+        prompt: marque + `<div class="koukai-q jp" lang="ja">${esc(q.q)}</div>`,
+        options: q.ch.slice(), answer: q.ch[q.r],
+        back: `<div class="ans-card koukai">
+          <div class="ans-grand jp" lang="ja"><b>${"アイウエ"[q.r]}</b> ${esc(q.ch[q.r])}</div>
+          ${marque}
+          <button class="link" data-act="open-item" data-m="g" data-id="${g.id}">${L("Revoir la leçon", "Review the lesson", "解説を見る")} →</button></div>`
+      };
     },
     /* 科目B */
     "b-qcm": (b) => {
