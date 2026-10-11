@@ -259,7 +259,9 @@ input[type=range] { width: 240px; accent-color: var(--shu); }
 .filters { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
 h3.cat { margin: 28px 0 10px; font: 700 1.05rem var(--jp); display: flex; align-items: center; gap: 10px; }
 h3.cat::before { content: ""; width: 14px; height: 14px; background: var(--shu); transform: rotate(45deg); }
-.glist, .vlist { display: grid; gap: 0; border-top: 1.5px solid var(--ink); }
+/* Les listes posent leur propre fond : sans lui, les brumes du bas de page
+   passent à travers les lignes et rendent une longue liste illisible. */
+.glist, .vlist { display: grid; gap: 0; border-top: 1.5px solid var(--ink); background: var(--paper); }
 .gitem, .vrow { display: grid; gap: 12px; align-items: center; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--rule); padding: 9px 10px; }
 .gitem { grid-template-columns: 14px 34px minmax(150px, 270px) 1fr; }
 .vrow { grid-template-columns: 14px minmax(90px, 160px) minmax(100px, 180px) 1fr; }

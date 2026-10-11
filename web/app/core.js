@@ -10,7 +10,10 @@
   J.MODS = {
     v: { id: "v", jp: "用語", fr: "Terminologie", en: "Terminology", unit: ["termes", "terms"], unitJp: "語" },
     g: { id: "g", jp: "科目A", fr: "Connaissances", en: "Knowledge", unit: ["notions", "topics"], unitJp: "項目" },
-    b: { id: "b", jp: "科目B", fr: "Algorithmes", en: "Algorithms", unit: ["points", "items"], unitJp: "項目" }
+    b: { id: "b", jp: "科目B", fr: "Algorithmes", en: "Algorithms", unit: ["points", "items"], unitJp: "項目" },
+    /* 語彙 : les mots pour LIRE l’épreuve. Glosés en français seulement,
+       donc proposé au seul profil francophone. */
+    r: { id: "r", jp: "語彙", fr: "Vocabulaire", en: "Vocabulary", unit: ["mots", "words"], unitJp: "語" }
   };
 
   /* ───────── Langue : tout ce qui n’est pas japonais est en français OU en anglais ───────── */
@@ -26,27 +29,30 @@
   J.modName = (m) => (J.lang() === "ja" ? J.MODS[m].jp : J.MODS[m][J.lang() === "en" ? "en" : "fr"]);
   J.modUnit = (m) => (J.lang() === "ja" ? J.MODS[m].unitJp || J.MODS[m].unit[1] : J.MODS[m].unit[J.lang() === "en" ? 1 : 0]);
   J.num = (x) => Number(x).toLocaleString(J.locale(), { maximumFractionDigits: 1 });
-  J.MODS_ALL = ["v", "g", "b"];          // tous les modules existants
+  J.MODS_ALL = ["v", "g", "b", "r"];     // tous les modules existants
   /* Les modules que l’utilisateur a choisi d’étudier. Tableau muté sur place :
      ui.js le déstructure au chargement, le remplacer casserait la référence. */
   J.MOD_ORDER = J.MODS_ALL.slice();
   J.refreshMods = () => {
     const choisis = (J.S && J.S.settings && J.S.settings.mods) || {};
-    const actifs = J.MODS_ALL.filter((m) => choisis[m] !== false);
+    const dispo = J.MODS_ALL.filter((m) => m !== "r" || J.lang() === "fr");
+    const actifs = dispo.filter((m) => choisis[m] !== false);
     J.MOD_ORDER.length = 0;
-    J.MOD_ORDER.push(...(actifs.length ? actifs : J.MODS_ALL));   // jamais vide
+    J.MOD_ORDER.push(...(actifs.length ? actifs : dispo));   // jamais vide
   };
 
   const vocab = (D[J.LEVEL + "-vocab"] || []).map((x) => ({ ...x, id: x.w + "|" + x.r }));
   const gram = (D[J.LEVEL + "-grammaire"] || []).slice().sort((a, b) => a.n - b.n).map((x) => ({ ...x, id: String(x.n) }));
   const kamokub = (D[J.LEVEL + "-kamokub"] || []).slice().sort((a, b) => a.n - b.n).map((x) => ({ ...x, id: String(x.n) }));
-  J.all = { v: vocab, g: gram, b: kamokub };
-  J.items = { v: vocab, g: gram, b: kamokub }; // sans les éléments retirés par l’utilisateur
+  const goi = (D[J.LEVEL + "-goi"] || []).map((x) => ({ ...x, id: x.w + "|" + x.r }));
+  J.all = { v: vocab, g: gram, b: kamokub, r: goi };
+  J.items = { v: vocab, g: gram, b: kamokub, r: goi }; // sans les éléments retirés par l’utilisateur
   J.byId = {};
   for (const m of J.MODS_ALL) J.byId[m] = Object.fromEntries(J.all[m].map((x) => [x.id, x]));
   J.gcats = D[J.LEVEL + "-grammaire-cats"] || [];
   J.bcats = D[J.LEVEL + "-kamokub-cats"] || [];
   J.vcats = D[J.LEVEL + "-vocab-cats"] || [];
+  J.rcats = D[J.LEVEL + "-goi-cats"] || [];
   /* 公開問題 : les vraies questions de l’IPA, rattachées à une notion du 科目A */
   J.koukai = D[J.LEVEL + "-koukai"] || [];
   J.koukaiDe = (n) => J.koukai.filter((q) => q.g === n);
@@ -61,8 +67,10 @@
   J.bq = (b, i) => { const O = BL(); return (O && O[b.n] && O[b.n].q && O[b.n].q[i]) || b.q[i][0]; };
   J.bcat = (c) => (J.lang() === "ja" ? c.jp : J.lang() === "en" ? c.en || c.fr : c.fr);
   J.vcat = (c) => (J.lang() === "ja" ? c.jp : J.lang() === "en" ? c.en || c.fr : c.fr);
+  J.rcat = (c) => (J.lang() === "ja" ? c.jp : J.lang() === "en" ? c.en || c.fr : c.fr);
   /* fr : traduction française · ja : définition en japonais · en : sens anglais */
-  J.mean = (m, x) => (J.lang() === "ja" ? VJA[x.id] || x.m : J.lang() === "fr" ? VFR[x.id] || x.m : x.m);
+  J.mean = (m, x) => (m === "r" ? x.m
+    : J.lang() === "ja" ? VJA[x.id] || x.m : J.lang() === "fr" ? VFR[x.id] || x.m : x.m);
   J.hasFr = (m, x) => !!(J.lang() === "ja" ? VJA[x.id] : VFR[x.id]);
   J.gs = (g, f) => { const O = GL(); return O && O[g.n] && O[g.n][f] !== undefined ? O[g.n][f] : g[f]; };
   J.gex = (g, i) => { const O = GL(); return O && O[g.n] && O[g.n].ex ? O[g.n].ex[i] : g.ex[i][1]; };
@@ -88,7 +96,8 @@
   const DEFAULT_TIMING = {
     v: { learn: 20, rev: 9, test: 12 },
     g: { learn: 150, rev: 35, test: 45 },
-    b: { learn: 240, rev: 60, test: 90 }
+    b: { learn: 240, rev: 60, test: 90 },
+    r: { learn: 16, rev: 8, test: 10 }
   };
   J.defaultState = () => ({
     version: 1,
@@ -100,8 +109,8 @@
       examDate: J.defaultExamDate(),
       daysPerWeek: 4,
       maxMinutes: 45,
-      mods: { v: true, g: true, b: true },
-      tests: { v: 5, g: 4, b: 2 },
+      mods: { v: true, g: true, b: true, r: true },
+      tests: { v: 5, g: 4, b: 2, r: 5 },
       revCap: 200,
       rate: 0.9,
       finalDays: 14

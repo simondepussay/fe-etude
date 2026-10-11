@@ -50,6 +50,9 @@
   const trad = (jp) => { const t = J.trad(jp); return t ? `<p class="fr-trad">${esc(t)}</p>` : ""; };
 
   /* ───────── Fiches de réponse ───────── */
+  J.goiBack = (x) =>
+    `<div class="ans-card"><div class="ans-word jp" lang="ja">${esc(x.w)}</div><div class="ans-read jp" lang="ja">${esc(x.r)}</div><div class="ans-mean">${esc(x.m)}</div>
+     <button class="icon-btn" data-act="say" data-say="${esc(x.r)}" title="${L("Écouter", "Listen", "読み上げ")}">🔊</button></div>`;
   J.vocabBack = (v) =>
     `<div class="ans-card"><div class="ans-word jp" lang="ja">${esc(v.w)}</div><div class="ans-read jp" lang="ja">${esc(v.r)}</div><div class="ans-mean">${esc(M("v", v))}</div>
      <button class="icon-btn" data-act="say" data-say="${esc(v.r)}" title="${L("Écouter", "Listen", "読み上げ")}">🔊</button></div>`;
@@ -75,11 +78,13 @@
   const KINDS = {
     v: { rev: ["v-read", "v-mean", "v-word", "v-flash", "v-read"], check: ["v-mean", "v-read"], test: ["v-read", "v-word"] },
     g: { rev: ["g-koukai", "g-flash"], check: ["g-koukai", "g-flash"], test: ["g-koukai", "g-flash"] },
-    b: { rev: ["b-qcm", "b-flash", "b-qcm"], check: ["b-qcm"], test: ["b-qcm"] }
+    b: { rev: ["b-qcm", "b-flash", "b-qcm"], check: ["b-qcm"], test: ["b-qcm"] },
+    r: { rev: ["r-mean", "r-word", "r-flash", "r-mean"], check: ["r-mean", "r-word"], test: ["r-mean", "r-word"] }
   };
   const LABELS = {
     "v-read": ["読み方", "Lecture", "Reading"], "v-mean": ["意味", "Sens", "Meaning"], "v-word": ["語彙", "Quel mot ?", "Which word?"], "v-flash": ["カード", "Rappel", "Recall"],
     "g-koukai": ["公開問題", "Question d’examen", "Exam question"], "g-flash": ["カード", "Rappel", "Recall"],
+    "r-mean": ["意味", "Sens", "Meaning"], "r-word": ["語彙", "Quel mot ?", "Which word?"], "r-flash": ["カード", "Rappel", "Recall"],
     "b-qcm": ["科目B", "Trace du programme", "Program trace"], "b-flash": ["カード", "Rappel", "Recall"]
   };
   J.kindLabel = (k) => (J.lang() === "ja" ? LABELS[k][0] : `${LABELS[k][0]} · ${L(LABELS[k][1], LABELS[k][2])}`);
@@ -128,6 +133,25 @@
       mode: "self", prompt: `<p class="q-help">${L("Lis le mot dans ta tête, donne son sens, puis vérifie.", "Read the word in your head, give its meaning, then check.", "用語を読み、意味を思い浮かべてから確かめる。")}</p><div class="big-jp jp" lang="ja">${esc(v.w)}</div>`,
       back: J.vocabBack(v), say: v.r
     }),
+    /* 語彙 : même moteur que les 用語, mais le sens est déjà en français */
+    "r-mean": (x) => ({
+      mode: "choice",
+      prompt: `<p class="q-help">${L("Que veut dire ce mot ?", "What does this word mean?", "この語の意味はどれか。")}</p><div class="big-jp jp" lang="ja">${esc(x.w)}</div>`,
+      options: uniqueOptions(x.m, otherItems("r", x.id, 3).map((o) => o.m)), answer: x.m,
+      back: J.goiBack(x)
+    }),
+    "r-word": (x) => ({
+      mode: "choice", jpOpts: true,
+      prompt: `<p class="q-help">${L("Quel mot correspond à ce sens ?", "Which word matches this meaning?", "この意味に当てはまる語はどれか。")}</p><div class="big-fr">${esc(x.m)}</div>`,
+      options: uniqueOptions(x.w, otherItems("r", x.id, 3).map((o) => o.w)), answer: x.w,
+      back: J.goiBack(x)
+    }),
+    "r-flash": (x) => ({
+      mode: "self",
+      prompt: `<p class="q-help">${L("Lis le mot, donne son sens, puis vérifie.", "Read the word, give its meaning, then check.", "語を読み、意味を思い浮かべてから確かめる。")}</p><div class="big-jp jp" lang="ja">${esc(x.w)}</div>`,
+      back: J.goiBack(x), say: x.r
+    }),
+
     /* 科目A */
     /* 公開問題 : une vraie question de l’IPA, rattachée à cette notion.
        L’ordre ア〜エ est celui du livret : on ne le mélange pas. La clé de
@@ -171,6 +195,17 @@
   };
 
   /* ───────── Fiches d’apprentissage ───────── */
+  /* Fiche d’un mot du 語彙 */
+  J.goiCard = function (x) {
+    const cat = J.rcats.find((c) => c.id === x.cat);
+    return `<div class="learn v">
+      ${cat ? `<div class="g-top"><span class="pill jp">${esc(cat.jp)}</span><span class="muted">${esc(J.rcat(cat))}</span></div>` : ""}
+      <div class="learn-head"><div class="big-jp jp" lang="ja">${esc(x.w)}</div><div class="ans-read jp" lang="ja">${esc(x.r)}</div>
+      <button class="icon-btn" data-act="say" data-say="${esc(x.r)}" title="${L("Écouter", "Listen", "読み上げ")}">🔊</button></div>
+      <div class="learn-mean">${esc(x.m)}</div>
+    </div>`;
+  };
+
   J.learnCard = function (m, id) {
     const x = J.byId[m][id];
     if (m === "v") {
@@ -180,6 +215,7 @@
         <div class="learn-mean">${esc(M("v", x))}</div>
       </div>`;
     }
+    if (m === "r") return J.goiCard(x);
     if (m === "b") return J.kamokubLesson(x);
     return J.grammarLesson(x, true);
   };

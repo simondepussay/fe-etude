@@ -263,7 +263,7 @@
     ${per ? `<span class="tt-per">${per.map((x, i) => (x ? `<i class="m-${MOD_ORDER[i]}">${MODS[MOD_ORDER[i]].jp[0]}${x}</i>` : "")).join("")}</span>` : ""}<b>${n}</b></li>`;
 
   // Marque du ticket : un signe et un numéro par module
-  const MOD_MARK = { v: ["語", "01"], g: ["Ａ", "02"], b: ["Ｂ", "03"] };
+  const MOD_MARK = { v: ["語", "01"], g: ["Ａ", "02"], b: ["Ｂ", "03"], r: ["彙", "04"] };
   function modSummary(m, plan, proj) {
     const p = plan.mods[m], pr = proj[m];
     let st;
@@ -320,13 +320,13 @@
     const ctrl = `<div class="filters"><input id="search" data-m="${m}" placeholder="${L("Rechercher…", "Search…", "検索…")}" value="${esc(q)}">
       <div class="seg wrap">${filters.map(([k, l]) => `<button class="${f === k ? "on" : ""}" data-act="filter" data-m="${m}" data-f="${k}">${l}</button>`).join("")}</div></div>`;
     let body = "";
-    if ((m === "g" || m === "b" || m === "v") && (m !== "v" || J.vcats.length)) {
-      const cats = m === "g" ? J.gcats : m === "b" ? J.bcats : J.vcats;
+    if ((m === "g" || m === "b" || m === "v" || m === "r") && (m !== "v" || J.vcats.length)) {
+      const cats = m === "g" ? J.gcats : m === "b" ? J.bcats : m === "r" ? J.rcats : J.vcats;
       body = cats.map((cat) => {
         const pts = list.filter((x) => x.cat === cat.id);
         if (!pts.length) return "";
-        const nom = m === "g" ? J.gcat(cat) : m === "b" ? J.bcat(cat) : J.vcat(cat);
-        const rangee = (liste) => m === "v"
+        const nom = m === "g" ? J.gcat(cat) : m === "b" ? J.bcat(cat) : m === "r" ? J.rcat(cat) : J.vcat(cat);
+        const rangee = (liste) => (m === "v" || m === "r")
           ? `<div class="vlist">${liste.map((v) => vRow(v)).join("")}</div>`
           : `<div class="glist">${liste.map((x) =>
           `<button class="gitem" data-act="open-item" data-m="${m}" data-id="${x.id}"><i class="dot lv${J.levelOf(m, x.id)}"></i><span class="num">${x.n}</span><span class="jp">${esc(x.p)}</span><span class="muted">${esc(m === "g" ? J.gs(x, "s") : J.bs(x, "s"))}</span></button>`).join("")}</div>`;
@@ -356,7 +356,7 @@
     const stat = r && r.at ? `<div class="stat-line"><span class="pill lv${lv}">${J.LEVELS[lv]}</span><span>${L("Appris le", "Learned on", "学習日")} ${J.fmtShort(r.at)}</span><span>${L("Prochaine révision", "Next review", "次の復習")} : ${r.due ? J.fmtShort(r.due) : "—"}</span><span>✓ ${r.ok} · ✗ ${r.ko}</span></div>`
       : `<div class="stat-line"><span class="pill">${J.LEVELS[0]}</span><button class="btn sm" data-act="known" data-m="${m}" data-id="${esc(id)}">${L("Je le connais déjà", "I already know it", "すでに知っている")}</button></div>`;
     const out = J.isExcluded(m, id);
-    const body = (m === "g" ? J.grammarLesson(J.byId.g[id], false) : m === "b" ? J.kamokubLesson(J.byId.b[id]) : `<div class="card">${J.learnCard(m, id)}</div>`)
+    const body = (m === "g" ? J.grammarLesson(J.byId.g[id], false) : m === "b" ? J.kamokubLesson(J.byId.b[id]) : m === "r" ? `<div class="card">${J.goiCard(J.byId.r[id])}</div>` : `<div class="card">${J.learnCard(m, id)}</div>`)
       + (m === "v" ? `<div class="row">${out ? `<span class="pill bad">${L("Retiré des leçons", "Removed from lessons", "レッスンから除外中")}</span><button class="btn sm" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="0">${L("Remettre dans les leçons", "Put back into lessons", "レッスンに戻す")}</button>`
         : `<button class="link" data-act="exclude" data-m="${m}" data-id="${esc(id)}" data-on="1">${L("Retirer des leçons", "Remove from lessons", "レッスンから外す")}</button>`}</div>` : "");
     return `<div class="item-nav"><button class="link" data-act="nav" data-v="mod-${m}">← ${J.modName(m)}</button>
@@ -697,8 +697,9 @@
   /* ───────── Actions ───────── */
   const A = {
     nav: (d) => { const v = d.v; if (v.startsWith("mod-")) J.go("mod", { m: v.slice(4) }); else J.go(v); },
-    "set-lang": (d) => { J.S.settings.lang = d.l; J.save(); render(); },
-    "pick-lang": (d) => { J.S.settings.lang = d.l; J.S.langChosen = true; J.save(); J.go(J.S.onboarded ? "settings" : "onboarding"); },
+    // le 語彙 n’existe que pour le profil francophone : la liste des modules suit la langue
+    "set-lang": (d) => { J.S.settings.lang = d.l; J.refreshMods(); J.save(); render(); },
+    "pick-lang": (d) => { J.S.settings.lang = d.l; J.S.langChosen = true; J.refreshMods(); J.save(); J.go(J.S.onboarded ? "settings" : "onboarding"); },
     "toggle-mod": (d) => {
       const s = J.S.settings.mods, actifs = J.MODS_ALL.filter((m) => s[m] !== false);
       if (actifs.length === 1 && actifs[0] === d.m) return;   // on ne retire pas le dernier
