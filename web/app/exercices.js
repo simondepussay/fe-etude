@@ -74,12 +74,12 @@
   /* ───────── Types d’exercices par module et par étape ───────── */
   const KINDS = {
     v: { rev: ["v-read", "v-mean", "v-word", "v-flash", "v-read"], check: ["v-mean", "v-read"], test: ["v-read", "v-word"] },
-    g: { rev: ["g-qcm", "g-cloze", "g-rev", "g-ord", "g-flash", "g-qcm"], check: ["g-qcm", "g-rev"], test: ["g-qcm", "g-ord", "g-qcm"] },
+    g: { rev: ["g-qcm", "g-cloze", "g-ord", "g-flash", "g-qcm"], check: ["g-qcm", "g-cloze"], test: ["g-qcm", "g-ord", "g-qcm"] },
     b: { rev: ["b-qcm", "b-flash", "b-qcm"], check: ["b-qcm"], test: ["b-qcm"] }
   };
   const LABELS = {
     "v-read": ["読み方", "Lecture", "Reading"], "v-mean": ["意味", "Sens", "Meaning"], "v-word": ["語彙", "Quel mot ?", "Which word?"], "v-flash": ["カード", "Rappel", "Recall"],
-    "g-qcm": ["知識問題", "Connaissances", "Knowledge"], "g-cloze": ["穴埋め", "Énoncé à trous", "Fill the gap"], "g-rev": ["説明 → 用語", "De la définition au terme", "Definition → term"], "g-ord": ["順序の並べ替え", "Étapes à ordonner ★", "Steps in order ★"], "g-flash": ["カード", "Rappel", "Recall"],
+    "g-qcm": ["知識問題", "Connaissances", "Knowledge"], "g-cloze": ["穴埋め", "Énoncé à trous", "Fill the gap"], "g-ord": ["順序の並べ替え", "Étapes à ordonner ★", "Steps in order ★"], "g-flash": ["カード", "Rappel", "Recall"],
     "b-qcm": ["科目B", "Trace du programme", "Program trace"], "b-flash": ["カード", "Rappel", "Recall"]
   };
   J.kindLabel = (k) => (J.lang() === "ja" ? LABELS[k][0] : `${LABELS[k][0]} · ${L(LABELS[k][1], LABELS[k][2])}`);
@@ -141,12 +141,6 @@
         <div class="sentence jp" lang="ja">${blank(g.ex[i][0])}</div><p class="fr-trad">${esc(J.gex(g, i))}</p>`,
         back: J.gramBack(g, `<div class="sentence small jp" lang="ja">${hl(g.ex[i][0])}</div>`), say: strip(g.ex[i][0]) };
     },
-    "g-rev": (g) => {
-      const same = otherItems("g", g.id, 3, (x) => x.cat === g.cat);
-      const opts = uniqueOptions(g.p, same.map((x) => x.p).concat(otherItems("g", g.id, 6).map((x) => x.p)));
-      return { mode: "choice", prompt: `<p class="q-help">${L("Quelle notion correspond à cette définition ?", "Which topic matches this definition?", "この説明に当てはまる項目はどれか。")}</p><div class="big-fr">${esc(J.gs(g, "s"))}</div>`,
-        options: opts, answer: g.p, back: J.gramBack(g, exLine(g, 0)), jpOpts: true };
-    },
     "g-ord": (g) => {
       const [pre, pcs, post, star] = g.o;
       const full = pre + pcs.join("") + post;
@@ -190,6 +184,10 @@
     return J.grammarLesson(x, true);
   };
 
+  /* Intitulé d’une section : le terme japonais, et sa traduction sauf sur le profil ja,
+     où elle ferait doublon. Les mêmes intitulés pour le 科目A et le 科目B. */
+  const boite = (jp, fr, en) => `<h4>${jp}${J.lang() === "ja" ? "" : ` · ${L(fr, en)}`}</h4>`;
+
   J.grammarLesson = function (g, compact) {
     const cat = J.gcats.find((c) => c.id === g.cat);
     const piege = J.gs(g, "t");
@@ -197,13 +195,13 @@
       <div class="g-top"><span class="pill">${g.n} · ${esc(cat ? cat.jp : "")}</span><span class="muted">${esc(cat ? J.gcat(cat) : "")}</span></div>
       <h2 class="g-pattern jp" lang="ja">${esc(g.p)}</h2>${g.y ? `<div class="muted jp" lang="ja">${esc(g.y)}</div>` : ""}
       <p class="g-sens">${esc(J.gs(g, "s"))}</p>
-      <div class="g-box"><h4>接続 · ${L("Formule, méthode", "Formula, method", "要点・公式")}</h4><div class="jp" lang="ja">${esc(g.f)}</div></div>
-      <div class="g-box"><h4>${L("Explication", "Explanation", "解説")}</h4><p>${esc(J.gs(g, "e"))}</p></div>
-      <div class="g-box"><h4>例文 · ${L("Exemples", "Examples", "例")}</h4>${g.ex.map(([jp], i) => `<div class="exline">
+      <div class="g-box">${boite("要点", "Formule, méthode", "Formula, method")}<div class="jp" lang="ja">${esc(g.f)}</div></div>
+      <div class="g-box">${boite("解説", "Explication", "Explanation")}<p>${esc(J.gs(g, "e"))}</p></div>
+      <div class="g-box">${boite("例", "Exemples", "Examples")}${g.ex.map(([jp], i) => `<div class="exline">
         <button class="icon-btn sm" data-act="say" data-say="${esc(strip(jp))}" title="${L("Écouter", "Listen", "読み上げ")}">🔊</button>
         <div><div class="jp" lang="ja">${hl(jp)}</div><div class="fr-trad">${esc(J.gex(g, i))}</div></div></div>`).join("")}</div>
-      ${piege ? `<div class="g-box warn"><h4>⚠︎ ${L("Piège", "Watch out", "注意")}</h4><p>${esc(piege)}</p></div>` : ""}
-      ${compact ? "" : `<div class="g-box"><h4>${L("Mes notes", "My notes", "メモ")}</h4>
+      ${piege ? `<div class="g-box warn">${boite("⚠︎ 注意", "Piège", "Watch out")}<p>${esc(piege)}</p></div>` : ""}
+      ${compact ? "" : `<div class="g-box">${boite("メモ", "Mes notes", "My notes")}
         <textarea id="notes" data-key="g:${g.id}" rows="4" placeholder="${L("Refais le calcul ou réécris la règle avec tes mots : c’est le meilleur moyen de la retenir.", "Redo the calculation or restate the rule in your own words: that is the best way to remember it.", "計算をやり直すか、自分の言葉で書き直しておく。覚えるにはこれが一番速い。")}">${esc(J.S.notes["g:" + g.id] || "")}</textarea></div>`}
     </article>`;
   };
@@ -216,14 +214,14 @@
       <div class="g-top"><span class="pill">${b.n} · ${esc(cat ? cat.jp : "")}</span><span class="muted">${esc(cat ? J.bcat(cat) : "")}</span></div>
       <h2 class="g-pattern jp" lang="ja">${esc(b.p)}</h2>${b.y ? `<div class="muted jp" lang="ja">${esc(b.y)}</div>` : ""}
       <p class="g-sens">${esc(J.bs(b, "s"))}</p>
-      ${b.zu ? `<div class="g-box"><h4>図 · ${L("Schéma", "Diagram", "図")}</h4>${J.zuBlock(b)}</div>` : ""}
-      ${b.prog ? `<div class="g-box"><h4>擬似言語 · ${L("Programme", "Program", "プログラム")}</h4>${J.progBlock(b)}</div>` : ""}
-      <div class="g-box"><h4>${L("Explication", "Explanation", "解説")}</h4><p>${esc(J.bs(b, "e"))}</p></div>
-      ${b.trace ? `<div class="g-box"><h4>${L("Déroulé pas à pas", "Step by step", "トレース")}</h4>
+      ${b.zu ? `<div class="g-box">${boite("図", "Schéma", "Diagram")}${J.zuBlock(b)}</div>` : ""}
+      ${b.prog ? `<div class="g-box">${boite("擬似言語", "Programme", "Program")}${J.progBlock(b)}</div>` : ""}
+      <div class="g-box">${boite("解説", "Explication", "Explanation")}<p>${esc(J.bs(b, "e"))}</p></div>
+      ${b.trace ? `<div class="g-box">${boite("トレース", "Déroulé pas à pas", "Step by step")}
         <table class="trace"><thead><tr>${b.trace[0].map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
         <tbody>${b.trace.slice(1).map((r) => `<tr>${r.map((c) => `<td class="jp">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : ""}
-      ${piege ? `<div class="g-box warn"><h4>⚠︎ ${L("Piège", "Watch out", "注意")}</h4><p>${esc(piege)}</p></div>` : ""}
-      <div class="g-box"><h4>${L("Mes notes", "My notes", "メモ")}</h4>
+      ${piege ? `<div class="g-box warn">${boite("⚠︎ 注意", "Piège", "Watch out")}<p>${esc(piege)}</p></div>` : ""}
+      <div class="g-box">${boite("メモ", "Mes notes", "My notes")}
         <textarea id="notes" data-key="b:${b.id}" rows="4" placeholder="${L("Note ici ce qui t’a bloqué dans ce programme.", "Note here what tripped you up in this program.", "つまずいた点を書いておく。")}">${esc(J.S.notes["b:" + b.id] || "")}</textarea></div>
     </article>`;
   };

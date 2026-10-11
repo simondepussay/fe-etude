@@ -288,7 +288,7 @@ h3.cat::before { content: ""; width: 14px; height: 14px; background: var(--shu);
 .g-top { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: .82rem; }
 .g-pattern { font: 600 2.4rem/1.25 var(--hand); margin: 12px 0 2px; color: var(--shu); }
 .g-sens { font: 700 1.18rem var(--jp); margin: 6px 0 16px; }
-.g-box { border-top: 1px dashed var(--rule); padding: 14px 0 6px; }
+.g-box { padding: 4px 0 10px; }
 .g-box p { margin: 0 0 6px; }
 .g-box.warn { border: 1.5px solid var(--kin); background: color-mix(in srgb, var(--kin) 8%, transparent); padding: 12px 14px; margin: 12px 0 4px; }
 .g-box.warn h4 { color: var(--kin); }
@@ -586,22 +586,14 @@ body::before {
         transparent 100%);
 }
 
-/* Double filet : trait d’encre à l’extérieur, filet vermillon à l’intérieur */
-.card::after, .sheet::after, .glesson::after, .stampcard::after {
-    content: ""; position: absolute; inset: 5px; border: 1px solid var(--shu);
-    opacity: .45; pointer-events: none;
-}
-/* Le ticket garde ses encoches : son filet se pose sur le corps, pas sur la planche */
-.t-body::after {
-    content: ""; position: absolute; inset: 4px; border: 1px solid var(--shu);
-    opacity: .28; pointer-events: none;
-}
-.sheet.lesson::after { inset: 5px 5px 5px 36px; }
-.glesson::after { inset: 5px 5px 5px 28px; }
+/* Pas de filet intérieur autour des blocs de texte : il enfermait chaque
+   paragraphe dans un petit rectangle et venait trop près des lignes. Le
+   caractère d’estampe tient aux 題簽, aux tampons et aux brumes — pas à
+   un cadre de plus. */
 
 /* 題簽 : les intertitres d’une fiche passent dans un cartouche */
 .g-box > h4 {
-    display: inline-block; margin: 0 0 .7em; padding: 3px 11px;
+    display: inline-block; margin: 14px 0 .7em; padding: 3px 11px;
     color: var(--shu); background: color-mix(in srgb, var(--kin) 15%, var(--sheet));
     border: 1.5px solid var(--shu); box-shadow: inset 0 0 0 1.5px var(--sheet);
 }
