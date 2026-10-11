@@ -756,10 +756,9 @@
       if (!EX || EX.answered) return;
       const i = +d.i;
       EX.answered = true; EX.chosen = i; EX.correct = EX.options[i] === EX.answer;
-      if (EX.say && EX.correct) J.say(EX.say);
       render();
     },
-    reveal: () => { if (EX && EX.mode === "self") { EX.revealed = true; if (EX.say) J.say(EX.say); render(); } },
+    reveal: () => { if (EX && EX.mode === "self") { EX.revealed = true; render(); } },
     grade: (d) => { result(+d.q); advance(); },
     piece: (d) => { if (EX.picks.length < 4 && !EX.picks.includes(+d.i)) { EX.picks.push(+d.i); render(); } },
     slot: (d) => { const k = +d.k; if (k < EX.picks.length) { EX.picks.splice(k, 1); render(); } },
@@ -767,7 +766,6 @@
     "order-check": () => {
       EX.answered = true;
       EX.correct = EX.picks.every((p, k) => p === k);
-      if (EX.correct) J.say(EX.say);
       render();
     },
     cont: () => { if (EX && EX.answered) { result(EX.correct ? 2 : 0); advance(); } },

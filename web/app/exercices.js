@@ -197,6 +197,7 @@
       <p class="g-sens">${esc(J.gs(g, "s"))}</p>
       <div class="g-box">${boite("要点", "Formule, méthode", "Formula, method")}<div class="jp" lang="ja">${esc(g.f)}</div></div>
       <div class="g-box">${boite("解説", "Explication", "Explanation")}<p>${esc(J.gs(g, "e"))}</p></div>
+      ${g.zu ? `<div class="g-box">${boite("図", "Schéma", "Diagram")}${J.zuBlock(g)}</div>` : ""}
       <div class="g-box">${boite("例", "Exemples", "Examples")}${g.ex.map(([jp], i) => `<div class="exline">
         <button class="icon-btn sm" data-act="say" data-say="${esc(strip(jp))}" title="${L("Écouter", "Listen", "読み上げ")}">🔊</button>
         <div><div class="jp" lang="ja">${hl(jp)}</div><div class="fr-trad">${esc(J.gex(g, i))}</div></div></div>`).join("")}</div>
