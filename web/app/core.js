@@ -189,7 +189,13 @@
     const newer = (a.updatedAt || "") > (b.updatedAt || "") ? a : b;
     const out = migrate(JSON.parse(JSON.stringify(newer)));
     out.created = a.created < b.created ? a.created : b.created;
-    const reglagesDe = (a.settingsAt || "") > (b.settingsAt || "") ? a : b;
+    // Tant qu'aucun côté n'a d'horodatage — données d'avant ce champ — comparer
+    // les dates ne dit rien : un appareil qu'on vient d'ouvrir est toujours le
+    // plus récent. On prend alors le côté qui a réellement servi.
+    const hA = a.settingsAt || "", hB = b.settingsAt || "";
+    const nA = Object.keys(a.items || {}).length, nB = Object.keys(b.items || {}).length;
+    const reglagesDe = (hA || hB) ? (hA > hB ? a : b)
+                     : nA === nB ? newer : (nA > nB ? a : b);
     out.settings = JSON.parse(JSON.stringify(reglagesDe.settings));
     out.settingsAt = reglagesDe.settingsAt || null;
     // la leçon du jour : on garde celle qui est allée le plus loin
