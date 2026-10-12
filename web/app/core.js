@@ -327,6 +327,8 @@
     if (owner) J.S.owner = owner;
     J.refreshMods();
     J.refreshItems();
+    // la sauvegarde qu'on restaure fait foi, y compris pour les réglages
+    J.S.settingsAt = new Date().toISOString();
     J.save(true);
   };
 
