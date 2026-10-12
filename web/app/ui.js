@@ -258,6 +258,22 @@
   };
   const prenom = (u) => (u.name || u.email || "").split(/[\s@]/)[0];
 
+  /* Retour visuel d’une action faite : un 判子 s’imprime près du bouton,
+     légèrement de travers et jamais au même endroit — comme un vrai cachet. */
+  function tampon(el, txt) {
+    if (!el || !el.getBoundingClientRect) return;
+    const r = el.getBoundingClientRect();
+    const s = document.createElement("span");
+    s.className = "tampon";
+    s.textContent = txt;
+    s.style.setProperty("--r", (Math.random() * 26 - 13).toFixed(1) + "deg");
+    s.style.left = Math.round(r.right - 10) + "px";
+    s.style.top = Math.round(r.top + r.height / 2 - 22 + (Math.random() * 10 - 5)) + "px";
+    document.body.appendChild(s);
+    s.addEventListener("animationend", () => s.remove());
+    setTimeout(() => s.remove(), 2500);   // au cas où l’animation serait coupée
+  }
+
   const vRow = (v) => `<button class="vrow" data-act="open-item" data-m="v" data-id="${esc(v.id)}"><i class="dot lv${J.levelOf("v", v.id)}"></i><span class="jp w">${esc(v.w)}</span><span class="jp r">${esc(v.r)}</span><span class="mm">${esc(J.shortMeaning(J.mean("v", v)))}</span></button>`;
   const ttRow = (jp, tr, n, per) => `<li class="${n ? "" : "off"}"><span class="tt-jp">${jp}</span>${J.lang() === "ja" ? "" : `<span class="tt-fr">${tr}</span>`}
     ${per ? `<span class="tt-per">${per.map((x, i) => (x ? `<i class="m-${MOD_ORDER[i]}">${MODS[MOD_ORDER[i]].jp[0]}${x}</i>` : "")).join("")}</span>` : ""}<b>${n}</b></li>`;
@@ -729,6 +745,7 @@
       J.S.dayMult = null;
       J.save();
       render();
+      tampon(document.querySelector('[data-act="rebuild-lesson"]'), "済");
     },
     "lesson-start": startLesson,
     "set-mult": (d) => { J.setTodayMult(+d.n); render(); },
