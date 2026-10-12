@@ -698,19 +698,19 @@
   const A = {
     nav: (d) => { const v = d.v; if (v.startsWith("mod-")) J.go("mod", { m: v.slice(4) }); else J.go(v); },
     // le 語彙 n’existe que pour le profil francophone : la liste des modules suit la langue
-    "set-lang": (d) => { J.S.settings.lang = d.l; J.refreshMods(); J.save(); render(); },
-    "pick-lang": (d) => { J.S.settings.lang = d.l; J.S.langChosen = true; J.refreshMods(); J.save(); J.go(J.S.onboarded ? "settings" : "onboarding"); },
+    "set-lang": (d) => { J.S.settings.lang = d.l; J.refreshMods(); J.saveSettings(); render(); },
+    "pick-lang": (d) => { J.S.settings.lang = d.l; J.S.langChosen = true; J.refreshMods(); J.saveSettings(); J.go(J.S.onboarded ? "settings" : "onboarding"); },
     "toggle-mod": (d) => {
       const s = J.S.settings.mods, actifs = J.MODS_ALL.filter((m) => s[m] !== false);
       if (actifs.length === 1 && actifs[0] === d.m) return;   // on ne retire pas le dernier
       s[d.m] = s[d.m] === false;
-      J.refreshMods(); J.save(); render();
+      J.refreshMods(); J.saveSettings(); render();
     },
-    "set-exam": (d) => { J.S.settings.examDate = d.d; J.save(); render(); },
-    "set-dpw": (d) => { J.S.settings.daysPerWeek = +d.n; J.S.paceAck = null; J.save(); render(); },
-    "set-max": (d) => { J.S.settings.maxMinutes = +d.n; J.save(); render(); },
+    "set-exam": (d) => { J.S.settings.examDate = d.d; J.saveSettings(); render(); },
+    "set-dpw": (d) => { J.S.settings.daysPerWeek = +d.n; J.S.paceAck = null; J.saveSettings(); render(); },
+    "set-max": (d) => { J.S.settings.maxMinutes = +d.n; J.saveSettings(); render(); },
     "finish-onboard": () => { J.S.onboarded = true; J.save(true); J.go("home"); },
-    "pace-adapt": (d) => { J.S.settings.daysPerWeek = +d.n; J.S.paceAck = J.today(); J.save(); render(); },
+    "pace-adapt": (d) => { J.S.settings.daysPerWeek = +d.n; J.S.paceAck = J.today(); J.saveSettings(); render(); },
     "pace-keep": () => { J.S.paceAck = J.today(); J.save(); render(); },
     "lesson-start": startLesson,
     "set-mult": (d) => { J.setTodayMult(+d.n); render(); },
@@ -732,7 +732,7 @@
     "open-item": (d) => J.go("item", { m: d.m, id: d.id }),
     known: (d) => { J.markKnown(d.m, d.id); render(); },
     say: (d) => J.say(d.say),
-    quit: () => { if (R && R.type === "lesson") J.save(true); R = null; EX = null; J.go("home"); },
+    quit: () => { J.save(true); R = null; EX = null; J.go("home"); },
     "end-run": () => { R = null; EX = null; J.go("home"); },
     "learn-next": () => {
       const it = R.queue[R.pos];
@@ -811,7 +811,7 @@
     else if (k === "rate") s.rate = +t.value;
     else if (k === "finalDays") s.finalDays = Math.max(0, Math.min(60, +t.value || 0));
     else if (k.startsWith("test-")) s.tests[k.slice(5)] = Math.max(0, Math.min(30, +t.value || 0));
-    J.save(); render();
+    J.saveSettings(); render();
   });
   let searchTimer;
   app.addEventListener("input", (e) => {
