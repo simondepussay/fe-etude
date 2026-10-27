@@ -15,8 +15,6 @@ Trois profils au choix : **français**, **anglais** ou **日本語**. Le japonai
 | 語彙 | Les mots pour **lire** l’épreuve : vocabulaire du 擬似言語, tournures des énoncés, japonais courant. Relevé par Simon au fil des cours et des tests blancs. Glosé en français, donc proposé au seul profil francophone | 818 mots, 6 catégories |
 | 科目B | 16 points de méthode + 39 exercices, répartis en six catégories : プログラムの基本, データ構造, 探索と整列, 数値と文字列, オブジェクト指向, 情報セキュリティ. Chaque fiche porte son programme en 擬似言語, son explication, son déroulé pas à pas et son piège | 55 fiches, 110 QCM |
 
-**アルゴ劇場** (`/algo/`) : le programme, les variables, le tableau, le トレース表 et les compteurs avancent ensemble, une étape à la fois. Mode 予想する (deviner avant chaque ligne), 空欄, QCM, en japonais ou en anglais. Personnages d’encouragement dessinés en SVG (originaux). Trois algorithmes pour commencer : 最大値, バブルソート, 二分探索.
-
 Les modules s’activent et se désactivent dans *Réglages* et au premier lancement : on peut réviser le 科目A seul, le 科目B seul, ou tout.
 
 ## Comment ça marche

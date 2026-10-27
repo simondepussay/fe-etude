@@ -7,7 +7,6 @@
     "exclude": [
       "/app/*",
       "/data/*",
-      "/algo/*",
       "/*.html",
       "/*.json",
       "/api/*"
@@ -26,12 +25,6 @@
     },
     {
       "route": "/data/*",
-      "headers": {
-        "Cache-Control": "no-cache"
-      }
-    },
-    {
-      "route": "/algo/*",
       "headers": {
         "Cache-Control": "no-cache"
       }
