@@ -450,8 +450,21 @@ function suivant() {
   avancer();
 }
 
-function ouvrir(id) { const d = $(id); if (!d.open) d.showModal(); }
-function fermer() { document.querySelectorAll("dialog[open]").forEach(d => d.close()); }
+/* le panneau d'exercices n'est pas modal : il couvre les deux tiers droits et laisse le programme visible */
+function ouvrir(id) {
+  const d = $(id);
+  if (d.open) { if (d.classList.contains("panneau")) d.close(); return; }
+  if (d.classList.contains("panneau")) { majExosDonnees(); d.show(); } else d.showModal();
+}
+function majExosDonnees() {
+  const d = S.donnees;
+  $("#exos-donnees").innerHTML = `<b>${L("データ", "Data")}</b><code>a = {${esc(d.a.join(", "))}}</code>${d.x !== undefined ? `<code>x = ${esc(d.x)}</code>` : ""}<span class="muted">${L(`要素数 ${d.a.length}`, `${d.a.length} elements`)}</span><button class="petit" id="exos-changer">${ico("de")}${L("変更", "Change")}</button>`;
+  $("#exos-changer").addEventListener("click", () => ouvrir("#d-donnees"));
+}
+function fermer() {
+  const modale = (() => { try { return document.querySelector("dialog:modal"); } catch { return null; } })();
+  (modale ? [modale] : document.querySelectorAll("dialog[open]")).forEach(d => d.close());
+}
 /* à la fermeture, confettis et amies reviennent dans la page */
 document.querySelectorAll("dialog").forEach(d => d.addEventListener("close", () => {
   const cv = $("#confettis"); if (cv.parentNode !== document.body) document.body.prepend(cv);
@@ -480,7 +493,7 @@ function charger(algo, donnees, garder = false) {
   else if (S.attente !== null) S.attente = Math.min(S.attente, steps.length - 1);
   ecrire(CLE + "-dernier", algo.id);
   construireChoix(); construireIntro(); construireCode(); construireVars(); construireStage();
-  construireDonnees(); construireBlancs(); construireQcm();
+  construireDonnees(); construireBlancs(); construireQcm(); majExosDonnees();
   maj();
 }
 
@@ -508,6 +521,7 @@ $("#ouvrir-exos").addEventListener("click", () => ouvrir("#d-exos"));
 document.querySelectorAll("[data-fermer]").forEach(b => b.addEventListener("click", fermer));
 document.querySelectorAll("dialog").forEach(d => d.addEventListener("click", e => { if (e.target === d) fermer(); }));
 document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && $("#d-exos").open && !document.querySelector("#d-donnees[open]")) { $("#d-exos").close(); return; }
   if (document.querySelector("dialog[open]") || e.target.closest("input, select, textarea")) return;
   if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
     if (e.target.closest("button") && e.key !== "ArrowRight") return; /* Espace/Entrée sur un bouton : son propre clic */

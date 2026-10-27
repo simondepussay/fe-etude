@@ -18,7 +18,7 @@ function taille() { cv.width = innerWidth * devicePixelRatio; cv.height = innerH
 addEventListener("resize", taille); taille();
 
 /* Une <dialog> ouverte passe au-dessus de tout (top layer) : on s'y place pour rester visible. */
-function couche() { return document.querySelector("dialog[open]") || document.body; }
+function couche() { let d = null; try { d = document.querySelector("dialog:modal"); } catch {} return d || document.body; }
 function placer(el) { const c = couche(); if (el.parentNode !== c) c.appendChild(el); }
 
 function ajouter(x, y, n, force, haut) {
