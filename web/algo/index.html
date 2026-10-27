@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アルゴ劇場</title>
+<link rel="icon" href="../app/icone.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="algo.css">
+</head>
+<body>
+<canvas id="confettis" aria-hidden="true"></canvas>
+<div class="ecran">
+
+  <header class="haut">
+    <a class="retour" href="../" data-t-title="retour">←</a>
+    <h1 class="jp">アルゴ劇場</h1>
+    <nav id="choix" class="chips"></nav>
+    <div class="outils">
+      <div class="modes" id="modes">
+        <button data-mode="voir" class="mode" data-t="voir"></button>
+        <button data-mode="deviner" class="mode" data-t="deviner"></button>
+      </div>
+      <button class="petit" id="ouvrir-donnees" data-t="donnees"></button>
+      <button class="petit plein" id="ouvrir-exos" data-t="exos"></button>
+      <div class="modes langues" id="langues" aria-label="Language">
+        <button data-lang="ja" class="mode">日本語</button>
+        <button data-lang="en" class="mode">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <p id="intro" class="intro"></p>
+
+  <main class="scene">
+    <section class="carte code-carte">
+      <div class="titre-carte" data-t="t-code"></div>
+      <ol id="code" class="code"></ol>
+    </section>
+
+    <div class="milieu">
+      <section class="carte prof">
+        <svg class="loutre" id="loutre" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="24" cy="30" r="9" class="l-poil"/><circle cx="24" cy="30" r="4.5" class="l-creme"/>
+          <circle cx="76" cy="30" r="9" class="l-poil"/><circle cx="76" cy="30" r="4.5" class="l-creme"/>
+          <circle cx="50" cy="56" r="35" class="l-poil"/>
+          <ellipse cx="50" cy="68" rx="21" ry="15" class="l-creme"/>
+          <circle cx="29" cy="64" r="5.5" class="l-joue"/><circle cx="71" cy="64" r="5.5" class="l-joue"/>
+          <g class="l-yeux">
+            <circle cx="38" cy="52" r="4.6" class="l-noir"/><circle cx="62" cy="52" r="4.6" class="l-noir"/>
+            <circle cx="39.6" cy="50.4" r="1.5" fill="#fff"/><circle cx="63.6" cy="50.4" r="1.5" fill="#fff"/>
+          </g>
+          <ellipse cx="50" cy="61" rx="5.5" ry="3.8" class="l-noir"/>
+          <path d="M44 68 Q50 73 56 68" class="l-trait"/>
+          <path d="M33 66 L18 63 M33 69 L19 71 M67 66 L82 63 M67 69 L81 71" class="l-trait fin"/>
+        </svg>
+        <div id="bulle" class="bulle" aria-live="polite"></div>
+      </section>
+
+      <section class="carte">
+        <div class="titre-carte" data-t="t-vars"></div>
+        <div id="vars" class="vars"></div>
+      </section>
+
+      <section class="carte stage-carte">
+        <div class="titre-carte"><span data-t="t-arr"></span><span id="cible" class="cible"></span></div>
+        <div id="stage" class="stage"></div>
+      </section>
+    </div>
+
+    <div class="cote">
+      <section class="carte trace-carte">
+        <div class="titre-carte" data-t="t-trace"></div>
+        <div id="trace" class="trace-boite"></div>
+      </section>
+      <section class="carte">
+        <div class="titre-carte" data-t="t-cpt"></div>
+        <div id="compteurs" class="compteurs"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="commandes" role="toolbar">
+    <button id="b-debut" class="rond" data-t-title="debut">⏮</button>
+    <button id="b-arriere" class="rond" data-t-title="arriere">◀</button>
+    <button id="b-avant" class="suivant"></button>
+    <div class="avance">
+      <div class="barre-prog"><i id="prog"></i></div>
+      <span id="etape" class="etape"></span>
+    </div>
+    <span class="aide muted" data-t="aide"></span>
+  </footer>
+</div>
+
+<dialog id="d-donnees" class="fenetre">
+  <div class="fenetre-haut"><b data-t="donnees"></b><button class="fermer" data-fermer>✕</button></div>
+  <div id="donnees"></div>
+</dialog>
+
+<dialog id="d-exos" class="fenetre large">
+  <div class="fenetre-haut">
+    <div class="onglets" id="onglets">
+      <button data-onglet="blancs" data-t="o-blancs"></button>
+      <button data-onglet="qcm" data-t="o-qcm"></button>
+    </div>
+    <button class="fermer" data-fermer>✕</button>
+  </div>
+  <div id="o-blancs" class="onglet"></div>
+  <div id="o-qcm" class="onglet"></div>
+</dialog>
+
+<script src="algos.js"></script>
+<script src="fete.js"></script>
+<script src="moteur.js"></script>
+</body>
+</html>
