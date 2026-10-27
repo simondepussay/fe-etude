@@ -4,6 +4,10 @@
 "use strict";
 const calme = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* icône du jeu de symboles de la page */
+const ico = n => `<svg class="ico"><use href="#i-${n}"/></svg>`;
+const avecIcones = t => t.replace(/\{(\w+)\}/g, (m, n) => ico(n));
+
 /* ———————————— confettis ———————————— */
 const cv = document.getElementById("confettis");
 const ctx = cv.getContext("2d");
@@ -13,7 +17,12 @@ let parts = [], anim = null;
 function taille() { cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; }
 addEventListener("resize", taille); taille();
 
+/* Une <dialog> ouverte passe au-dessus de tout (top layer) : on s'y place pour rester visible. */
+function couche() { return document.querySelector("dialog[open]") || document.body; }
+function placer(el) { const c = couche(); if (el.parentNode !== c) c.appendChild(el); }
+
 function ajouter(x, y, n, force, haut) {
+  placer(cv);
   for (let k = 0; k < n; k++) {
     const ang = haut ? Math.PI / 2 + (Math.random() - .5) * .6 : -Math.PI / 2 + (Math.random() - .5) * 2.2;
     const v = force * (.45 + Math.random() * .75);
@@ -118,40 +127,40 @@ function dessin(a) {
 
 const PHRASES = {
   erreur: [
-    ["大丈夫！間違えたところが一番覚えるところだよ✨", "It’s okay! The mistakes are what you remember best ✨"],
-    ["おしい！次はきっと当たるよ💕", "So close! You’ll get the next one 💕"],
+    ["大丈夫！間違えたところが一番覚えるところだよ{eclat}", "It’s okay! The mistakes are what you remember best{eclat}"],
+    ["おしい！次はきっと当たるよ{coeur}", "So close! You’ll get the next one{coeur}"],
     ["ちょっと難しかったね。でもちゃんとできてるよ！", "That one was a bit hard. You’re still doing great!"],
-    ["間違えてもOK！トレース表を見てみよう📝", "Mistakes are fine! Take a look at the trace table 📝"],
+    ["間違えてもOK！トレース表を見てみよう{note}", "Mistakes are fine! Take a look at the trace table{note}"],
     ["ここ、みんな間違えるところだよ。気にしないで！", "Everyone trips on this one. Don’t worry!"],
-    ["深呼吸して、変数の箱をもう一回見てみよう🎀", "Deep breath, then look at the variable boxes again 🎀"],
+    ["深呼吸して、変数の箱をもう一回見てみよう{noeud}", "Deep breath, then look at the variable boxes again{noeud}"],
     ["失敗は成功のもと！がんばってるの、ちゃんと見てるよ", "Every mistake is a step forward! I can see how hard you’re trying"],
-    ["今のでひとつ賢くなったね⭐", "You just got a little smarter ⭐"],
+    ["今のでひとつ賢くなったね{etoile}", "You just got a little smarter{etoile}"],
     ["難しいけど、ちゃんと前に進んでるよ！", "It’s tough, but you’re really making progress!"],
     ["焦らなくていいよ。一行ずつ、一緒にいこう", "No rush. One line at a time, together"],
-    ["本番じゃなくてよかった〜！ここで覚えちゃおう💪", "Better here than on exam day! Let’s lock it in 💪"],
+    ["本番じゃなくてよかった〜！ここで覚えちゃおう{eclair}", "Better here than on exam day! Let’s lock it in{eclair}"],
     ["その考え方、半分は合ってたよ！あと少し！", "Your idea was half right! Almost there!"],
-    ["間違いは宝物。次の一問でとり返そう🌸", "Mistakes are treasure. Let’s win the next one 🌸"],
+    ["間違いは宝物。次の一問でとり返そう{fleur}", "Mistakes are treasure. Let’s win the next one{fleur}"],
     ["むずかしい所に挑戦してるってこと。えらい！", "It means you’re tackling the hard part. Proud of you!"]
   ],
   focus: [
-    ["集中、集中〜！いい感じだよ🎀", "Focus, focus! You’re doing nicely 🎀"],
+    ["集中、集中〜！いい感じだよ{noeud}", "Focus, focus! You’re doing nicely{noeud}"],
     ["いい調子！そのまま一行ずつね", "Good pace! Keep going one line at a time"],
-    ["今どの行にいるか、指でたどってみて☝️", "Try following the current line with your finger ☝️"],
+    ["今どの行にいるか、指でたどってみて{doigt}", "Try following the current line with your finger{doigt}"],
     ["変数の値、ちゃんと追えてる？えらい！", "Keeping track of the variables? Amazing!"],
-    ["疲れたら、ひと休みしてもいいからね☕", "If you’re tired, a little break is okay ☕"],
+    ["疲れたら、ひと休みしてもいいからね{tasse}", "If you’re tired, a little break is okay{tasse}"],
     ["このペースなら試験もばっちり！", "At this pace, the exam will go great!"],
-    ["次に何が起きるか、先に考えてからボタンを押してみて🤔", "Guess what happens next before you press the button 🤔"],
+    ["次に何が起きるか、先に考えてからボタンを押してみて{pense}", "Guess what happens next before you press the button{pense}"],
     ["ちょっと難しくても、ちゃんとできてるよ！", "Even when it’s hard, you’re doing super well!"]
   ],
   serie: [
-    ["連続正解！すごすぎ✨", "Right again and again! Amazing ✨"],
-    ["天才では…？👑", "Are you… a genius? 👑"],
-    ["完璧なトレース！その調子〜💕", "Perfect trace! Keep it up 💕"],
-    ["コンピューターの気持ちがわかってきたね🌟", "You’re starting to think like the computer 🌟"]
+    ["連続正解！すごすぎ{eclat}", "Right again and again! Amazing{eclat}"],
+    ["天才では…？{couronne}", "Are you… a genius?{couronne}"],
+    ["完璧なトレース！その調子〜{coeur}", "Perfect trace! Keep it up{coeur}"],
+    ["コンピューターの気持ちがわかってきたね{etoile}", "You’re starting to think like the computer{etoile}"]
   ],
   fin: [
-    ["最後までできたね！おつかれさま🎉", "You made it to the end! Well done 🎉"],
-    ["一周完走！もう一回やるともっと速くなるよ✨", "Full run done! Once more and you’ll be even faster ✨"]
+    ["最後までできたね！おつかれさま{fete}", "You made it to the end! Well done{fete}"],
+    ["一周完走！もう一回やるともっと速くなるよ{eclat}", "Full run done! Once more and you’ll be even faster{eclat}"]
   ]
 };
 
@@ -173,9 +182,9 @@ function amie(type, lang) {
   cote = -cote;
   const el = document.createElement("div");
   el.className = `amie ${cote > 0 ? "droite" : "gauche"}`;
-  el.innerHTML = `<div class="amie-bulle"><b>${a.nom[lang]}</b>${p[lang === "ja" ? 0 : 1]}</div>${dessin(a)}`;
+  el.innerHTML = `<div class="amie-bulle"><b>${a.nom[lang]}</b>${avecIcones(p[lang === "ja" ? 0 : 1])}</div>${dessin(a)}`;
   el.addEventListener("click", () => partir(el));
-  document.body.appendChild(el);
+  couche().appendChild(el);
   visible = el;
   const seq = [0, 1, 0, 1, 0, 2];   /* parle, parle, clin d'œil */
   let f = 0;
@@ -186,11 +195,12 @@ function amie(type, lang) {
   return true;
 }
 function partir(el) {
-  if (!el.isConnected || el.classList.contains("part")) return;
+  if (!el.isConnected) { clearInterval(el._frames); if (visible === el) visible = null; return; }
+  if (el.classList.contains("part")) return;
   clearInterval(el._frames); el.dataset.f = 0;
   el.classList.remove("la"); el.classList.add("part");
   setTimeout(() => { el.remove(); if (visible === el) visible = null; }, 600);
 }
 
-window.FETE = { confettis, pluie, amie };
+window.FETE = { confettis, pluie, amie, ico };
 })();

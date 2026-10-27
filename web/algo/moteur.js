@@ -29,10 +29,11 @@ function langueInitiale() {
 }
 let LANG = langueInitiale();
 const L = (ja, en) => (LANG === "ja" ? ja : en);
+const ico = n => `<svg class="ico"><use href="#i-${n}"/></svg>`;
 
 const UI = {
   ja: {
-    voir: "👀 見る", deviner: "🤔 予想する", donnees: "🎲 データ", exos: "✏️ 練習",
+    voir: ico("oeil") + "見る", deviner: ico("pense") + "予想する", donnees: ico("de") + "データ", exos: ico("crayon") + "練習",
     "t-code": '<span class="jp">擬似言語</span>', "t-vars": '<span class="jp">変数</span>', "t-arr": '<span class="jp">配列</span> a',
     "t-trace": '<span class="jp">トレース表</span>', "t-cpt": '<span class="jp">回数</span>',
     aide: "<kbd>→</kbd> <kbd>Space</kbd> 進む · <kbd>←</kbd> 戻る",
@@ -40,7 +41,7 @@ const UI = {
     "o-blancs": '<span class="jp">空欄</span> · コードを完成させる', "o-qcm": '<span class="jp">確認</span> · 確認問題'
   },
   en: {
-    voir: "👀 Watch", deviner: "🤔 Predict", donnees: "🎲 Data", exos: "✏️ Practice",
+    voir: ico("oeil") + "Watch", deviner: ico("pense") + "Predict", donnees: ico("de") + "Data", exos: ico("crayon") + "Practice",
     "t-code": '<span class="jp">擬似言語</span> · program', "t-vars": '<span class="jp">変数</span> · variables', "t-arr": '<span class="jp">配列</span> · array a',
     "t-trace": '<span class="jp">トレース表</span> · trace table', "t-cpt": '<span class="jp">回数</span> · cost',
     aide: "<kbd>→</kbd> <kbd>Space</kbd> next · <kbd>←</kbd> back",
@@ -93,7 +94,8 @@ function enregistrer(algo, donnees) {
       steps.push({
         line, msg, v: vs, arr: arr.slice(), c: { ...c }, fixe: fixe.slice(), changed,
         look: o.look || [], cmp: o.cmp || [], ecrit: o.ecrit || [], trouve: o.trouve || [],
-        row: o.row ? algo.ligne(vs, a, arr.slice(), o, L).map(x => (x === undefined ? "—" : x)) : null,
+        live: algo.ligne(vs, a, arr.slice(), o, L).map(x => (x === undefined ? "—" : String(x))),
+        row: !!o.row,
         q, fin: !!o.fin
       });
     }
@@ -116,7 +118,7 @@ function construireChoix() {
   const scores = lire(CLE, {});
   $("#choix").innerHTML = ALGOS.map(al => {
     const s = scores[al.id];
-    const et = s === undefined ? "" : `<span class="etoiles">${s >= .9 ? "★★★" : s >= .7 ? "★★" : "★"}</span>`;
+    const et = s === undefined ? "" : `<span class="etoiles">${ico("etoile").repeat(s >= .9 ? 3 : s >= .7 ? 2 : 1)}</span>`;
     return `<button class="chip${al === S.algo ? " actif" : ""}" data-id="${al.id}" title="${esc(al.en)}"><span class="cat">${al.cat}</span><span class="jp">${esc(al.jp)}</span>${et}</button>`;
   }).join("");
 }
@@ -155,7 +157,7 @@ function construireDonnees() {
       <label for="d-a">a =</label><input id="d-a" class="a" value="${esc(d.a.join(", "))}" inputmode="numeric">
       ${d.x !== undefined ? `<label for="d-x">x =</label><input id="d-x" class="x" value="${esc(d.x)}" inputmode="numeric">` : ""}
       <button class="petit plein" id="d-ok">${L("適用", "Apply")}</button>
-      <button class="petit" id="d-hasard">🎲 ${L("ランダム", "Random")}</button>
+      <button class="petit" id="d-hasard">${ico("de")}${L("ランダム", "Random")}</button>
       <button class="petit" id="d-defaut">${L("例に戻す", "Example")}</button>
     </div>
     <p class="erreur" id="d-err"></p>
@@ -241,8 +243,8 @@ function maj() {
   $("#etape").textContent = L(`ステップ ${S.cur + 1} / ${S.steps.length}`, `step ${S.cur + 1} / ${S.steps.length}`);
   const b = $("#b-avant");
   b.disabled = S.attente !== null && !S.retour;
-  b.innerHTML = S.attente !== null ? (S.retour ? L("この行を実行 ▶", "Run the line ▶") : L("先に答えてね 🤔", "Answer first 🤔"))
-    : S.cur >= S.steps.length - 1 ? L("↺ もう一度", "↺ Restart") : L("次へ ▶", "Next step ▶");
+  b.innerHTML = S.attente !== null ? (S.retour ? L("この行を実行", "Run the line") + ico("play") : ico("pense") + L("先に答えてね", "Answer first"))
+    : S.cur >= S.steps.length - 1 ? ico("encore") + L("もう一度", "Restart") : L("次へ", "Next step") + ico("play");
   $("#b-arriere").disabled = S.cur === 0 && S.attente === null;
 }
 
@@ -345,21 +347,29 @@ function majBulle(st) {
     html += `<div class="verdict ${r >= .7 ? "ok" : "ko"}">${r >= .9 ? '<span class="hanamaru">花丸</span>' : ""}${L(`予想：${bons} / ${tot}。`, `Predictions: ${bons} / ${tot}. `)}${
       r >= .9 ? L("コンピューターと同じように読めているね！", "You read this program just like the computer!")
       : r >= .7 ? L("あと少し！もう一度やって花丸をねらおう。", "Almost! Play again and go for the 花丸.")
-      : L("一度 👀 見る モードで見てから、もう一回やってみよう。", "Watch it once in 👀 Watch mode, then try again.")}</div>`;
+      : L(`一度 ${ico("oeil")}見る モードで見てから、もう一回やってみよう。`, `Watch it once in ${ico("oeil")}Watch mode, then try again.`)}</div>`;
   } else if (st.fin) {
-    html += `<div class="verdict ok">${L("プログラム終了！次は 🤔 予想する モードで、大事な行の前に「次に何が起きるか」を当ててみよう。", "End of the program! Now try 🤔 Predict mode: before each key line, guess what happens next.")}</div>`;
+    html += `<div class="verdict ok">${L(`プログラム終了！次は ${ico("pense")}予想する モードで、大事な行の前に「次に何が起きるか」を当ててみよう。`, `End of the program! Now try ${ico("pense")}Predict mode: before each key line, guess what happens next.`)}</div>`;
   }
   b.innerHTML = html;
 }
 
+/* Le トレース表 suit chaque étape : les lignes terminées, puis une ligne « en cours »
+   qui montre l'état actuel (cellules modifiées surlignées) jusqu'à ce que le tour soit noté. */
 function majTrace() {
-  const al = S.algo, th = al.trace(L);
+  const al = S.algo, th = al.trace(L), st = S.steps[S.cur];
   const rows = [];
-  for (let k = 0; k <= S.cur; k++) if (S.steps[k].row) rows.push([S.steps[k].row, k === S.cur]);
+  for (let k = 0; k <= S.cur; k++) if (S.steps[k].row) rows.push({ cells: S.steps[k].live, neuf: k === S.cur });
+  const dernier = rows.length ? rows[rows.length - 1].cells : null;
+  const enCours = !st.row && S.cur > 0 && (!dernier || st.live.some((c, k) => c !== dernier[k]));
+  const prev = S.steps[S.cur - 1];
+  const ligneHtml = (cells, cls, avant) => `<tr class="${cls}">${cells.map((c, k) =>
+    `<td${avant && avant[k] !== c ? ' class="chg"' : ""}>${esc(c)}</td>`).join("")}</tr>`;
+  let body = rows.map((r, k) => ligneHtml(r.cells, r.neuf ? "neuf" : "", r.neuf ? (rows[k - 1] ? rows[k - 1].cells : null) : null)).join("");
+  if (enCours) body += ligneHtml(st.live, "live", prev ? prev.live : null);
+  if (!body) body = `<tr class="vide"><td colspan="${th.length}">${L("ステップごとに表が埋まっていくよ。", "The table fills in at every step.")}</td></tr>`;
   const boite = $("#trace");
-  boite.innerHTML = `<table class="trace"><thead><tr>${th.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead>
-    <tbody>${rows.length ? rows.map(([r, neuf]) => `<tr${neuf ? ' class="neuf"' : ""}>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")
-      : `<tr class="vide"><td colspan="${th.length}">${L("ループのたびに1行ずつ増えるよ。", "A row is added at each loop.")}</td></tr>`}</tbody></table>`;
+  boite.innerHTML = `<table class="trace"><thead><tr>${th.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table>`;
   boite.scrollTop = boite.scrollHeight;
 }
 
@@ -442,6 +452,11 @@ function suivant() {
 
 function ouvrir(id) { const d = $(id); if (!d.open) d.showModal(); }
 function fermer() { document.querySelectorAll("dialog[open]").forEach(d => d.close()); }
+/* à la fermeture, confettis et amies reviennent dans la page */
+document.querySelectorAll("dialog").forEach(d => d.addEventListener("close", () => {
+  const cv = $("#confettis"); if (cv.parentNode !== document.body) document.body.prepend(cv);
+  d.querySelectorAll(".amie").forEach(a => a.remove());
+}));
 
 function choisirMode(m) {
   S.mode = m; S.repondu.clear(); S.serie = 0;

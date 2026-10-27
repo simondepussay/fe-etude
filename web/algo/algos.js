@@ -116,7 +116,7 @@ window.ALGOS = [
   pointeurs: { i: "var(--matcha)", j: "var(--shu)" },
   compteurs: ["cmp", "swap", "aff"],
   trace: L => ["i", "j", "a[j] > a[j+1]", L("交換", "swap"), L("実行後の a", "a after")],
-  ligne: (v, a, arr, o, L) => [v.i, v.j, o.ok ? L("真", "true") : L("偽", "false"), o.ok ? "✓" : "–", arr.join("  ")],
+  ligne: (v, a, arr, o, L) => [v.i ?? "—", v.j ?? "—", o.ok === undefined ? "—" : o.ok ? L("真", "true") : L("偽", "false"), o.ok === undefined ? "—" : o.ok ? "✓" : "–", arr.join("  ")],
   run(T) {
     const v = T.v, L = T.L;
     T.step(1, L(`a = {${T.liste()}} を引数として bubble を呼び出す。配列はその場で整列される。`,
@@ -210,7 +210,7 @@ window.ALGOS = [
   zone: v => (v.low === undefined ? null : [v.low, v.high]),
   compteurs: ["cmp"],
   trace: L => ["low", "high", "mid", "a[mid]", "a[mid] ? x"],
-  ligne: (v, a, arr, o) => [v.low, v.high, v.mid, a(v.mid), o.signe],
+  ligne: (v, a, arr, o) => [v.low ?? "—", v.high ?? "—", v.mid ?? "—", v.mid ? a(v.mid) : "—", o.signe ?? "—"],
   run(T) {
     const v = T.v, L = T.L;
     v.x = T.x;
