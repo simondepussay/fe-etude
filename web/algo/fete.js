@@ -152,8 +152,36 @@ const PHRASES = {
     ["次に何が起きるか、先に考えてからボタンを押してみて{pense}", "Guess what happens next before you press the button{pense}"],
     ["ちょっと難しくても、ちゃんとできてるよ！", "Even when it’s hard, you’re doing super well!"]
   ],
+  bravo: [
+    ["正解！ちゃんと読めてるね{eclat}", "Correct! You’re reading it perfectly{eclat}"],
+    ["すごい！その調子{coeur}", "Amazing! Keep it up{coeur}"],
+    ["ばっちり！コンピューターと同じ答えだよ", "Spot on! Same answer as the computer"],
+    ["やったね！{fleur}", "You did it!{fleur}"],
+    ["いいね〜！変数の動き、ちゃんと見えてる", "Nice! You can really see the variables move"],
+    ["さすが！{etoile}", "As expected of you!{etoile}"],
+    ["正解！一行ずつ考えたのがえらい", "Correct! Thinking line by line pays off"],
+    ["わあ、完璧！{eclat}", "Wow, perfect!{eclat}"],
+    ["その読み方、試験でもそのまま使えるよ", "That way of reading works just the same in the exam"],
+    ["合ってる！自信もっていいよ{noeud}", "Right! You can be confident{noeud}"],
+    ["当たり！トレース、上手になってきたね", "Got it! Your tracing is getting really good"],
+    ["正解〜！楽しくなってきた？{coeur}", "Correct! Starting to have fun?{coeur}"],
+    ["えらい！むずかしい行もクリア", "Well done! Even the tricky line is cleared"],
+    ["ナイス！次もこの調子でいこう", "Nice! Let’s keep this pace for the next one"],
+    ["正解！頭の中で配列が動いてるね{eclat}", "Correct! The array is moving in your head{eclat}"],
+    ["すてき！ちゃんと理解できてる証拠だよ", "Lovely! That shows you really understand"],
+    ["よくできました！{fleur}", "Very well done!{fleur}"],
+    ["正解！迷わず答えられたね", "Correct! No hesitation at all"],
+    ["いい感じ！ゴールが見えてきたよ{etoile}", "Looking good! The finish line is in sight{etoile}"],
+    ["それそれ！その考え方が大事なの", "That’s it! That way of thinking is what matters"],
+    ["正解！先生より速いかも？{eclair}", "Correct! Faster than the teacher, maybe?{eclair}"],
+    ["ちゃんと追えてる！ほんとにえらい{coeur}", "You’re keeping up perfectly! So proud of you{coeur}"]
+  ],
   serie: [
     ["連続正解！すごすぎ{eclat}", "Right again and again! Amazing{eclat}"],
+    ["3問連続！止まらないね{eclair}", "Three in a row! You’re unstoppable{eclair}"],
+    ["連続正解！今日のあなた、最強かも{couronne}", "Another streak! You might be unbeatable today{couronne}"],
+    ["また正解！もうアルゴリズムの先生だね{eclat}", "Right again! You’re basically the algorithm teacher now{eclat}"],
+    ["連続記録、更新中！{fete}", "Your streak keeps growing!{fete}"],
     ["天才では…？{couronne}", "Are you… a genius?{couronne}"],
     ["完璧なトレース！その調子〜{coeur}", "Perfect trace! Keep it up{coeur}"],
     ["コンピューターの気持ちがわかってきたね{etoile}", "You’re starting to think like the computer{etoile}"]
@@ -166,13 +194,25 @@ const PHRASES = {
 
 let visible = null, dernier = 0, cote = 1, derniereAmie = -1, dernierePhrase = {};
 function choisir(arr, cle) {
-  let k; do { k = Math.floor(Math.random() * arr.length); } while (arr.length > 1 && k === dernierePhrase[cle]);
-  dernierePhrase[cle] = k; return arr[k];
+  const recentes = dernierePhrase[cle] || (dernierePhrase[cle] = []);
+  const memoire = Math.min(6, arr.length - 1);
+  let k; do { k = Math.floor(Math.random() * arr.length); } while (recentes.includes(k));
+  recentes.push(k); while (recentes.length > memoire) recentes.shift();
+  return arr[k];
 }
 
 /* type : "erreur" | "focus" | "serie" | "fin" · lang : "ja" | "en" */
 function amie(type, lang) {
-  if (visible || calme && type === "focus") return false;
+  if (calme && type === "focus") return false;
+  if (visible) {
+    if (type === "focus" || !visible.isConnected || visible.classList.contains("part")) return false;
+    const p = choisir(PHRASES[type], type), bulle = visible.querySelector(".amie-bulle");
+    bulle.innerHTML = `<b>${visible._nom[lang]}</b>${avecIcones(p[lang === "ja" ? 0 : 1])}`;
+    bulle.style.animation = "none"; void bulle.offsetWidth; bulle.style.animation = "";
+    clearTimeout(visible._depart);
+    const el = visible; el._depart = setTimeout(() => partir(el), 3600 + p[0].length * 40);
+    return true;
+  }
   const now = Date.now();
   if (type === "focus" && now - dernier < 25000) return false;
   dernier = now;
@@ -183,6 +223,7 @@ function amie(type, lang) {
   const el = document.createElement("div");
   el.className = `amie ${cote > 0 ? "droite" : "gauche"}`;
   el.innerHTML = `<div class="amie-bulle"><b>${a.nom[lang]}</b>${avecIcones(p[lang === "ja" ? 0 : 1])}</div>${dessin(a)}`;
+  el._nom = a.nom;
   el.addEventListener("click", () => partir(el));
   couche().appendChild(el);
   visible = el;
@@ -191,7 +232,7 @@ function amie(type, lang) {
   el.dataset.f = 0;
   if (!calme) el._frames = setInterval(() => { f = (f + 1) % seq.length; el.dataset.f = seq[f]; }, 260);
   setTimeout(() => el.classList.add("la"), 40 + Math.random() * 250);
-  setTimeout(() => partir(el), 4200 + p[0].length * 40);
+  el._depart = setTimeout(() => partir(el), 4200 + p[0].length * 40);
   return true;
 }
 function partir(el) {

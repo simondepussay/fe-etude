@@ -203,7 +203,7 @@ function brancherExo(ex, bon, expl) {
     const e = ex.querySelector(".expl"); e.hidden = false;
     e.innerHTML = `<b class="${ok ? "good" : "bad"}">${ok ? L("正解！", "Correct! ") : L("おしい。", "Not quite. ")}</b>${esc(expl)}`;
     humeur(ok ? "joie" : "oups");
-    if (ok) FETE.confettis(btn, 40); else FETE.amie("erreur", LANG);
+    if (ok) { FETE.confettis(btn, 40); FETE.amie("bravo", LANG); } else FETE.amie("erreur", LANG);
   }));
 }
 
@@ -415,7 +415,7 @@ function repondre(c, btn) {
   if (ok) {
     S.serie++;
     FETE.confettis(btn, 28);
-    if (S.serie % 4 === 0) FETE.amie("serie", LANG);
+    FETE.amie(S.serie >= 3 && S.serie % 3 === 0 ? "serie" : "bravo", LANG);
   } else {
     S.serie = 0;
     FETE.amie("erreur", LANG);
